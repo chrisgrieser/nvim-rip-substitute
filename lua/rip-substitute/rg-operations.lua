@@ -91,9 +91,9 @@ local function onEachRgResultInViewport(rgArgs, callback)
 		:each(callback)
 end
 
-function M.highlightMatches()
+function M.incrementalPreview()
 	local state = require("rip-substitute.state").state
-	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.matchHlNs, 0, -1)
+	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
 	local toSearch, toReplace = getSearchAndReplace()
 	if toSearch == "" then return end
 
@@ -103,7 +103,7 @@ function M.highlightMatches()
 		local endCol = result.col + #result.text
 		vim.api.nvim_buf_add_highlight(
 			state.targetBuf,
-			state.matchHlNs,
+			state.incPreviewNs,
 			toReplace == "" and "IncSearch" or "LspInlayHint",
 			result.lnum,
 			result.col,
@@ -118,7 +118,7 @@ function M.highlightMatches()
 		local virtText = { result.text, "IncSearch" }
 		vim.api.nvim_buf_set_extmark(
 			state.targetBuf,
-			state.matchHlNs,
+			state.incPreviewNs,
 			result.lnum,
 			result.col,
 			{ virt_text = { virtText }, virt_text_pos = "inline" }

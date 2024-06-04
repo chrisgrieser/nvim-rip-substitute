@@ -36,7 +36,7 @@ local function closePopupWin()
 	if vim.api.nvim_buf_is_valid(state.popupBufNr) then
 		vim.api.nvim_buf_delete(state.popupBufNr, { force = true })
 	end
-	vim.api.nvim_buf_clear_namespace(0, state.matchHlNs, 0, -1)
+	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
 end
 
 function M.substitute()
@@ -47,7 +47,7 @@ function M.substitute()
 		targetBuf = vim.api.nvim_get_current_buf(),
 		targetWin = vim.api.nvim_get_current_win(),
 		labelNs = vim.api.nvim_create_namespace("rip-substitute-labels"),
-		matchHlNs = vim.api.nvim_create_namespace("rip-substitute-match-hls"),
+		incPreviewNs = vim.api.nvim_create_namespace("rip-substitute-incpreview"),
 		targetFile = vim.api.nvim_buf_get_name(0),
 		popupBufNr = -999, -- placeholder value
 		popupWinNr = -999, -- placeholder value
@@ -109,7 +109,7 @@ function M.substitute()
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			ensureOnly2LinesInPopup()
-			rg.highlightMatches()
+			rg.incrementalPreview()
 			setPopupLabels()
 		end,
 	})

@@ -7,7 +7,7 @@ local M = {}
 ---@field popupBufNr number
 ---@field popupWinNr number
 ---@field labelNs number
----@field matchHlNs number
+---@field incPreviewNs number
 M.state = {}
 
 ---@param newState ripSubstituteState
