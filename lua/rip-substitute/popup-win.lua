@@ -28,6 +28,17 @@ local function ensureOnly2LinesInPopup()
 	vim.cmd.normal { "zb", bang = true } -- enforce scroll position
 end
 
+local function closePopupWin()
+	local state = require("rip-substitute.state").state
+	if vim.api.nvim_win_is_valid(state.popupWinNr) then
+		vim.api.nvim_win_close(state.popupWinNr, true)
+	end
+	if vim.api.nvim_buf_is_valid(state.popupBufNr) then
+		vim.api.nvim_buf_delete(state.popupBufNr, { force = true })
+	end
+	vim.api.nvim_buf_clear_namespace(0, state.matchHlNs, 0, -1)
+end
+
 function M.substitute()
 	-- IMPORTS & INITIALIZATION
 	local rg = require("rip-substitute.rg-operations")
@@ -39,6 +50,7 @@ function M.substitute()
 		matchHlNs = vim.api.nvim_create_namespace("rip-substitute-match-hls"),
 		targetFile = vim.api.nvim_buf_get_name(0),
 		popupBufNr = -999, -- placeholder value
+		popupWinNr = -999, -- placeholder value
 	}
 	local state = require("rip-substitute.state").state
 
@@ -62,11 +74,9 @@ function M.substitute()
 	local scrollbarOffset = 3
 
 	-- CREATE WINDOW
-	local footerStr = ("%s: Confirm   %s: Abort"):format(
-		config.keymaps.confirm,
-		config.keymaps.abort
-	)
-	local popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
+	local maps = config.keymaps
+	local footerStr = ("%s: Confirm   %s: Abort"):format(maps.confirm, maps.abort)
+	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
 		row = vim.api.nvim_win_get_height(0) - 4,
 		col = vim.api.nvim_win_get_width(0) - config.popupWin.width - scrollbarOffset - 2,
@@ -88,7 +98,7 @@ function M.substitute()
 		scrolloff = 0,
 	}
 	for key, value in pairs(winOpts) do
-		vim.api.nvim_set_option_value(key, value, { win = popupWinNr })
+		vim.api.nvim_set_option_value(key, value, { win = state.popupWinNr })
 	end
 	vim.cmd.startinsert { bang = true }
 
@@ -104,22 +114,6 @@ function M.substitute()
 		end,
 	})
 
-	-- POPUP CLOSING
-	local function closePopupWin()
-		if vim.api.nvim_win_is_valid(popupWinNr) then vim.api.nvim_win_close(popupWinNr, true) end
-		if vim.api.nvim_buf_is_valid(state.popupBufNr) then
-			vim.api.nvim_buf_delete(state.popupBufNr, { force = true })
-		end
-		vim.api.nvim_buf_clear_namespace(0, state.matchHlNs, 0, -1)
-	end
-	-- also close the popup on leaving buffer, ensures there is not leftover
-	-- buffer when user closes popup in a different way, such as `:close`.
-	vim.api.nvim_create_autocmd("BufLeave", {
-		buffer = state.popupBufNr,
-		group = vim.api.nvim_create_augroup("rip-substitute-popup-leave", {}),
-		callback = closePopupWin,
-	})
-
 	-- KEYMAPS
 	vim.keymap.set(
 		{ "n", "x" },
@@ -131,6 +125,14 @@ function M.substitute()
 		rg.executeSubstitution()
 		closePopupWin()
 	end, { buffer = state.popupBufNr, nowait = true })
+
+	-- also close the popup on leaving buffer, ensures there is not leftover
+	-- buffer when user closes popup in a different way, such as `:close`.
+	vim.api.nvim_create_autocmd("BufLeave", {
+		buffer = state.popupBufNr,
+		group = vim.api.nvim_create_augroup("rip-substitute-popup-leave", {}),
+		callback = closePopupWin,
+	})
 end
 
 --------------------------------------------------------------------------------

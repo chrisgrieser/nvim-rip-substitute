@@ -4,9 +4,10 @@ local M = {}
 ---@field targetBuf number
 ---@field targetWin number
 ---@field targetFile string
+---@field popupBufNr number
+---@field popupWinNr number
 ---@field labelNs number
 ---@field matchHlNs number
----@field popupBufNr number
 M.state = {}
 
 ---@param newState ripSubstituteState

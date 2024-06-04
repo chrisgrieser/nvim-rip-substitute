@@ -28,7 +28,7 @@ local defaultConfig = {
 }
 M.config = defaultConfig
 
----@param userConfig ripSubstituteConfig
+---@param userConfig? ripSubstituteConfig
 function M.setup(userConfig) M.config = vim.tbl_deep_extend("force", M.config, userConfig or {}) end
 
 --------------------------------------------------------------------------------
