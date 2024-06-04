@@ -9,4 +9,7 @@ local M = {}
 ---@field rgBuf number
 M.state = {}
 
+---@param newState ripSubstituteState
+function M.new(newState) M.state = newState end
+
 return M

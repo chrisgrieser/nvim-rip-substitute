@@ -29,10 +29,11 @@ local function rgBufEnsureOnly2Lines()
 end
 
 function M.substitute()
-	local state = require("rip-substitute.state").state
+	-- imports & setup
 	local rg = require("rip-substitute.rg-operations")
 	local config = require("rip-substitute.config").config
-	state = {
+	local state = require("rip-substitute.state").state
+	require("rip-substitute.state").new {
 		targetBuf = vim.api.nvim_get_current_buf(),
 		targetWin = vim.api.nvim_get_current_win(),
 		labelNs = vim.api.nvim_create_namespace("rip-substitute-virttext"),
@@ -40,7 +41,6 @@ function M.substitute()
 		targetFile = vim.api.nvim_buf_get_name(0),
 		rgBuf = -999,
 	}
-	local augroup = vim.api.nvim_create_augroup("rip-substitute", { clear = true })
 
 	-- PREFILL
 	local prefill = ""
@@ -96,7 +96,7 @@ function M.substitute()
 	setRgBufLabels()
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		buffer = state.rgBuf,
-		group = augroup,
+		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			rgBufEnsureOnly2Lines()
 			rg.highlightMatches()
@@ -116,7 +116,7 @@ function M.substitute()
 	-- buffer when user closes popup in a different way, such as `:close`.
 	vim.api.nvim_create_autocmd("BufLeave", {
 		buffer = state.rgBuf,
-		group = augroup,
+		group = vim.api.nvim_create_augroup("rip-substitute-popup-leave", {}),
 		callback = closeRgWin,
 	})
 

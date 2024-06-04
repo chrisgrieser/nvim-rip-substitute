@@ -8,6 +8,10 @@
 
 A modern substitute for vim's `:substitute` using `ripgrep`.
 
+> [!WARNING]
+> This plugin is still in early development and should therefore be considered
+> experimental. It's features and options are subject to change without notice.
+
 <!-- toc -->
 
 - [Features](#features)
@@ -15,7 +19,7 @@ A modern substitute for vim's `:substitute` using `ripgrep`.
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [Limitations](#limitations)
-- [Credits](#credits)
+- [About the developer](#about-the-developer)
 
 <!-- tocstop -->
 
@@ -28,6 +32,14 @@ A modern substitute for vim's `:substitute` using `ripgrep`.
 -- lazy.nvim
 {
 	"chrisgrieser/rip-substitute",
+	keys = {
+		{
+			"<leader>fs",
+			function() require("rip-substitute").sub() end,
+			mode = { "n", "x" },
+			desc = " rip substitute",
+		},
+	},
 },
 
 -- packer
@@ -40,25 +52,47 @@ use {
 
 ```lua
 -- default settings
-require("rip-substitute").setup ({
-
-})
+require("rip-substitute").setup {
+	window = {
+		width = 40,
+		border = "single",
+	},
+	keymaps = {
+		confirm = "<CR>",
+		abort = "q",
+	},
+	regexOptions = {
+		-- enables lookarounds and backreferences, but slower performance
+		pcre2 = true,
+		-- By default, rg treats `$1a` as the named capture group "1a". When set
+		-- to `true`, and `$1a` is automatically changed to `${1}a` to ensure the
+		-- capture group is correctly determined. Disable this setting, if you
+		-- plan an using named capture groups.
+		autoBraceSimpleCaptureGroups = true,
+	},
+	prefill = {
+		normal = "cursorword", -- "cursorword"|false
+		visual = "selectionFirstLine", -- "selectionFirstLine"|false
+	},
+	notificationOnSuccess = true,
+}
 ```
 
-## Usage
-- …
+```lua
+require("rip-substitute").sub()
+```
 
 ## Limitations
-- …
+- `--multiline` is not supported yet.
+- Various flags are not supported yet.
 
-## About the developer
 <!-- vale Google.FirstPerson = NO -->
+## About the developer
 In my day job, I am a sociologist studying the social mechanisms underlying the
 digital economy. For my PhD project, I investigate the governance of the app
 economy and how software ecosystems manage the tension between innovation and
 compatibility. If you are interested in this subject, feel free to get in touch.
 
-__Blog__  
 I also occasionally blog about vim: [Nano Tips for Vim](https://nanotipsforvim.prose.sh)
 
 - [Academic Website](https://chris-grieser.de/)

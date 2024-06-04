@@ -1,9 +1,9 @@
 local M = {}
-local state = require("rip-substitute.state").state
 local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
 function M.executeSubstitution()
+	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
 	local toSearch, toReplace = u.getSearchAndReplace()
 
@@ -43,8 +43,11 @@ local function onEachRgResultInViewport(rgArgs, callback)
 	local rgResult = u.runRipgrep(rgArgs)
 	if rgResult.code ~= 0 then return end
 	local rgLines = vim.split(vim.trim(rgResult.stdout), "\n")
+
+	local state = require("rip-substitute.state").state
 	local viewportStart = vim.fn.line("w0", state.targetWin)
 	local viewportEnd = vim.fn.line("w$", state.targetWin)
+
 	vim.iter(rgLines)
 		:filter(function(line) -- PERF only in viewport
 			local lnum = tonumber(line:match("^(%d+):"))
@@ -62,6 +65,7 @@ local function onEachRgResultInViewport(rgArgs, callback)
 end
 
 function M.highlightMatches()
+	local state = require("rip-substitute.state").state
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.matchHlNs, 0, -1)
 	local toSearch, toReplace = u.getSearchAndReplace()
 	if toSearch == "" then return end
