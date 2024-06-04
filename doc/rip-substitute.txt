@@ -3,17 +3,17 @@
 ==============================================================================
 Table of Contents                           *rip-substitute-table-of-contents*
 
-1. rip-substitute                              |rip-substitute-rip-substitute|
-  - Features                          |rip-substitute-rip-substitute-features|
-  - Installation                  |rip-substitute-rip-substitute-installation|
-  - Configuration                |rip-substitute-rip-substitute-configuration|
-  - Limitations                    |rip-substitute-rip-substitute-limitations|
-  - About the developer    |rip-substitute-rip-substitute-about-the-developer|
+1. rip-substitute                             |rip-substitute-rip-substitute-|
+  - Features                         |rip-substitute-rip-substitute--features|
+  - Installation                 |rip-substitute-rip-substitute--installation|
+  - Configuration               |rip-substitute-rip-substitute--configuration|
+  - Limitations                   |rip-substitute-rip-substitute--limitations|
+  - About the developer   |rip-substitute-rip-substitute--about-the-developer|
 
 ==============================================================================
-1. rip-substitute                              *rip-substitute-rip-substitute*
+1. rip-substitute                             *rip-substitute-rip-substitute-*
 
-A modern substitute for vim’s `:substitute` using `ripgrep`.
+Amodern substitute for vim’s `:substitute` using `ripgrep`.
 
 
   [!WARNING] This plugin is still in early development and should therefore be
@@ -27,7 +27,7 @@ A modern substitute for vim’s `:substitute` using `ripgrep`.
 - |rip-substitute-about-the-developer|
 
 
-FEATURES                              *rip-substitute-rip-substitute-features*
+FEATURES                             *rip-substitute-rip-substitute--features*
 
 - Search and replace using `ripgrep` – no more esoteric vim regex to learn.
 - Incremental preview of matches and replacements.
@@ -42,7 +42,7 @@ FEATURES                              *rip-substitute-rip-substitute-features*
 - Notification on how many replacements were made (optional).
 
 
-INSTALLATION                      *rip-substitute-rip-substitute-installation*
+INSTALLATION                     *rip-substitute-rip-substitute--installation*
 
 **Requirements** - `ripgrep` - nvim >= 0.10 - `:TSInstall regex` (optional, but
 recommended)
@@ -68,7 +68,7 @@ recommended)
 <
 
 
-CONFIGURATION                    *rip-substitute-rip-substitute-configuration*
+CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
 
 >lua
     -- default settings
@@ -103,13 +103,13 @@ CONFIGURATION                    *rip-substitute-rip-substitute-configuration*
 <
 
 
-LIMITATIONS                        *rip-substitute-rip-substitute-limitations*
+LIMITATIONS                       *rip-substitute-rip-substitute--limitations*
 
 - `--multiline` and various other flags are not supported yet.
 - The incremental preview does not support _hiding_ the search terms.
 
 
-ABOUT THE DEVELOPER        *rip-substitute-rip-substitute-about-the-developer*
+ABOUT THE DEVELOPER       *rip-substitute-rip-substitute--about-the-developer*
 
 In my day job, I am a sociologist studying the social mechanisms underlying the
 digital economy. For my PhD project, I investigate the governance of the app
