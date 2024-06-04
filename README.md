@@ -28,17 +28,28 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 <!-- tocstop -->
 
 ## Features
-- Search and replace using `ripgrep` – no more esoteric vim regex to learn.
+- Search and replace using `ripgrep` — no more esoteric vim regex to learn.
 - Incremental preview of matches and replacements.
 - Popup window instead of command line. This means:
 	+ Syntax highlighting of the regex.
 	+ Editing with vim motions.
-	+ No more delimiters decreasing readability.
+	+ No more dealing with delimiters.
 - Sensible defaults: searches the entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
 - Automatic prefill of the search term: cursorword (normal mode), selected text
   (visual mode).
 - Notification on how many replacements were made (optional).
+- Increased readability. Judge for yourself which one you find more readable
+  (both substitutions do the same thing):
+
+  ```bash
+  # vim's :substitute
+  :% s/\(foo\)bar\(\.\)\@!/\1baz/g
+
+  # rip-substitute
+  (foo)bar(?!\.)
+  $1baz
+  ```
 
 ## Installation
 **Requirements**
