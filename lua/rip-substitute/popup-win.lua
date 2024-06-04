@@ -29,16 +29,16 @@ local function rgBufEnsureOnly2Lines()
 end
 
 function M.substitute()
-	-- imports & setup
+	-- IMPORTS & INITIALIZATION
 	local rg = require("rip-substitute.rg-operations")
 	local config = require("rip-substitute.config").config
 	require("rip-substitute.state").new {
 		targetBuf = vim.api.nvim_get_current_buf(),
 		targetWin = vim.api.nvim_get_current_win(),
-		labelNs = vim.api.nvim_create_namespace("rip-substitute-virttext"),
+		labelNs = vim.api.nvim_create_namespace("rip-substitute-labels"),
 		matchHlNs = vim.api.nvim_create_namespace("rip-substitute-match-hls"),
 		targetFile = vim.api.nvim_buf_get_name(0),
-		rgBuf = -999,
+		rgBuf = -999, -- placeholder value
 	}
 	local state = require("rip-substitute.state").state
 
@@ -58,7 +58,7 @@ function M.substitute()
 	vim.api.nvim_buf_set_lines(state.rgBuf, 0, -1, false, { prefill, "" })
 	-- adds syntax highlighting via treesitter `regex` parser
 	vim.api.nvim_set_option_value("filetype", "regex", { buf = state.rgBuf })
-	vim.api.nvim_buf_set_name(state.rgBuf, "rip substitute")
+	vim.api.nvim_buf_set_name(state.rgBuf, "rip-substitute")
 	local scrollbarOffset = 3
 
 	-- CREATE WINDOW
@@ -74,7 +74,7 @@ function M.substitute()
 		height = 2,
 		style = "minimal",
 		border = config.popupWin.border,
-		title = "  rip substitute ",
+		title = "  rip-substitute ",
 		title_pos = "center",
 		zindex = 1, -- below nvim-notify
 		footer = { { " " .. footerStr .. " ", "Comment" } },
@@ -92,7 +92,7 @@ function M.substitute()
 	end
 	vim.cmd.startinsert { bang = true }
 
-	-- VIRTUAL TEXT & HIGHLIGHTS
+	-- LABELS, MATCH-HIGHLIGHTS, AND STATIC WINDOW
 	setRgBufLabels()
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		buffer = state.rgBuf,

@@ -28,7 +28,7 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 <!-- tocstop -->
 
 ## Features
-- Search and replace using `ripgrep` — no more esoteric vim regex to learn.
+- Search and replace using `ripgrep` — no more arcane vim regex to learn.
 - Incremental preview of matches and replacements.
 - Popup window instead of command line. This means:
 	+ Syntax highlighting of the regex.
