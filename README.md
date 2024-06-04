@@ -1,5 +1,5 @@
 <!-- LTeX: enabled=false -->
-# rip-substitute
+# rip-substitute 🪦
 <!-- LTeX: enabled=true -->
 <!-- TODO uncomment shields when available in dotfyle.com 
 <a href="https://dotfyle.com/plugins/chrisgrieser/rip-substitute">

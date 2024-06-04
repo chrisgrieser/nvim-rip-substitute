@@ -32,7 +32,6 @@ function M.substitute()
 	-- imports & setup
 	local rg = require("rip-substitute.rg-operations")
 	local config = require("rip-substitute.config").config
-	local state = require("rip-substitute.state").state
 	require("rip-substitute.state").new {
 		targetBuf = vim.api.nvim_get_current_buf(),
 		targetWin = vim.api.nvim_get_current_win(),
@@ -41,6 +40,7 @@ function M.substitute()
 		targetFile = vim.api.nvim_buf_get_name(0),
 		rgBuf = -999,
 	}
+	local state = require("rip-substitute.state").state
 
 	-- PREFILL
 	local prefill = ""
