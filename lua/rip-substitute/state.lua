@@ -6,7 +6,7 @@ local M = {}
 ---@field targetFile string
 ---@field labelNs number
 ---@field matchHlNs number
----@field rgBuf number
+---@field popupBufNr number
 M.state = {}
 
 ---@param newState ripSubstituteState

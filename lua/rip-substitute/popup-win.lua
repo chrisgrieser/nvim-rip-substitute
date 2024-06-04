@@ -1,22 +1,22 @@
 local M = {}
 --------------------------------------------------------------------------------
 
-local function setRgBufLabels()
+local function setPopupLabels()
 	local state = require("rip-substitute.state").state
-	vim.api.nvim_buf_clear_namespace(state.rgBuf, state.labelNs, 0, -1)
-	vim.api.nvim_buf_set_extmark(state.rgBuf, state.labelNs, 0, 0, {
+	vim.api.nvim_buf_clear_namespace(state.popupBufNr, state.labelNs, 0, -1)
+	vim.api.nvim_buf_set_extmark(state.popupBufNr, state.labelNs, 0, 0, {
 		virt_text = { { " Search", "DiagnosticVirtualTextInfo" } },
 		virt_text_pos = "right_align",
 	})
-	vim.api.nvim_buf_set_extmark(state.rgBuf, state.labelNs, 1, 0, {
+	vim.api.nvim_buf_set_extmark(state.popupBufNr, state.labelNs, 1, 0, {
 		virt_text = { { "Replace", "DiagnosticVirtualTextInfo" } },
 		virt_text_pos = "right_align",
 	})
 end
 
-local function rgBufEnsureOnly2Lines()
+local function ensureOnly2LinesInPopup()
 	local state = require("rip-substitute.state").state
-	local lines = vim.api.nvim_buf_get_lines(state.rgBuf, 0, -1, true)
+	local lines = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
 	if #lines == 2 then return end
 	if #lines == 1 then
 		lines[2] = ""
@@ -24,7 +24,7 @@ local function rgBufEnsureOnly2Lines()
 		if lines[1] == "" then table.remove(lines, 1) end
 		if lines[3] and lines[2] == "" then table.remove(lines, 2) end
 	end
-	vim.api.nvim_buf_set_lines(state.rgBuf, 0, -1, true, { lines[1], lines[2] })
+	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, true, { lines[1], lines[2] })
 	vim.cmd.normal { "zb", bang = true } -- enforce scroll position
 end
 
@@ -38,14 +38,14 @@ function M.substitute()
 		labelNs = vim.api.nvim_create_namespace("rip-substitute-labels"),
 		matchHlNs = vim.api.nvim_create_namespace("rip-substitute-match-hls"),
 		targetFile = vim.api.nvim_buf_get_name(0),
-		rgBuf = -999, -- placeholder value
+		popupBufNr = -999, -- placeholder value
 	}
 	local state = require("rip-substitute.state").state
 
 	-- PREFILL
 	local prefill = ""
 	local mode = vim.fn.mode()
-	if mode == "n" and config.prefill.normal == "cursorword" then
+	if mode == "n" and config.prefill.normal == "cursorWord" then
 		prefill = vim.fn.expand("<cword>")
 	elseif mode:find("[Vv]") and config.prefill.visual == "selectionFirstLine" then
 		vim.cmd.normal { '"zy', bang = true }
@@ -54,11 +54,11 @@ function M.substitute()
 	prefill = prefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
 
 	-- CREATE RG-BUFFER
-	state.rgBuf = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(state.rgBuf, 0, -1, false, { prefill, "" })
+	state.popupBufNr = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, { prefill, "" })
 	-- adds syntax highlighting via treesitter `regex` parser
-	vim.api.nvim_set_option_value("filetype", "regex", { buf = state.rgBuf })
-	vim.api.nvim_buf_set_name(state.rgBuf, "rip-substitute")
+	vim.api.nvim_set_option_value("filetype", "regex", { buf = state.popupBufNr })
+	vim.api.nvim_buf_set_name(state.popupBufNr, "rip-substitute")
 	local scrollbarOffset = 3
 
 	-- CREATE WINDOW
@@ -66,7 +66,7 @@ function M.substitute()
 		config.keymaps.confirm,
 		config.keymaps.abort
 	)
-	local rgWin = vim.api.nvim_open_win(state.rgBuf, true, {
+	local popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
 		row = vim.api.nvim_win_get_height(0) - 4,
 		col = vim.api.nvim_win_get_width(0) - config.popupWin.width - scrollbarOffset - 2,
@@ -88,49 +88,49 @@ function M.substitute()
 		scrolloff = 0,
 	}
 	for key, value in pairs(winOpts) do
-		vim.api.nvim_set_option_value(key, value, { win = rgWin })
+		vim.api.nvim_set_option_value(key, value, { win = popupWinNr })
 	end
 	vim.cmd.startinsert { bang = true }
 
 	-- LABELS, MATCH-HIGHLIGHTS, AND STATIC WINDOW
-	setRgBufLabels()
+	setPopupLabels()
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
-		buffer = state.rgBuf,
+		buffer = state.popupBufNr,
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
-			rgBufEnsureOnly2Lines()
+			ensureOnly2LinesInPopup()
 			rg.highlightMatches()
-			setRgBufLabels()
+			setPopupLabels()
 		end,
 	})
 
 	-- POPUP CLOSING
-	local function closeRgWin()
-		if vim.api.nvim_win_is_valid(rgWin) then vim.api.nvim_win_close(rgWin, true) end
-		if vim.api.nvim_buf_is_valid(state.rgBuf) then
-			vim.api.nvim_buf_delete(state.rgBuf, { force = true })
+	local function closePopupWin()
+		if vim.api.nvim_win_is_valid(popupWinNr) then vim.api.nvim_win_close(popupWinNr, true) end
+		if vim.api.nvim_buf_is_valid(state.popupBufNr) then
+			vim.api.nvim_buf_delete(state.popupBufNr, { force = true })
 		end
 		vim.api.nvim_buf_clear_namespace(0, state.matchHlNs, 0, -1)
 	end
 	-- also close the popup on leaving buffer, ensures there is not leftover
 	-- buffer when user closes popup in a different way, such as `:close`.
 	vim.api.nvim_create_autocmd("BufLeave", {
-		buffer = state.rgBuf,
+		buffer = state.popupBufNr,
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-leave", {}),
-		callback = closeRgWin,
+		callback = closePopupWin,
 	})
 
 	-- KEYMAPS
 	vim.keymap.set(
 		{ "n", "x" },
 		config.keymaps.abort,
-		closeRgWin,
-		{ buffer = state.rgBuf, nowait = true }
+		closePopupWin,
+		{ buffer = state.popupBufNr, nowait = true }
 	)
 	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, function()
 		rg.executeSubstitution()
-		closeRgWin()
-	end, { buffer = state.rgBuf, nowait = true })
+		closePopupWin()
+	end, { buffer = state.popupBufNr, nowait = true })
 end
 
 --------------------------------------------------------------------------------

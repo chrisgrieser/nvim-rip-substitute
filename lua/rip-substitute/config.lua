@@ -21,7 +21,7 @@ local defaultConfig = {
 		autoBraceSimpleCaptureGroups = true,
 	},
 	prefill = {
-		normal = "cursorword", -- "cursorword"|false
+		normal = "cursorWord", -- "cursorWord"|false
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
 	},
 	notificationOnSuccess = true,
