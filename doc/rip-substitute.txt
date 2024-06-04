@@ -107,7 +107,7 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
             autoBraceSimpleCaptureGroups = true,
         },
         prefill = {
-            normal = "cursorword", -- "cursorword"|false
+            normal = "cursorWord", -- "cursorWord"|false
             visual = "selectionFirstLine", -- "selectionFirstLine"|false
         },
         notificationOnSuccess = true,
