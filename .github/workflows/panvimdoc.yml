@@ -1,0 +1,29 @@
+name: Auto-generate vimdocs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - README.md # source file
+      - .github/workflows/panvimdoc.yml # updates to this file itself
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    name: README.md to vimdoc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: kdheepak/panvimdoc@main
+        with:
+          vimdoc: pseudometa-plugin-template
+          demojify: true
+          treesitter: true
+          description: " Auto-generated from README.md. Do not make PRs to this file."
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: Auto-generate vimdocs"
+          branch: ${{ github.head_ref }}
