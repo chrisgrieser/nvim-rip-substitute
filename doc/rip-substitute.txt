@@ -4,6 +4,7 @@
 Table of Contents                           *rip-substitute-table-of-contents*
 
 1. rip-substitute                             |rip-substitute-rip-substitute-|
+  - Table of Contents       |rip-substitute-rip-substitute--table-of-contents|
   - Features                         |rip-substitute-rip-substitute--features|
   - Installation                 |rip-substitute-rip-substitute--installation|
   - Configuration               |rip-substitute-rip-substitute--configuration|
@@ -13,16 +14,19 @@ Table of Contents                           *rip-substitute-table-of-contents*
 ==============================================================================
 1. rip-substitute                             *rip-substitute-rip-substitute-*
 
-Amodern substitute for vim’s `:substitute` using `ripgrep`.
+Amodern substitute for vim’s `:substitute`, using `ripgrep`.
 
 
-  [!WARNING] This plugin is still in early development and should therefore be
-  considered experimental. It’s features and options are subject to change
-  without notice.
+  [!NOTE] This plugin is still in early development. Its features and options are
+  subject to change.
+
+
+
+TABLE OF CONTENTS           *rip-substitute-rip-substitute--table-of-contents*
+
 - |rip-substitute-features|
 - |rip-substitute-installation|
 - |rip-substitute-configuration|
-- |rip-substitute-usage|
 - |rip-substitute-limitations|
 - |rip-substitute-about-the-developer|
 
@@ -107,6 +111,9 @@ LIMITATIONS                       *rip-substitute-rip-substitute--limitations*
 
 - `--multiline` and various other flags are not supported yet.
 - The incremental preview does not support _hiding_ the search terms.
+- This plugin only searches the current buffer. To search and replace in
+    multiple files via `ripgrep`, use
+    grug-far.nvim <https://github.com/MagicDuck/grug-far.nvim>.
 
 
 ABOUT THE DEVELOPER       *rip-substitute-rip-substitute--about-the-developer*
