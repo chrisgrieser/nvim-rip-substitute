@@ -4,7 +4,7 @@
 Table of Contents                           *rip-substitute-table-of-contents*
 
 1. rip-substitute                              |rip-substitute-rip-substitute|
-  - ## Features                    |rip-substitute-rip-substitute-##-features|
+  - Features                          |rip-substitute-rip-substitute-features|
   - Installation                  |rip-substitute-rip-substitute-installation|
   - Configuration                |rip-substitute-rip-substitute-configuration|
   - Limitations                    |rip-substitute-rip-substitute-limitations|
@@ -27,15 +27,30 @@ A modern substitute for vim’s `:substitute` using `ripgrep`.
 - |rip-substitute-about-the-developer|
 
 
-## FEATURES                        *rip-substitute-rip-substitute-##-features*
+FEATURES                              *rip-substitute-rip-substitute-features*
+
+- Search and replace using `ripgrep` – no more esoteric vim regex to learn.
+- Incremental preview of matches and replacements.
+- Popup window instead of command line. This means:
+    - Syntax highlighting of the regex.
+    - Editing with vim motions.
+    - No more delimiters decreasing readability.
+- Sensible defaults: searches the entire buffer (`%`), all matches in a line
+    (`/g`), case-sensitive (`/I`).
+- Automatic prefill of the search term: cursorword (normal mode), selected text
+    (visual mode).
+- Notification on how many replacements were made (optional).
 
 
 INSTALLATION                      *rip-substitute-rip-substitute-installation*
 
+**Requirements** - `ripgrep` - nvim >= 0.10 - `:TSInstall regex` (optional, but
+recommended)
+
 >lua
     -- lazy.nvim
     {
-        "chrisgrieser/rip-substitute",
+        "chrisgrieser/nvim-rip-substitute",
         keys = {
             {
                 "<leader>fs",
@@ -48,7 +63,7 @@ INSTALLATION                      *rip-substitute-rip-substitute-installation*
     
     -- packer
     use {
-        "chrisgrieser/rip-substitute",
+        "chrisgrieser/nvim-rip-substitute",
     }
 <
 
@@ -58,7 +73,7 @@ CONFIGURATION                    *rip-substitute-rip-substitute-configuration*
 >lua
     -- default settings
     require("rip-substitute").setup {
-        window = {
+        popupWin = {
             width = 40,
             border = "single",
         },
@@ -67,11 +82,11 @@ CONFIGURATION                    *rip-substitute-rip-substitute-configuration*
             abort = "q",
         },
         regexOptions = {
-            -- enables lookarounds and backreferences, but slower performance
+            -- pcre2 enables lookarounds and backreferences, but performs slower.
             pcre2 = true,
             -- By default, rg treats `$1a` as the named capture group "1a". When set
-            -- to `true`, and `$1a` is automatically changed to `${1}a` to ensure the
-            -- capture group is correctly determined. Disable this setting, if you
+            -- to `true`, `$1a` is automatically changed to `${1}a` to ensure the
+            -- capture group is correctly determined. Disable this setting if you
             -- plan an using named capture groups.
             autoBraceSimpleCaptureGroups = true,
         },
@@ -90,8 +105,8 @@ CONFIGURATION                    *rip-substitute-rip-substitute-configuration*
 
 LIMITATIONS                        *rip-substitute-rip-substitute-limitations*
 
-- `--multiline` is not supported yet.
-- Various flags are not supported yet.
+- `--multiline` and various other flags are not supported yet.
+- The incremental preview does not support _hiding_ the search terms.
 
 
 ABOUT THE DEVELOPER        *rip-substitute-rip-substitute-about-the-developer*
