@@ -8,6 +8,7 @@ Table of Contents                           *rip-substitute-table-of-contents*
   - Features                         |rip-substitute-rip-substitute--features|
   - Installation                 |rip-substitute-rip-substitute--installation|
   - Configuration               |rip-substitute-rip-substitute--configuration|
+  - Usage                               |rip-substitute-rip-substitute--usage|
   - Limitations                   |rip-substitute-rip-substitute--limitations|
   - About the developer   |rip-substitute-rip-substitute--about-the-developer|
 
@@ -27,6 +28,7 @@ TABLE OF CONTENTS           *rip-substitute-rip-substitute--table-of-contents*
 - |rip-substitute-features|
 - |rip-substitute-installation|
 - |rip-substitute-configuration|
+- |rip-substitute-usage|
 - |rip-substitute-limitations|
 - |rip-substitute-about-the-developer|
 
@@ -101,6 +103,9 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
         notificationOnSuccess = true,
     }
 <
+
+
+USAGE                                   *rip-substitute-rip-substitute--usage*
 
 >lua
     require("rip-substitute").sub()
