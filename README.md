@@ -1,12 +1,12 @@
 <!-- LTeX: enabled=false -->
-# %%plugin-name%%
+# rip-substitute
 <!-- LTeX: enabled=true -->
 <!-- TODO uncomment shields when available in dotfyle.com 
-<a href="https://dotfyle.com/plugins/chrisgrieser/%%plugin-name%%">
-<img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/%%plugin-name%%/shield"/></a>
+<a href="https://dotfyle.com/plugins/chrisgrieser/rip-substitute">
+<img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/rip-substitute/shield"/></a>
 -->
 
-%%plugin-desc%%
+A modern substitute for vim's `:substitute` using `ripgrep`.
 
 <!-- toc -->
 
@@ -27,12 +27,12 @@
 ```lua
 -- lazy.nvim
 {
-	"chrisgrieser/%%plugin-name%%",
+	"chrisgrieser/rip-substitute",
 },
 
 -- packer
 use {
-	"chrisgrieser/%%plugin-name%%",
+	"chrisgrieser/rip-substitute",
 }
 ```
 
@@ -40,7 +40,7 @@ use {
 
 ```lua
 -- default settings
-require("%%plugin-name-short%%").setup ({
+require("rip-substitute").setup ({
 
 })
 ```
