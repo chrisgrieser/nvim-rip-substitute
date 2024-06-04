@@ -6,11 +6,15 @@
 <img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/rip-substitute/shield"/></a>
 -->
 
-A modern substitute for vim's `:substitute` using `ripgrep`.
+A modern substitute for vim's `:substitute`, using `ripgrep`.
 
-> [!WARNING]
-> This plugin is still in early development and should therefore be considered
-> experimental. It's features and options are subject to change without notice.
+> [!NOTE]
+> This plugin is still in early development. Its features and options are
+> subject to change.
+
+<img alt="showcase" width=70% src="https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/cf020e46-e726-45d9-a13c-ff540a7f71fb">
+
+## Table of Contents
 
 <!-- toc -->
 
@@ -92,6 +96,8 @@ require("rip-substitute").setup {
 }
 ```
 
+## Usage
+
 ```lua
 require("rip-substitute").sub()
 ```
@@ -99,6 +105,9 @@ require("rip-substitute").sub()
 ## Limitations
 - `--multiline` and various other flags are not supported yet.
 - The incremental preview does not support *hiding* the search terms.
+- This plugin only searches the current buffer. To search and replace in
+  multiple files via `ripgrep`, use
+  [grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim).
 
 <!-- vale Google.FirstPerson = NO -->
 ## About the developer
