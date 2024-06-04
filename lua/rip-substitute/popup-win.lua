@@ -69,11 +69,11 @@ function M.substitute()
 	local rgWin = vim.api.nvim_open_win(state.rgBuf, true, {
 		relative = "win",
 		row = vim.api.nvim_win_get_height(0) - 4,
-		col = vim.api.nvim_win_get_width(0) - config.window.width - scrollbarOffset - 2,
-		width = config.window.width,
+		col = vim.api.nvim_win_get_width(0) - config.popupWin.width - scrollbarOffset - 2,
+		width = config.popupWin.width,
 		height = 2,
 		style = "minimal",
-		border = config.window.border,
+		border = config.popupWin.border,
 		title = "  rip substitute ",
 		title_pos = "center",
 		zindex = 1, -- below nvim-notify

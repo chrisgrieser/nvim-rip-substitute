@@ -3,7 +3,7 @@ local M = {}
 
 ---@class ripSubstituteConfig
 local defaultConfig = {
-	window = {
+	popupWin = {
 		width = 40,
 		border = "single",
 	},
@@ -12,11 +12,11 @@ local defaultConfig = {
 		abort = "q",
 	},
 	regexOptions = {
-		-- enables lookarounds and backreferences, but slower performance
+		-- pcre2 enables lookarounds and backreferences, but performs slower.
 		pcre2 = true,
 		-- By default, rg treats `$1a` as the named capture group "1a". When set
-		-- to `true`, and `$1a` is automatically changed to `${1}a` to ensure the
-		-- capture group is correctly determined. Disable this setting, if you
+		-- to `true`, `$1a` is automatically changed to `${1}a` to ensure the
+		-- capture group is correctly determined. Disable this setting if you
 		-- plan an using named capture groups.
 		autoBraceSimpleCaptureGroups = true,
 	},

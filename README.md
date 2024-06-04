@@ -24,14 +24,28 @@ A modern substitute for vim's `:substitute` using `ripgrep`.
 <!-- tocstop -->
 
 ## Features
--
+- Search and replace using `ripgrep` – no more esoteric vim regex to learn.
+- Incremental preview of matches and replacements.
+- Popup window instead of command line. This means:
+	+ Syntax highlighting of the regex.
+	+ Editing with vim motions.
+	+ No more delimiters decreasing readability.
+- Sensible defaults: searches the entire buffer (`%`), all matches in a line
+  (`/g`), case-sensitive (`/I`).
+- Automatic prefill of the search term: cursorword (normal mode), selected text
+  (visual mode).
+- Notification on how many replacements were made (optional).
 
 ## Installation
+**Requirements**
+- `ripgrep`
+- nvim >= 0.10
+- `:TSInstall regex` (optional, but recommended)
 
 ```lua
 -- lazy.nvim
 {
-	"chrisgrieser/rip-substitute",
+	"chrisgrieser/nvim-rip-substitute",
 	keys = {
 		{
 			"<leader>fs",
@@ -44,7 +58,7 @@ A modern substitute for vim's `:substitute` using `ripgrep`.
 
 -- packer
 use {
-	"chrisgrieser/rip-substitute",
+	"chrisgrieser/nvim-rip-substitute",
 }
 ```
 
@@ -53,7 +67,7 @@ use {
 ```lua
 -- default settings
 require("rip-substitute").setup {
-	window = {
+	popupWin = {
 		width = 40,
 		border = "single",
 	},
@@ -62,11 +76,11 @@ require("rip-substitute").setup {
 		abort = "q",
 	},
 	regexOptions = {
-		-- enables lookarounds and backreferences, but slower performance
+		-- pcre2 enables lookarounds and backreferences, but performs slower.
 		pcre2 = true,
 		-- By default, rg treats `$1a` as the named capture group "1a". When set
-		-- to `true`, and `$1a` is automatically changed to `${1}a` to ensure the
-		-- capture group is correctly determined. Disable this setting, if you
+		-- to `true`, `$1a` is automatically changed to `${1}a` to ensure the
+		-- capture group is correctly determined. Disable this setting if you
 		-- plan an using named capture groups.
 		autoBraceSimpleCaptureGroups = true,
 	},
@@ -83,8 +97,8 @@ require("rip-substitute").sub()
 ```
 
 ## Limitations
-- `--multiline` is not supported yet.
-- Various flags are not supported yet.
+- `--multiline` and various other flags are not supported yet.
+- The incremental preview does not support *hiding* the search terms.
 
 <!-- vale Google.FirstPerson = NO -->
 ## About the developer
