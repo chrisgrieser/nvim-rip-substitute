@@ -68,7 +68,7 @@ end
 ---@return Iter { lnum: number, col: number, text: string }
 local function rgResultsIter(rgArgs)
 	local rgResult = runRipgrep(rgArgs)
-	if rgResult.code ~= 0 then return vim.iter({}) end -- empty iter on error
+	if rgResult.code ~= 0 then return vim.iter {} end -- empty iter on error
 	local rgLines = vim.split(vim.trim(rgResult.stdout), "\n")
 
 	local state = require("rip-substitute.state").state
