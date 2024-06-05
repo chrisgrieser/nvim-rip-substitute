@@ -41,7 +41,6 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 - Notification on how many replacements were made (optional).
 - Increased readability. Judge for yourself which one you find more readable
   (both substitutions do the same thing):
-
   ```bash
   # vim's :substitute
   :% s/\(foo\)bar\(\.\)\@!/\1baz/g
