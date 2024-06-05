@@ -12,7 +12,7 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 > This plugin is still in early development. Its features and options are
 > subject to change.
 
-<img alt="showcase" width=70% src="https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/cf020e46-e726-45d9-a13c-ff540a7f71fb">
+<img alt="showcase" width=70% src="https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/8658870b-61dc-406a-8047-5ef04a95505d">
 
 ## Table of Contents
 
