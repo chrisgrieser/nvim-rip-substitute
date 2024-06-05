@@ -13,7 +13,7 @@ local M = {}
 ---@param userConfig? ripSubstituteConfig
 function M.setup(userConfig) require("rip-substitute.config").setup(userConfig) end
 
-function M.sub() require("rip-substitute.popup-win").substitute() end
+function M.sub() require("rip-substitute.popup-win").openSubstitutionPopup() end
 
 --------------------------------------------------------------------------------
 return M

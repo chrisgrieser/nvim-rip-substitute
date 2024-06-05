@@ -16,7 +16,7 @@ end
 
 ---@return string
 ---@return string
-local function getSearchAndReplace()
+local function getSearchAndReplaceValuesFromPopup()
 	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 
@@ -32,7 +32,7 @@ end
 function M.executeSubstitution()
 	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
-	local toSearch, toReplace = getSearchAndReplace()
+	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
 
 	-- notify on count
 	if config.notificationOnSuccess then
@@ -66,7 +66,7 @@ end
 
 ---@param rgArgs string[]
 ---@return Iter { lnum: number, col: number, text: string }
-local function rgResultsIter(rgArgs)
+local function rgResultsInViewportIter(rgArgs)
 	local rgResult = runRipgrep(rgArgs)
 	if rgResult.code ~= 0 then return vim.iter {} end -- empty iter on error
 	local rgLines = vim.split(vim.trim(rgResult.stdout), "\n")
@@ -93,13 +93,13 @@ end
 function M.incrementalPreview()
 	local state = require("rip-substitute.state").state
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
-	local toSearch, toReplace = getSearchAndReplace()
+	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
 	if toSearch == "" then return end
 
 	-- HIGHLIGHT SEARCH MATCHES
 	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
 	local searchMatchEndCols = {}
-	rgResultsIter(rgArgs):each(function(result)
+	rgResultsInViewportIter(rgArgs):each(function(result)
 		local endCol = result.col + #result.text
 		vim.api.nvim_buf_add_highlight(
 			state.targetBuf,
@@ -119,7 +119,7 @@ function M.incrementalPreview()
 	if toReplace == "" then return end
 
 	vim.list_extend(rgArgs, { "--replace=" .. toReplace })
-	rgResultsIter(rgArgs):each(function(result)
+	rgResultsInViewportIter(rgArgs):each(function(result)
 		local virtText = { result.text, "IncSearch" }
 		local endCol = table.remove(searchMatchEndCols, 1)
 		vim.api.nvim_buf_set_extmark(

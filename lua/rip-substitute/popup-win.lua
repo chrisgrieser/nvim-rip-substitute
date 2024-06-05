@@ -44,7 +44,7 @@ local function closePopupWin()
 	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
 end
 
-function M.substitute()
+function M.openSubstitutionPopup()
 	-- IMPORTS & INITIALIZATION
 	local rg = require("rip-substitute.rg-operations")
 	local config = require("rip-substitute.config").config
