@@ -78,9 +78,9 @@ function M.substitute()
 
 	-- CREATE WINDOW
 	local maps = config.keymaps
-	local footerStr = ("%s Confirm   %s Abort"):format(maps.confirm, maps.abort)
+	local footerStr = ("%s Confirm  %s Abort"):format(maps.confirm, maps.abort)
 	if state.lastPopupContent then -- keymap only enabled when there is a last run
-		footerStr = footerStr .. ("   %s Insert last"):format(maps.insertLastContent)
+		footerStr = footerStr .. ("  %s Insert last"):format(maps.insertLastContent)
 	end
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
