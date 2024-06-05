@@ -7,9 +7,10 @@ local defaultConfig = {
 		width = 40,
 		border = "single",
 	},
-	keymaps = {
+	keymaps = { -- normal & visual mode
 		confirm = "<CR>",
 		abort = "q",
+		insertLastContent = "<Up>",
 	},
 	regexOptions = {
 		-- pcre2 enables lookarounds and backreferences, but performs slower.

@@ -29,7 +29,12 @@ local function ensureOnly2LinesInPopup()
 end
 
 local function closePopupWin()
-	local state = require("rip-substitute.state").state
+	local st = require("rip-substitute.state")
+	local state = st.state
+
+	-- save last popup content for next run
+	st.update { lastPopupContent = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true) }
+
 	if vim.api.nvim_win_is_valid(state.popupWinNr) then
 		vim.api.nvim_win_close(state.popupWinNr, true)
 	end
@@ -43,14 +48,12 @@ function M.substitute()
 	-- IMPORTS & INITIALIZATION
 	local rg = require("rip-substitute.rg-operations")
 	local config = require("rip-substitute.config").config
-	require("rip-substitute.state").new {
+	require("rip-substitute.state").update {
 		targetBuf = vim.api.nvim_get_current_buf(),
 		targetWin = vim.api.nvim_get_current_win(),
 		labelNs = vim.api.nvim_create_namespace("rip-substitute-labels"),
 		incPreviewNs = vim.api.nvim_create_namespace("rip-substitute-incpreview"),
 		targetFile = vim.api.nvim_buf_get_name(0),
-		popupBufNr = -999, -- placeholder value
-		popupWinNr = -999, -- placeholder value
 	}
 	local state = require("rip-substitute.state").state
 
@@ -75,12 +78,15 @@ function M.substitute()
 
 	-- CREATE WINDOW
 	local maps = config.keymaps
-	local footerStr = ("%s: Confirm   %s: Abort"):format(maps.confirm, maps.abort)
+	local footerStr = ("%s Confirm   %s Abort"):format(maps.confirm, maps.abort)
+	if state.lastPopupContent then -- keymap only enabled when there is a last run
+		footerStr = footerStr .. ("   %s Insert last"):format(maps.insertLastContent)
+	end
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
 		row = vim.api.nvim_win_get_height(0) - 4,
 		col = vim.api.nvim_win_get_width(0) - config.popupWin.width - scrollbarOffset - 2,
-		width = config.popupWin.width,
+		width = math.max(config.popupWin.width, 15),
 		height = 2,
 		style = "minimal",
 		border = config.popupWin.border,
@@ -125,6 +131,18 @@ function M.substitute()
 		rg.executeSubstitution()
 		closePopupWin()
 	end, { buffer = state.popupBufNr, nowait = true })
+
+	-- only set keymap when there is a last run
+	if state.lastPopupContent then
+		vim.keymap.set(
+			{ "n", "x" },
+			config.keymaps.insertLastContent,
+			function()
+				vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, state.lastPopupContent)
+			end,
+			{ buffer = state.popupBufNr, nowait = true }
+		)
+	end
 
 	-- also close the popup on leaving buffer, ensures there is not leftover
 	-- buffer when user closes popup in a different way, such as `:close`.
