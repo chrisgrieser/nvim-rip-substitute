@@ -116,7 +116,7 @@ function M.incrementalPreview()
 	end)
 
 	-- INSERT REPLACEMENTS AS VIRTUAL TEXT
-	if toReplace == "" then return end
+	if toReplace == "" or #searchMatchEndCols == 0 then return end
 
 	vim.list_extend(rgArgs, { "--replace=" .. toReplace })
 	rgResultsInViewportIter(rgArgs):each(function(result)
