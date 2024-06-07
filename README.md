@@ -28,7 +28,8 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 <!-- tocstop -->
 
 ## Features
-- Search and replace using `ripgrep` — no more arcane vim regex to learn.
+- Search and replace using `ripgrep`.
+- Uses common regex syntax (pcre2) — no more arcane vim regex.
 - Incremental preview of matches and replacements.
 - Popup window instead of command line. This means:
 	+ Syntax highlighting of the regex.
@@ -36,14 +37,19 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 	+ No more dealing with delimiters.
 - Sensible defaults: searches the entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
-- Automatic prefill of the search term: cursorword (normal mode), selected text
-  (visual mode).
-- Notification on how many replacements were made (optional).
-- Increased readability. Judge for yourself which one you find more readable
-  (both substitutions do the same thing):
-  ```bash
+- Automatic prefill of the search term: cursorword in normal mode, and the
+  selected text in visual mode.
+- Optional notification on how many replacements were made.
+- Increased readability. Judge for yourself:
+
+  ```txt
+  # all three are equivalent
+
   # vim's :substitute
-  :% s/\(foo\)bar\(\.\)\@!/\1baz/g
+  :% s/\(foo\)bar\(\.\)\@!/\1baz/gI
+
+  # vim's :substitute (very magic mode)
+  :% s/\v(foo)bar(\.)@!/\1baz/gI
 
   # rip-substitute
   (foo)bar(?!\.)
@@ -95,7 +101,7 @@ require("rip-substitute").setup {
 		pcre2 = true,
 		-- By default, rg treats `$1a` as the named capture group "1a". When set
 		-- to `true`, `$1a` is automatically changed to `${1}a` to ensure the
-		-- capture group is correctly determined. Disable this setting if you
+		-- capture group is determined correctly. Disable this setting if you
 		-- plan an using named capture groups.
 		autoBraceSimpleCaptureGroups = true,
 	},
