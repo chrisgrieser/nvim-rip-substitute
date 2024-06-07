@@ -143,36 +143,26 @@ function M.openSubstitutionPopup()
 
 	-- only set keymap when there is a last run
 	state.historyPosition = #state.popupHistory
-	vim.keymap.set(
-		{ "n", "x" },
-		config.keymaps.prevSubst,
-		function()
-			state.historyPosition = state.historyPosition - 1
-			local content = state.popupHistory[state.historyPosition]
-			if content then
-				vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
-			else
-				state.historyPosition = 1
-				u.notify("No more previous substitutions.")
-			end
-		end,
-		{ buffer = state.popupBufNr, nowait = true }
-	)
-	vim.keymap.set(
-		{ "n", "x" },
-		config.keymaps.nextSubst,
-		function()
-			state.historyPosition = state.historyPosition + 1
-			local content = state.popupHistory[state.historyPosition]
-			if content then
-				vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
-			else
-				state.historyPosition = #state.popupHistory
-				u.notify("No more next substitutions.")
-			end
-		end,
-		{ buffer = state.popupBufNr, nowait = true }
-	)
+	vim.keymap.set({ "n", "x" }, config.keymaps.prevSubst, function()
+		state.historyPosition = state.historyPosition - 1
+		local content = state.popupHistory[state.historyPosition]
+		if content then
+			vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
+		else
+			state.historyPosition = 1
+			u.notify("No more previous substitutions.")
+		end
+	end, { buffer = state.popupBufNr, nowait = true })
+	vim.keymap.set({ "n", "x" }, config.keymaps.nextSubst, function()
+		state.historyPosition = state.historyPosition + 1
+		local content = state.popupHistory[state.historyPosition]
+		if content then
+			vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
+		else
+			state.historyPosition = #state.popupHistory
+			u.notify("No more next substitutions.")
+		end
+	end, { buffer = state.popupBufNr, nowait = true })
 
 	-- also close the popup on leaving buffer, ensures there is not leftover
 	-- buffer when user closes popup in a different way, such as `:close`.
