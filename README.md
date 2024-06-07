@@ -42,7 +42,6 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
   selected text in visual mode.
 - History of previous substitutions.
 - Readability comparison:
-
   ```txt
   # all three are equivalent
 

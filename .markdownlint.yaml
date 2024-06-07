@@ -10,7 +10,7 @@ blanks-around-headings:
 ul-style: { style: sublist }
 
 # not autofixable
-ol-prefix: { style: ordered } 
+ol-prefix: { style: ordered }
 line-length:
   tables: false
   code_blocks: false
@@ -24,3 +24,6 @@ no-hard-tabs: false # taken care of by editorconfig
 blanks-around-lists: false # space waster
 first-line-heading: false # e.g., ignore-comments
 no-emphasis-as-heading: false # sometimes useful
+#───────────────────────────────────────────────────────────────────────────────
+# project-specific
+blanks-around-fences: false # code blocks in lists result in undesired loose lists
