@@ -4,14 +4,17 @@ local M = {}
 ---@field targetBuf number
 ---@field targetWin number
 ---@field targetFile string
----@field popupBufNr? number
----@field popupWinNr? number
 ---@field labelNs number
 ---@field incPreviewNs number
----@field lastPopupContent? string[]
-M.state = {}
+---@field popupBufNr? number
+---@field popupWinNr? number
+---@field popupHistory? string[][]
+---@field historyPosition? number
+M.state = {
+	popupHistory = {},
+}
 
----@param newState ripSubstituteState|{lastPopupContent: string[]}
+---@param newState ripSubstituteState
 function M.update(newState) M.state = vim.tbl_deep_extend("force", M.state, newState) end
 
 return M

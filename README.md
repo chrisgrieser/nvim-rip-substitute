@@ -94,7 +94,8 @@ require("rip-substitute").setup {
 	keymaps = { -- normal & visual mode
 		confirm = "<CR>",
 		abort = "q",
-		insertLastContent = "<Up>",
+		prevSubst = "<Up>",
+		nextSubst = "<Down>",
 	},
 	regexOptions = {
 		-- pcre2 enables lookarounds and backreferences, but performs slower.

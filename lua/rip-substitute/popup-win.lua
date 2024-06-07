@@ -1,4 +1,5 @@
 local M = {}
+local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
 local function setPopupLabels()
@@ -29,11 +30,12 @@ local function ensureOnly2LinesInPopup()
 end
 
 local function closePopupWin()
-	local st = require("rip-substitute.state")
-	local state = st.state
+	local state = require("rip-substitute.state").state
 
 	-- save last popup content for next run
-	st.update { lastPopupContent = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true) }
+	local lastPopupContent = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
+	local duplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
+	if not duplicate then table.insert(state.popupHistory, lastPopupContent) end
 
 	if vim.api.nvim_win_is_valid(state.popupWinNr) then
 		vim.api.nvim_win_close(state.popupWinNr, true)
@@ -76,24 +78,31 @@ function M.openSubstitutionPopup()
 	vim.api.nvim_buf_set_name(state.popupBufNr, "rip-substitute")
 	local scrollbarOffset = 3
 
-	-- CREATE WINDOW
+	-- FOOTER
 	local maps = config.keymaps
 	local footerStr = ("%s Confirm  %s Abort"):format(maps.confirm, maps.abort)
-	if state.lastPopupContent then -- keymap only enabled when there is a last run
-		footerStr = footerStr .. ("  %s Insert last"):format(maps.insertLastContent)
+	if #state.popupHistory > 0 then
+		footerStr = footerStr .. ("  %s/%s Prev/Next"):format(maps.prevSubst, maps.nextSubst)
 	end
+	footerStr = footerStr:gsub("<[Cc][Rr]>", "⏎"):gsub("<[dD]own>", "↓"):gsub("<[Uu]p>", "↑")
+	local width = config.popupWin.width
+	if #footerStr > width then width = #footerStr + 2 end
+
+	-- CREATE WINDOW
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
 		row = vim.api.nvim_win_get_height(0) - 4,
-		col = vim.api.nvim_win_get_width(0) - config.popupWin.width - scrollbarOffset - 2,
-		width = math.max(config.popupWin.width, 15),
+		col = vim.api.nvim_win_get_width(0) - width - scrollbarOffset - 2,
+		width = width,
 		height = 2,
 		style = "minimal",
 		border = config.popupWin.border,
 		title = "  rip-substitute ",
 		title_pos = "center",
-		zindex = 1, -- below nvim-notify
-		footer = { { " " .. footerStr .. " ", "Comment" } },
+		zindex = 2, -- below nvim-notify
+		footer = {
+			{ " " .. footerStr .. " ", "Comment" },
+		},
 	})
 	local winOpts = {
 		list = true,
@@ -133,16 +142,37 @@ function M.openSubstitutionPopup()
 	end, { buffer = state.popupBufNr, nowait = true })
 
 	-- only set keymap when there is a last run
-	if state.lastPopupContent then
-		vim.keymap.set(
-			{ "n", "x" },
-			config.keymaps.insertLastContent,
-			function()
-				vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, state.lastPopupContent)
-			end,
-			{ buffer = state.popupBufNr, nowait = true }
-		)
-	end
+	state.historyPosition = #state.popupHistory
+	vim.keymap.set(
+		{ "n", "x" },
+		config.keymaps.prevSubst,
+		function()
+			state.historyPosition = state.historyPosition - 1
+			local content = state.popupHistory[state.historyPosition]
+			if content then
+				vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
+			else
+				state.historyPosition = 1
+				u.notify("No more previous substitutions.")
+			end
+		end,
+		{ buffer = state.popupBufNr, nowait = true }
+	)
+	vim.keymap.set(
+		{ "n", "x" },
+		config.keymaps.nextSubst,
+		function()
+			state.historyPosition = state.historyPosition + 1
+			local content = state.popupHistory[state.historyPosition]
+			if content then
+				vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
+			else
+				state.historyPosition = #state.popupHistory
+				u.notify("No more next substitutions.")
+			end
+		end,
+		{ buffer = state.popupBufNr, nowait = true }
+	)
 
 	-- also close the popup on leaving buffer, ensures there is not leftover
 	-- buffer when user closes popup in a different way, such as `:close`.
