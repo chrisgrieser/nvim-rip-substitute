@@ -31,18 +31,7 @@ end
 
 function M.executeSubstitution()
 	local state = require("rip-substitute.state").state
-	local config = require("rip-substitute.config").config
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
-
-	-- notify on count
-	if config.notificationOnSuccess then
-		local rgCount = runRipgrep { toSearch, "--count-matches" }
-		if rgCount.code == 0 then
-			local count = tonumber(vim.trim(rgCount.stdout))
-			local pluralS = count == 1 and "" or "s"
-			u.notify(("Replaced %s occurrence%s."):format(count, pluralS))
-		end
-	end
 
 	-- substitute
 	local rgResult = runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
@@ -90,11 +79,12 @@ local function rgResultsInViewportIter(rgArgs)
 		end)
 end
 
+---@return number -- number of matches
 function M.incrementalPreview()
 	local state = require("rip-substitute.state").state
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
-	if toSearch == "" then return end
+	if toSearch == "" then return 0 end
 
 	-- HIGHLIGHT SEARCH MATCHES
 	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
@@ -116,20 +106,22 @@ function M.incrementalPreview()
 	end)
 
 	-- INSERT REPLACEMENTS AS VIRTUAL TEXT
-	if toReplace == "" or #searchMatchEndCols == 0 then return end
+	if toReplace ~= "" and #searchMatchEndCols > 0 then
+		vim.list_extend(rgArgs, { "--replace=" .. toReplace })
+		rgResultsInViewportIter(rgArgs):each(function(result)
+			local virtText = { result.text, "IncSearch" }
+			local endCol = table.remove(searchMatchEndCols, 1)
+			vim.api.nvim_buf_set_extmark(
+				state.targetBuf,
+				state.incPreviewNs,
+				result.lnum,
+				endCol,
+				{ virt_text = { virtText }, virt_text_pos = "inline" }
+			)
+		end)
+	end
 
-	vim.list_extend(rgArgs, { "--replace=" .. toReplace })
-	rgResultsInViewportIter(rgArgs):each(function(result)
-		local virtText = { result.text, "IncSearch" }
-		local endCol = table.remove(searchMatchEndCols, 1)
-		vim.api.nvim_buf_set_extmark(
-			state.targetBuf,
-			state.incPreviewNs,
-			result.lnum,
-			endCol,
-			{ virt_text = { virtText }, virt_text_pos = "inline" }
-		)
-	end)
+	return #searchMatchEndCols
 end
 
 --------------------------------------------------------------------------------

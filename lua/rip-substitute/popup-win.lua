@@ -46,6 +46,27 @@ local function closePopupWin()
 	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
 end
 
+---@param numOfMatches number
+local function updateMatchCount(numOfMatches)
+	local state = require("rip-substitute.state").state
+	local currentFooter = vim.deepcopy(vim.api.nvim_win_get_config(state.popupWinNr).footer)
+	local keymapHint = table.remove(currentFooter)
+	local footer = { keymapHint }
+
+	if numOfMatches > 0 then
+		local plural = numOfMatches == 1 and "" or "es"
+		local matchText = (" %s match%s "):format(numOfMatches, plural)
+		local matchSegment = numOfMatches > 0 and { matchText, "Keyword" } or nil
+		table.insert(footer, 1, matchSegment)
+	end
+
+	vim.api.nvim_win_set_config(state.popupWinNr, {
+		footer = footer,
+	})
+end
+
+--------------------------------------------------------------------------------
+
 function M.openSubstitutionPopup()
 	-- IMPORTS & INITIALIZATION
 	local rg = require("rip-substitute.rg-operations")
@@ -78,15 +99,16 @@ function M.openSubstitutionPopup()
 	vim.api.nvim_buf_set_name(state.popupBufNr, "rip-substitute")
 	local scrollbarOffset = 3
 
-	-- FOOTER
+	-- FOOTER & WIDTH
 	local maps = config.keymaps
-	local footerStr = ("%s Confirm  %s Abort"):format(maps.confirm, maps.abort)
-	if #state.popupHistory > 0 then
-		footerStr = footerStr .. ("  %s/%s Prev/Next"):format(maps.prevSubst, maps.nextSubst)
-	end
-	footerStr = footerStr:gsub("<[Cc][Rr]>", "⏎"):gsub("<[dD]own>", "↓"):gsub("<[Uu]p>", "↑")
+	local suffix = #state.popupHistory == 0 and ("%s Abort"):format(maps.abort)
+		or ("%s/%s Prev/Next"):format(maps.prevSubst, maps.nextSubst)
+	local keymapHint = maps.confirm .. " Confirm  " .. suffix
+	keymapHint = keymapHint:gsub("<[Cc][Rr]>", "⏎"):gsub("<[dD]own>", "↓"):gsub("<[Uu]p>", "↑")
+
 	local width = config.popupWin.width
-	if #footerStr > width then width = #footerStr + 2 end
+	local expectedFooterLength = #keymapHint + 11 + 2 -- 11 for "123 matches" + 2 for border
+	if expectedFooterLength > width then width = expectedFooterLength end
 
 	-- CREATE WINDOW
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
@@ -98,10 +120,9 @@ function M.openSubstitutionPopup()
 		style = "minimal",
 		border = config.popupWin.border,
 		title = "  rip-substitute ",
-		title_pos = "center",
 		zindex = 2, -- below nvim-notify
 		footer = {
-			{ " " .. footerStr .. " ", "Comment" },
+			{ " " .. keymapHint .. " ", "Comment" },
 		},
 	})
 	local winOpts = {
@@ -124,7 +145,8 @@ function M.openSubstitutionPopup()
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			ensureOnly2LinesInPopup()
-			rg.incrementalPreview()
+			local numOfMatches = rg.incrementalPreview()
+			updateMatchCount(numOfMatches)
 			setPopupLabels()
 		end,
 	})

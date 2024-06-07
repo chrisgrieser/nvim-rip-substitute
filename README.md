@@ -30,7 +30,8 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 ## Features
 - Search and replace using `ripgrep`.
 - Uses common regex syntax (pcre2) — no more arcane vim regex.
-- Incremental preview of matches and replacements.
+- Incremental preview of matches and replacements, display of the number of
+  current matches.
 - Popup window instead of command line. This means:
 	+ Syntax highlighting of the regex.
 	+ Editing with vim motions.
@@ -39,8 +40,8 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
   (`/g`), case-sensitive (`/I`).
 - Automatic prefill of the search term: cursorword in normal mode, and the
   selected text in visual mode.
-- Optional notification on how many replacements were made.
-- Increased readability. Judge for yourself:
+- History of previous substitutions.
+- Readability comparison:
 
   ```txt
   # all three are equivalent
@@ -110,7 +111,6 @@ require("rip-substitute").setup {
 		normal = "cursorWord", -- "cursorWord"|false
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
 	},
-	notificationOnSuccess = true,
 }
 ```
 

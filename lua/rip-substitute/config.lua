@@ -26,7 +26,6 @@ local defaultConfig = {
 		normal = "cursorWord", -- "cursorWord"|false
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
 	},
-	notificationOnSuccess = true,
 }
 M.config = defaultConfig
 
