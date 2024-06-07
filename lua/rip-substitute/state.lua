@@ -9,6 +9,7 @@ local M = {}
 ---@field popupBufNr? number
 ---@field popupWinNr? number
 ---@field popupHistory? string[][]
+---@field popupPresentContent? string[]
 ---@field historyPosition? number
 M.state = {
 	popupHistory = {},

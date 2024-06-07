@@ -32,9 +32,11 @@ local function closePopupWin()
 	local state = require("rip-substitute.state").state
 
 	-- save last popup content for next run
-	local lastPopupContent = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
-	local duplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
-	if not duplicate then table.insert(state.popupHistory, lastPopupContent) end
+	local lastPopupContent = state.popupPresentContent
+		or vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
+	state.popupPresentContent = nil
+	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
+	if not isDuplicate then table.insert(state.popupHistory, lastPopupContent) end
 
 	if vim.api.nvim_win_is_valid(state.popupWinNr) then
 		vim.api.nvim_win_close(state.popupWinNr, true)
@@ -163,24 +165,22 @@ function M.openSubstitutionPopup()
 	end, { buffer = state.popupBufNr, nowait = true })
 
 	-- only set keymap when there is a last run
-	state.historyPosition = #state.popupHistory
+	state.historyPosition = #state.popupHistory + 1
 	vim.keymap.set({ "n", "x" }, config.keymaps.prevSubst, function()
+		if state.historyPosition < 2 then return end
+		if state.historyPosition == #state.popupHistory + 1 then
+			state.popupPresentContent = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
+		end
 		state.historyPosition = state.historyPosition - 1
 		local content = state.popupHistory[state.historyPosition]
-		if content then
-			vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
-		else
-			state.historyPosition = 1
-		end
+		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
 	end, { buffer = state.popupBufNr, nowait = true })
 	vim.keymap.set({ "n", "x" }, config.keymaps.nextSubst, function()
+		if state.historyPosition == #state.popupHistory + 1 then return end -- already at present
 		state.historyPosition = state.historyPosition + 1
-		local content = state.popupHistory[state.historyPosition]
-		if content then
-			vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
-		else
-			state.historyPosition = #state.popupHistory
-		end
+		local content = state.historyPosition == #state.popupHistory + 1 and state.popupPresentContent
+			or state.popupHistory[state.historyPosition]
+		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
 	end, { buffer = state.popupBufNr, nowait = true })
 
 	-- also close the popup on leaving buffer, ensures there is not leftover
