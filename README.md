@@ -28,11 +28,12 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 <!-- tocstop -->
 
 ## Features
-- Search and replace using `ripgrep`.
+- Search and replace in the current buffer using
+  [ripgrep](https://github.com/BurntSushi/ripgrep).
 - Uses common regex syntax (pcre2) — no more arcane vim regex.
-- Incremental preview of matches and replacements, display of the number of
-  current matches.
-- Popup window instead of command line. This means:
+- Incremental preview of matches and replacements & live-updating display of the
+  number of matches.
+- Popup window instead of command line. This entails:
 	+ Syntax highlighting of the regex.
 	+ Editing with vim motions.
 	+ No more dealing with delimiters.
@@ -41,6 +42,8 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 - Automatic prefill of the search term: cursorword in normal mode, and the
   selected text in visual mode.
 - History of previous substitutions.
+- Performant: Even in a file with 5000 lines and thousands of matches, still
+  performs blazingly fast.™
 - Readability comparison:
   ```txt
   # all three are equivalent
