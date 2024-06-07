@@ -58,15 +58,17 @@ end
 ---@return number -- *total* number of matches (including outside viewport)
 local function rgResultsInViewportIter(rgArgs)
 	local rgResult = runRipgrep(rgArgs)
-	if rgResult.code ~= 0 then return vim.iter {} end -- empty iter on error
-	local rgLines = vim.split(vim.trim(rgResult.stdout), "\n")
 
+	-- GUARD non-zero exit = no matches
+	if rgResult.code ~= 0 then return vim.iter {}, 0 end
+
+	local rgLines = vim.split(vim.trim(rgResult.stdout), "\n")
 	local state = require("rip-substitute.state").state
 	local viewportStart = vim.fn.line("w0", state.targetWin)
 	local viewportEnd = vim.fn.line("w$", state.targetWin)
 
 	local viewportIter = vim.iter(rgLines)
-		:filter(function(line) -- PERF only in viewport
+		:filter(function(line)
 			local lnum = tonumber(line:match("^(%d+):"))
 			return (lnum >= viewportStart) and (lnum <= viewportEnd)
 		end)
