@@ -1,5 +1,4 @@
 local M = {}
-local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
 local function setPopupLabels()
@@ -172,7 +171,6 @@ function M.openSubstitutionPopup()
 			vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
 		else
 			state.historyPosition = 1
-			u.notify("No more previous substitutions.")
 		end
 	end, { buffer = state.popupBufNr, nowait = true })
 	vim.keymap.set({ "n", "x" }, config.keymaps.nextSubst, function()
@@ -182,7 +180,6 @@ function M.openSubstitutionPopup()
 			vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
 		else
 			state.historyPosition = #state.popupHistory
-			u.notify("No more next substitutions.")
 		end
 	end, { buffer = state.popupBufNr, nowait = true })
 
