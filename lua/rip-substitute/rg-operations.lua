@@ -104,6 +104,7 @@ function M.incrementalPreview()
 		-- that we can simply collect them in a list.
 		table.insert(searchMatchEndCols, endCol)
 	end)
+	local numOfMatches = #searchMatchEndCols
 
 	-- INSERT REPLACEMENTS AS VIRTUAL TEXT
 	if toReplace ~= "" and #searchMatchEndCols > 0 then
@@ -121,7 +122,7 @@ function M.incrementalPreview()
 		end)
 	end
 
-	return #searchMatchEndCols
+	return numOfMatches
 end
 
 --------------------------------------------------------------------------------
