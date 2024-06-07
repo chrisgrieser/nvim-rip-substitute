@@ -54,7 +54,8 @@ end
 --------------------------------------------------------------------------------
 
 ---@param rgArgs string[]
----@return Iter { lnum: number, col: number, text: string }
+---@return Iter Viewport Iter { lnum: number, col: number, text: string }
+---@return number -- *total* number of matches (including outside viewport)
 local function rgResultsInViewportIter(rgArgs)
 	local rgResult = runRipgrep(rgArgs)
 	if rgResult.code ~= 0 then return vim.iter {} end -- empty iter on error
@@ -64,7 +65,7 @@ local function rgResultsInViewportIter(rgArgs)
 	local viewportStart = vim.fn.line("w0", state.targetWin)
 	local viewportEnd = vim.fn.line("w$", state.targetWin)
 
-	return vim.iter(rgLines)
+	local viewportIter = vim.iter(rgLines)
 		:filter(function(line) -- PERF only in viewport
 			local lnum = tonumber(line:match("^(%d+):"))
 			return (lnum >= viewportStart) and (lnum <= viewportEnd)
@@ -77,6 +78,7 @@ local function rgResultsInViewportIter(rgArgs)
 				text = text,
 			}
 		end)
+	return viewportIter, #rgLines
 end
 
 ---@return number -- number of matches
@@ -88,8 +90,9 @@ function M.incrementalPreview()
 
 	-- HIGHLIGHT SEARCH MATCHES
 	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
-	local searchMatchEndCols = {}
-	rgResultsInViewportIter(rgArgs):each(function(result)
+	local matchEndcolsInViewport = {}
+	local viewportIter, numOfMatches = rgResultsInViewportIter(rgArgs)
+	viewportIter:each(function(result)
 		local endCol = result.col + #result.text
 		vim.api.nvim_buf_add_highlight(
 			state.targetBuf,
@@ -102,16 +105,15 @@ function M.incrementalPreview()
 		-- INFO saving the end columns to correctly position the replacements.
 		-- For single files, `rg` gives us results sorted by line & column, so
 		-- that we can simply collect them in a list.
-		table.insert(searchMatchEndCols, endCol)
+		table.insert(matchEndcolsInViewport, endCol)
 	end)
-	local numOfMatches = #searchMatchEndCols
 
 	-- INSERT REPLACEMENTS AS VIRTUAL TEXT
-	if toReplace ~= "" and #searchMatchEndCols > 0 then
+	if toReplace ~= "" and #matchEndcolsInViewport > 0 then
 		vim.list_extend(rgArgs, { "--replace=" .. toReplace })
 		rgResultsInViewportIter(rgArgs):each(function(result)
 			local virtText = { result.text, "IncSearch" }
-			local endCol = table.remove(searchMatchEndCols, 1)
+			local endCol = table.remove(matchEndcolsInViewport, 1)
 			vim.api.nvim_buf_set_extmark(
 				state.targetBuf,
 				state.incPreviewNs,
