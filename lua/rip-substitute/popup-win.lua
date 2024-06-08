@@ -144,7 +144,7 @@ function M.openSubstitutionPopup()
 	})
 	local winOpts = {
 		list = true,
-		listchars = "multispace:·,tab:▸▸,precedes:…,extends:…",
+		listchars = "multispace:·,trail:·,lead:·,tab:▸▸,precedes:…,extends:…",
 		signcolumn = "no",
 		sidescrolloff = 0,
 		scrolloff = 0,
