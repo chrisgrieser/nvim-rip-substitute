@@ -1,22 +1,35 @@
 local M = {}
 --------------------------------------------------------------------------------
 
-local function setPopupLabels()
+---@return string[]
+local function getPopupLines()
+	local state = require("rip-substitute.state").state
+	return vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
+end
+
+---Adds `Search` and `Replace` as labels to the popup window, if there is enough
+---space in the popup window, i.e., the current content will not overlap with it.
+---@param popupWidth number
+local function setPopupLabelsIfEnoughSpace(popupWidth)
 	local state = require("rip-substitute.state").state
 	vim.api.nvim_buf_clear_namespace(state.popupBufNr, state.labelNs, 0, -1)
-	vim.api.nvim_buf_set_extmark(state.popupBufNr, state.labelNs, 0, 0, {
-		virt_text = { { " Search", "DiagnosticVirtualTextInfo" } },
-		virt_text_pos = "right_align",
-	})
-	vim.api.nvim_buf_set_extmark(state.popupBufNr, state.labelNs, 1, 0, {
-		virt_text = { { "Replace", "DiagnosticVirtualTextInfo" } },
-		virt_text_pos = "right_align",
-	})
+
+	local popupLines = getPopupLines()
+	local labels = { " Search", "Replace" }
+	for i = 1, 2 do
+		local contentOverlapsLabel = #popupLines[i] >= popupWidth - #labels[i]
+		if not contentOverlapsLabel then
+			vim.api.nvim_buf_set_extmark(state.popupBufNr, state.labelNs, i - 1, 0, {
+				virt_text = { { labels[i], "DiagnosticVirtualTextInfo" } },
+				virt_text_pos = "right_align",
+			})
+		end
+	end
 end
 
 local function ensureOnly2LinesInPopup()
 	local state = require("rip-substitute.state").state
-	local lines = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
+	local lines = getPopupLines()
 	if #lines == 2 then return end
 	if #lines == 1 then
 		lines[2] = ""
@@ -32,8 +45,7 @@ local function closePopupWin()
 	local state = require("rip-substitute.state").state
 
 	-- save last popup content for next run
-	local lastPopupContent = state.popupPresentContent
-		or vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
+	local lastPopupContent = state.popupPresentContent or getPopupLines()
 	state.popupPresentContent = nil
 	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
 	if not isDuplicate then table.insert(state.popupHistory, lastPopupContent) end
@@ -144,7 +156,7 @@ function M.openSubstitutionPopup()
 	vim.cmd.startinsert { bang = true }
 
 	-- LABELS, MATCH-HIGHLIGHTS, AND STATIC WINDOW
-	setPopupLabels()
+	setPopupLabelsIfEnoughSpace(width)
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		buffer = state.popupBufNr,
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
@@ -152,7 +164,7 @@ function M.openSubstitutionPopup()
 			ensureOnly2LinesInPopup()
 			local numOfMatches = rg.incrementalPreviewAndMatchCount() or 0
 			updateMatchCount(numOfMatches)
-			setPopupLabels()
+			setPopupLabelsIfEnoughSpace(width)
 		end,
 	})
 
