@@ -110,7 +110,7 @@ require("rip-substitute").setup {
 		autoBraceSimpleCaptureGroups = true,
 	},
 	prefill = {
-		normal = "treesitterNode", -- "treesitterNode"|"cursorWord"|false
+		normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
 	},
 }
