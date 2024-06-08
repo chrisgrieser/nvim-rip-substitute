@@ -23,7 +23,7 @@ local defaultConfig = {
 		autoBraceSimpleCaptureGroups = true,
 	},
 	prefill = {
-		normal = "cursorWord", -- "cursorWord"|false
+		normal = "treesitterNode", -- "treesitterNode"|"cursorWord"|false
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
 	},
 }
