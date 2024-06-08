@@ -3,7 +3,8 @@ local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
 ---@param args string[]
----@return vim.SystemCompleted
+---@return number exitCode
+---@return string[] stdoutOrStderr
 local function runRipgrep(args)
 	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
@@ -11,7 +12,10 @@ local function runRipgrep(args)
 	local rgCmd = vim.list_extend({ "rg", "--no-config" }, args)
 	if config.regexOptions.pcre2 then table.insert(rgCmd, "--pcre2") end
 	vim.list_extend(rgCmd, { "--", state.targetFile })
-	return vim.system(rgCmd):wait()
+	local result = vim.system(rgCmd):wait()
+
+	local text = result.code == 0 and result.stdout or result.stderr
+	return result.code, vim.split(vim.trim(text or ""), "\n")
 end
 
 ---@return string
@@ -33,18 +37,15 @@ function M.executeSubstitution()
 	local state = require("rip-substitute.state").state
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
 
-	-- substitute
-	local rgResult = runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
-	if rgResult.code ~= 0 then
-		u.notify(rgResult.stderr, "error")
+	local code, results = runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
+	if code ~= 0 then
+		u.notify(table.concat(results, "\n"), "error")
 		return
 	end
 
-	-- UPDATE LINES
 	-- only update individual lines as opposed to whole buffer, as this
 	-- preserves folds and marks
-	local replacements = vim.split(vim.trim(rgResult.stdout), "\n")
-	for _, repl in pairs(replacements) do
+	for _, repl in pairs(results) do
 		local lineStr, newLine = repl:match("^(%d+):(.*)")
 		local lnum = assert(tonumber(lineStr))
 		vim.api.nvim_buf_set_lines(state.targetBuf, lnum - 1, lnum, false, { newLine })
@@ -53,48 +54,48 @@ end
 
 --------------------------------------------------------------------------------
 
----@param rgArgs string[]
----@return Iter Viewport Iter { lnum: number, col: number, text: string }
----@return number -- *total* number of matches (including outside viewport)
-local function rgResultsInViewportIter(rgArgs)
-	local rgResult = runRipgrep(rgArgs)
-
-	-- GUARD non-zero exit = no matches
-	if rgResult.code ~= 0 then return vim.iter {}, 0 end
-
-	local rgLines = vim.split(vim.trim(rgResult.stdout), "\n")
-	local state = require("rip-substitute.state").state
-	local viewportStart = vim.fn.line("w0", state.targetWin)
-	local viewportEnd = vim.fn.line("w$", state.targetWin)
-
-	local viewportIter = vim.iter(rgLines)
-		:filter(function(line)
-			local lnum = tonumber(line:match("^(%d+):"))
-			return (lnum >= viewportStart) and (lnum <= viewportEnd)
-		end)
-		:map(function(line)
-			local lnumStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
-			return {
-				lnum = tonumber(lnumStr) - 1,
-				col = tonumber(colStr) - 1,
-				text = text,
-			}
-		end)
-	return viewportIter, #rgLines
+---@param line string formatted as `lnum:col:text`
+---@return { lnum: number, col: number, text: string }
+local function parseRgResult(line)
+	local lnumStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
+	return { lnum = tonumber(lnumStr) - 1, col = tonumber(colStr) - 1, text = text }
 end
 
----@return number -- number of matches
-function M.incrementalPreview()
+---Creates an increments preview of search matches & replacements in the
+---viewport, and returns the total number of matches. (The total count is derived
+---from this function to avoid re-running `rg` just for the count.)
+---@return number? -- total number of matches (including outside viewport)
+function M.incrementalPreviewAndMatchCount()
 	local state = require("rip-substitute.state").state
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
-	if toSearch == "" then return 0 end
+	if toSearch == "" then return end
 
-	-- HIGHLIGHT SEARCH MATCHES
+	-- DETERMINE MATCHES
 	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
 	local matchEndcolsInViewport = {}
-	local viewportIter, numOfMatches = rgResultsInViewportIter(rgArgs)
-	viewportIter:each(function(result)
+	local code, searchMatches = runRipgrep(rgArgs)
+	if code ~= 0 then return end
+
+	-- FILTER MATCHES OUTSIDE VIEWPORT
+	-- PERF For single files, `rg` gives us results sorted by lines, so we can
+	-- slice instead of filter to improve performance.
+	local viewportStart = vim.fn.line("w0", state.targetWin)
+	local viewportEnd = vim.fn.line("w$", state.targetWin)
+	local start, ending
+	for i = 1, #searchMatches do
+		local lnum = tonumber(searchMatches[i]:match("^(%d+):"))
+		if not start and lnum >= viewportStart and lnum <= viewportEnd then start = i end
+		if start and lnum > viewportEnd then
+			ending = i - 1
+			break
+		end
+	end
+	if not start then return #searchMatches end -- no matches in viewport
+	if not ending then ending = #searchMatches end
+
+	-- HIGHLIGHT SEARCH MATCHES
+	vim.iter(searchMatches):slice(start, ending):map(parseRgResult):each(function(result)
 		local endCol = result.col + #result.text
 		vim.api.nvim_buf_add_highlight(
 			state.targetBuf,
@@ -107,26 +108,29 @@ function M.incrementalPreview()
 		-- INFO saving the end columns to correctly position the replacements.
 		-- For single files, `rg` gives us results sorted by line & column, so
 		-- that we can simply collect them in a list.
-		table.insert(matchEndcolsInViewport, endCol)
+		if toReplace ~= "" then table.insert(matchEndcolsInViewport, endCol) end
 	end)
 
 	-- INSERT REPLACEMENTS AS VIRTUAL TEXT
-	if toReplace ~= "" and #matchEndcolsInViewport > 0 then
-		vim.list_extend(rgArgs, { "--replace=" .. toReplace })
-		rgResultsInViewportIter(rgArgs):each(function(result)
-			local virtText = { result.text, "IncSearch" }
-			local endCol = table.remove(matchEndcolsInViewport, 1)
-			vim.api.nvim_buf_set_extmark(
-				state.targetBuf,
-				state.incPreviewNs,
-				result.lnum,
-				endCol,
-				{ virt_text = { virtText }, virt_text_pos = "inline" }
-			)
-		end)
-	end
+	if toReplace == "" then return #searchMatches end
 
-	return numOfMatches
+	vim.list_extend(rgArgs, { "--replace=" .. toReplace })
+	local code2, replacements = runRipgrep(rgArgs)
+	if code2 ~= 0 then return #searchMatches end
+
+	vim.iter(replacements):slice(start, ending):map(parseRgResult):each(function(result)
+		local virtText = { result.text, "IncSearch" }
+		local endCol = table.remove(matchEndcolsInViewport, 1)
+		vim.api.nvim_buf_set_extmark(
+			state.targetBuf,
+			state.incPreviewNs,
+			result.lnum,
+			endCol,
+			{ virt_text = { virtText }, virt_text_pos = "inline" }
+		)
+	end)
+
+	return #searchMatches
 end
 
 --------------------------------------------------------------------------------

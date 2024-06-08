@@ -146,7 +146,7 @@ function M.openSubstitutionPopup()
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			ensureOnly2LinesInPopup()
-			local numOfMatches = rg.incrementalPreview()
+			local numOfMatches = rg.incrementalPreviewAndMatchCount() or 0
 			updateMatchCount(numOfMatches)
 			setPopupLabels()
 		end,
