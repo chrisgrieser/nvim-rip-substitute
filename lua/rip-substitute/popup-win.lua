@@ -123,7 +123,7 @@ function M.openSubstitutionPopup()
 		title = "  rip-substitute ",
 		zindex = 2, -- below nvim-notify
 		footer = {
-			{ " " .. keymapHint .. " ", "Comment" },
+			{ " " .. keymapHint .. " ", "FloatBorder" },
 		},
 	})
 	local winOpts = {
