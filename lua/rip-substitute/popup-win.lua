@@ -98,7 +98,7 @@ function M.openSubstitutionPopup()
 		prefill = vim.fn.expand("<cword>")
 		if config.prefill.normal == "treesitterNode" then
 			local parserExists, node = pcall(vim.treesitter.get_node)
-			if parserExists and node then vim.treesitter.get_node_text(node, 0) end
+			if parserExists and node then prefill = vim.treesitter.get_node_text(node, 0) end
 		end
 	elseif mode:find("[Vv]") and config.prefill.visual == "selectionFirstLine" then
 		vim.cmd.normal { '"zy', bang = true }
