@@ -118,7 +118,7 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
             autoBraceSimpleCaptureGroups = true,
         },
         prefill = {
-            normal = "treesitterNode", -- "treesitterNode"|"cursorWord"|false
+            normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
             visual = "selectionFirstLine", -- "selectionFirstLine"|false
         },
     }
