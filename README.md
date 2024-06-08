@@ -40,7 +40,7 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 - Sensible defaults: searches the entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
 - Automatic prefill of the search term: cursorword in normal mode, and the
-  selected text in visual mode.
+  selected text in visual mode. Properly escaped for regex.
 - History of previous substitutions.
 - Performant: Even in a file with 5000 lines and thousands of matches, still
   performs blazingly fast.™

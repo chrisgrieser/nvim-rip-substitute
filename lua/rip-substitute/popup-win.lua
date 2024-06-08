@@ -61,9 +61,7 @@ local function updateMatchCount(numOfMatches)
 		table.insert(updatedFooter, 1, matchSegment)
 	end
 
-	vim.api.nvim_win_set_config(state.popupWinNr, {
-		footer = updatedFooter,
-	})
+	vim.api.nvim_win_set_config(state.popupWinNr, { footer = updatedFooter })
 end
 
 --------------------------------------------------------------------------------
