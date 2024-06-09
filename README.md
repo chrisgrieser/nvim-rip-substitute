@@ -22,6 +22,7 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
+- [Advanced](#advanced)
 - [Limitations](#limitations)
 - [About the developer](#about-the-developer)
 
@@ -103,10 +104,8 @@ require("rip-substitute").setup {
 	regexOptions = {
 		-- pcre2 enables lookarounds and backreferences, but performs slower.
 		pcre2 = true,
-		-- By default, rg treats `$1a` as the named capture group "1a". When set
-		-- to `true`, `$1a` is automatically changed to `${1}a` to ensure the
-		-- capture group is determined correctly. Disable this setting if you
-		-- plan an using named capture groups.
+		-- disable this, if you used named capture groups in your regex
+		-- (see README for more information.)
 		autoBraceSimpleCaptureGroups = true,
 	},
 	prefill = {
@@ -117,10 +116,22 @@ require("rip-substitute").setup {
 ```
 
 ## Usage
+In normal or visual mode, call:
 
 ```lua
 require("rip-substitute").sub()
 ```
+
+## Advanced
+`regexOptions.autoBraceSimpleCaptureGroups`  
+One annoying *gotcha* of `ripgrep`'s regex syntax is it treats `$1a` as the
+named capture group "1a", and *not* the as the 1st capture group followed by the
+letter "a". (See `ripgrep`'s man page on `--replace` for details.)
+
+If `autoBraceSimpleCaptureGroups` is set to `true` (the default), 
+`rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
+regex more intuitive. However, if you regularly use named capture groups, you
+may want to disable this setting.
 
 ## Limitations
 - `--multiline` and various other flags are not supported yet.

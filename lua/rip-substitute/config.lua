@@ -16,10 +16,8 @@ local defaultConfig = {
 	regexOptions = {
 		-- pcre2 enables lookarounds and backreferences, but performs slower.
 		pcre2 = true,
-		-- By default, rg treats `$1a` as the named capture group "1a". When set
-		-- to `true`, `$1a` is automatically changed to `${1}a` to ensure the
-		-- capture group is correctly determined. Disable this setting if you
-		-- plan an using named capture groups.
+		-- disable this, if you used named capture groups in your regex
+		-- (see README for more information.)
 		autoBraceSimpleCaptureGroups = true,
 	},
 	prefill = {
