@@ -17,7 +17,7 @@ local function setPopupLabelsIfEnoughSpace(popupWidth)
 	local popupLines = getPopupLines()
 	local labels = { " Search", "Replace" }
 	for i = 1, 2 do
-		local contentOverlapsLabel = #popupLines[i] >= popupWidth - #labels[i]
+		local contentOverlapsLabel = #popupLines[i] >= (popupWidth - #labels[i])
 		if not contentOverlapsLabel then
 			vim.api.nvim_buf_set_extmark(state.popupBufNr, state.labelNs, i - 1, 0, {
 				virt_text = { { labels[i], "DiagnosticVirtualTextInfo" } },
@@ -78,7 +78,7 @@ end
 
 local function autoCaptureGroups()
 	local state = require("rip-substitute.state").state
-	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, false))
+	local toSearch, toReplace = unpack(getPopupLines())
 
 	local _, openParenCount = toSearch:gsub("%)", "")
 	local _, closeParenCount = toSearch:gsub("%(", "")
@@ -188,8 +188,8 @@ function M.openSubstitutionPopup()
 			ensureOnly2LinesInPopup()
 			local numOfMatches = rg.incrementalPreviewAndMatchCount() or 0
 			updateMatchCount(numOfMatches)
-			setPopupLabelsIfEnoughSpace(width)
 			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end
+			setPopupLabelsIfEnoughSpace(width) -- should be last
 		end,
 	})
 
