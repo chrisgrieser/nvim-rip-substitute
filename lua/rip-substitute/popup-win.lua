@@ -135,7 +135,6 @@ function M.openSubstitutionPopup()
 	-- adds syntax highlighting via treesitter `regex` parser
 	vim.api.nvim_set_option_value("filetype", "regex", { buf = state.popupBufNr })
 	vim.api.nvim_buf_set_name(state.popupBufNr, "rip-substitute")
-	local scrollbarOffset = 3
 
 	-- FOOTER & WIDTH
 	local maps = config.keymaps
@@ -147,16 +146,20 @@ function M.openSubstitutionPopup()
 		:gsub("<[dD]own>", "↓")
 		:gsub("<[Uu]p>", "↑")
 		:gsub("<[Tt]ab>", "⭾ ")
+		:gsub("<[Ss]pace>", "⎵")
+		:gsub("<[Bb][Ss]>", "⌫")
 
 	local width = config.popupWin.width
 	local expectedFooterLength = #keymapHint + 11 + 2 -- 11 for "123 matches" + 2 for border
 	if expectedFooterLength > width then width = expectedFooterLength end
 
 	-- CREATE WINDOW
+	local scrollbarOffset = 3
+	local statuslineOffset = 3
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
-		row = vim.api.nvim_win_get_height(0) - 4,
-		col = vim.api.nvim_win_get_width(0) - width - scrollbarOffset - 2,
+		row = vim.api.nvim_win_get_height(0) - 1 - statuslineOffset,
+		col = vim.api.nvim_win_get_width(0) - 1 - width - scrollbarOffset ,
 		width = width,
 		height = 2,
 		style = "minimal",
