@@ -32,18 +32,19 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 - Search and replace in the current buffer using
   [ripgrep](https://github.com/BurntSushi/ripgrep).
 - Uses common regex syntax (pcre2) — no more arcane vim regex.
-- Incremental preview of matches and replacements & live-updating display of the
-  number of matches.
+- Incremental preview of matches and replacements.
+- Incrementally updated count of matches.
 - Popup window instead of command line. This entails:
 	+ Syntax highlighting of the regex.
 	+ Editing with vim motions.
+	+ Snippets and completions work.
 	+ No more dealing with delimiters.
 - Sensible defaults: searches the entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
 - Automatic prefill of the search term: cursorword in normal mode, and the
-  selected text in visual mode. 
-- Quality-of-Life features: prefill is automatically escaped, capture groups
-  tokens are automatically added.
+  selected text in visual mode.
+- Quality-of-Life features: prefill-text is automatically escaped, capture
+  groups tokens can be automatically added.
 - History of previous substitutions.
 - Performant: Even in a file with 5000 lines and thousands of matches, still
   performs blazingly fast.™
@@ -134,8 +135,8 @@ require("rip-substitute").sub()
 ## Advanced
 `regexOptions.autoBraceSimpleCaptureGroups`  
 One annoying *gotcha* of `ripgrep`'s regex syntax is it treats `$1a` as the
-named capture group "1a", and *not* the as the 1st capture group followed by the
-letter "a". (See `ripgrep`'s man page on `--replace` for details.)
+named capture group "1a," and *not* the as the first capture group followed by the
+letter "a." (See `ripgrep`'s man page on `--replace` for details.)
 
 If `autoBraceSimpleCaptureGroups` is set to `true` (the default),
 `rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
