@@ -159,7 +159,7 @@ function M.openSubstitutionPopup()
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
 		row = vim.api.nvim_win_get_height(0) - 1 - statuslineOffset,
-		col = vim.api.nvim_win_get_width(0) - 1 - width - scrollbarOffset ,
+		col = vim.api.nvim_win_get_width(0) - 1 - width - scrollbarOffset,
 		width = width,
 		height = 2,
 		style = "minimal",
