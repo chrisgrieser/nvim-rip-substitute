@@ -172,6 +172,7 @@ function M.openSubstitutionPopup()
 	})
 
 	-- KEYMAPS
+	local opts = { buffer = state.popupBufNr, nowait = true }
 	vim.keymap.set(
 		{ "n", "x" },
 		config.keymaps.abort,
@@ -181,9 +182,8 @@ function M.openSubstitutionPopup()
 	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, function()
 		rg.executeSubstitution()
 		closePopupWin()
-	end, { buffer = state.popupBufNr, nowait = true })
+	end, opts)
 
-	-- only set keymap when there is a last run
 	state.historyPosition = #state.popupHistory + 1
 	vim.keymap.set({ "n", "x" }, config.keymaps.prevSubst, function()
 		if state.historyPosition < 2 then return end
@@ -193,14 +193,14 @@ function M.openSubstitutionPopup()
 		state.historyPosition = state.historyPosition - 1
 		local content = state.popupHistory[state.historyPosition]
 		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
-	end, { buffer = state.popupBufNr, nowait = true })
+	end, opts)
 	vim.keymap.set({ "n", "x" }, config.keymaps.nextSubst, function()
 		if state.historyPosition == #state.popupHistory + 1 then return end -- already at present
 		state.historyPosition = state.historyPosition + 1
 		local content = state.historyPosition == #state.popupHistory + 1 and state.popupPresentContent
 			or state.popupHistory[state.historyPosition]
 		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
-	end, { buffer = state.popupBufNr, nowait = true })
+	end, opts)
 
 	-- also close the popup on leaving buffer, ensures there is not leftover
 	-- buffer when user closes popup in a different way, such as `:close`.
