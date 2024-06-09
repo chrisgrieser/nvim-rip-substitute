@@ -41,7 +41,9 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 - Sensible defaults: searches the entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
 - Automatic prefill of the search term: cursorword in normal mode, and the
-  selected text in visual mode. Properly escaped for regex.
+  selected text in visual mode. 
+- Quality-of-Life features: prefill is automatically escaped, capture groups
+  tokens are automatically added.
 - History of previous substitutions.
 - Performant: Even in a file with 5000 lines and thousands of matches, still
   performs blazingly fast.™
@@ -95,6 +97,10 @@ require("rip-substitute").setup {
 		width = 40,
 		border = "single",
 	},
+	prefill = {
+		normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
+		visual = "selectionFirstLine", -- "selectionFirstLine"|false
+	},
 	keymaps = { -- normal & visual mode
 		confirm = "<CR>",
 		abort = "q",
@@ -110,9 +116,10 @@ require("rip-substitute").setup {
 		-- disable if you use named capture groups (see README for details)
 		autoBraceSimpleCaptureGroups = true,
 	},
-	prefill = {
-		normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
-		visual = "selectionFirstLine", -- "selectionFirstLine"|false
+	editingBehavior = {
+		-- Experimental. When typing `()` in the `search` lines, automatically
+		-- add `$n` to the `replacement` line.
+		autoCaptureGroups = false,
 	},
 }
 ```

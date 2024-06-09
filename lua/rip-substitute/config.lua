@@ -7,6 +7,10 @@ local defaultConfig = {
 		width = 40,
 		border = "single",
 	},
+	prefill = {
+		normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
+		visual = "selectionFirstLine", -- "selectionFirstLine"|false
+	},
 	keymaps = { -- normal & visual mode
 		confirm = "<CR>",
 		abort = "q",
@@ -22,9 +26,10 @@ local defaultConfig = {
 		-- disable if you use named capture groups (see README for details)
 		autoBraceSimpleCaptureGroups = true,
 	},
-	prefill = {
-		normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
-		visual = "selectionFirstLine", -- "selectionFirstLine"|false
+	editingBehavior = {
+		-- Experimental. When typing `()` in the `search` lines, automatically
+		-- add `$n` to the `replacement` line.
+		autoCaptureGroups = false,
 	},
 }
 M.config = defaultConfig

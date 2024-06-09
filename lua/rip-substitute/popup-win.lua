@@ -76,6 +76,27 @@ local function updateMatchCount(numOfMatches)
 	vim.api.nvim_win_set_config(state.popupWinNr, { footer = updatedFooter })
 end
 
+local function autoCaptureGroups()
+	local state = require("rip-substitute.state").state
+	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, false))
+
+	local _, openParenCount = toSearch:gsub("%)", "")
+	local _, closeParenCount = toSearch:gsub("%(", "")
+	local balancedCount = math.min(openParenCount, closeParenCount)
+
+	local captureCount = 0
+	for n = 1, balancedCount do
+		local hasGroupN = toReplace:match("%$" .. n) or toReplace:match("%{" .. n .. "}")
+		if not hasGroupN then break end
+		captureCount = n
+	end
+
+	if captureCount < balancedCount then
+		local newReplaceLine = toReplace .. "$" .. (captureCount + 1)
+		vim.api.nvim_buf_set_lines(state.popupBufNr, 1, 2, false, { newReplaceLine })
+	end
+end
+
 --------------------------------------------------------------------------------
 
 function M.openSubstitutionPopup()
@@ -168,6 +189,7 @@ function M.openSubstitutionPopup()
 			local numOfMatches = rg.incrementalPreviewAndMatchCount() or 0
 			updateMatchCount(numOfMatches)
 			setPopupLabelsIfEnoughSpace(width)
+			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end
 		end,
 	})
 
