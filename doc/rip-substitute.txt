@@ -9,6 +9,7 @@ Table of Contents                           *rip-substitute-table-of-contents*
   - Installation                 |rip-substitute-rip-substitute--installation|
   - Configuration               |rip-substitute-rip-substitute--configuration|
   - Usage                               |rip-substitute-rip-substitute--usage|
+  - Advanced                         |rip-substitute-rip-substitute--advanced|
   - Limitations                   |rip-substitute-rip-substitute--limitations|
   - About the developer   |rip-substitute-rip-substitute--about-the-developer|
 
@@ -29,6 +30,7 @@ TABLE OF CONTENTS           *rip-substitute-rip-substitute--table-of-contents*
 - |rip-substitute-installation|
 - |rip-substitute-configuration|
 - |rip-substitute-usage|
+- |rip-substitute-advanced|
 - |rip-substitute-limitations|
 - |rip-substitute-about-the-developer|
 
@@ -51,7 +53,7 @@ FEATURES                             *rip-substitute-rip-substitute--features*
 - History of previous substitutions.
 - Performant: Even in a file with 5000 lines and thousands of matches, still
     performs blazingly fast.
-- Readability comparison:
+- Syntax comparison:
     >txt
         # all three are equivalent
         
@@ -108,13 +110,13 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
             prevSubst = "<Up>",
             nextSubst = "<Down>",
         },
+        incrementalPreview = {
+            replacementDisplay = "sideBySide", -- "sideBySide"|"overlay"
+        },
         regexOptions = {
-            -- pcre2 enables lookarounds and backreferences, but performs slower.
+            -- pcre2 enables lookarounds and backreferences, but performs slower
             pcre2 = true,
-            -- By default, rg treats `$1a` as the named capture group "1a". When set
-            -- to `true`, `$1a` is automatically changed to `${1}a` to ensure the
-            -- capture group is determined correctly. Disable this setting if you
-            -- plan an using named capture groups.
+            -- disable if you use named capture groups (see README for details)
             autoBraceSimpleCaptureGroups = true,
         },
         prefill = {
@@ -127,15 +129,29 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
 
 USAGE                                   *rip-substitute-rip-substitute--usage*
 
+In normal or visual mode, call:
+
 >lua
     require("rip-substitute").sub()
 <
 
 
+ADVANCED                             *rip-substitute-rip-substitute--advanced*
+
+`regexOptions.autoBraceSimpleCaptureGroups` One annoying _gotcha_ of
+`ripgrep`’s regex syntax is it treats `$1a` as the named capture group "1a",
+and _not_ the as the 1st capture group followed by the letter "a". (See
+`ripgrep`’s man page on `--replace` for details.)
+
+If `autoBraceSimpleCaptureGroups` is set to `true` (the default),
+`rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
+regex more intuitive. However, if you regularly use named capture groups, you
+may want to disable this setting.
+
+
 LIMITATIONS                       *rip-substitute-rip-substitute--limitations*
 
 - `--multiline` and various other flags are not supported yet.
-- The incremental preview does not support _hiding_ the search terms.
 - This plugin only searches the current buffer. To search and replace in
     multiple files via `ripgrep`, use
     grug-far.nvim <https://github.com/MagicDuck/grug-far.nvim>.
