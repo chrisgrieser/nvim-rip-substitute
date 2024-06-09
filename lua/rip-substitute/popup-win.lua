@@ -121,7 +121,11 @@ function M.openSubstitutionPopup()
 	local suffix = #state.popupHistory == 0 and ("%s Abort"):format(maps.abort)
 		or ("%s/%s Prev/Next"):format(maps.prevSubst, maps.nextSubst)
 	local keymapHint = maps.confirm .. " Confirm  " .. suffix
-	keymapHint = keymapHint:gsub("<[Cc][Rr]>", "⏎"):gsub("<[dD]own>", "↓"):gsub("<[Uu]p>", "↑")
+	keymapHint = keymapHint
+		:gsub("<[Cc][Rr]>", "↩")
+		:gsub("<[dD]own>", "↓")
+		:gsub("<[Uu]p>", "↑")
+		:gsub("<[Tt]ab>", "⭾ ")
 
 	local width = config.popupWin.width
 	local expectedFooterLength = #keymapHint + 11 + 2 -- 11 for "123 matches" + 2 for border
