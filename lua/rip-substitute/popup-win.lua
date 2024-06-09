@@ -141,10 +141,12 @@ function M.openSubstitutionPopup()
 	local suffix = #state.popupHistory == 0 and ("%s Abort"):format(maps.abort)
 		or ("%s/%s Prev/Next"):format(maps.prevSubst, maps.nextSubst)
 	local keymapHint = maps.confirm .. " Confirm  " .. suffix
-	keymapHint = keymapHint
+	keymapHint = keymapHint -- using only utf symbols, so they work w/o nerd fonts
 		:gsub("<[Cc][Rr]>", "↩")
 		:gsub("<[dD]own>", "↓")
 		:gsub("<[Uu]p>", "↑")
+		:gsub("<[Rr]ight>", "→")
+		:gsub("<[Ll]eft>", "←")
 		:gsub("<[Tt]ab>", "⭾ ")
 		:gsub("<[Ss]pace>", "⎵")
 		:gsub("<[Bb][Ss]>", "⌫")
