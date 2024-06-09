@@ -13,11 +13,13 @@ local defaultConfig = {
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
 	},
+	incrementalPreview = {
+		replacementDisplay = "sideBySide", -- "sideBySide"|"overlay"
+	},
 	regexOptions = {
-		-- pcre2 enables lookarounds and backreferences, but performs slower.
+		-- pcre2 enables lookarounds and backreferences, but performs slower
 		pcre2 = true,
-		-- disable this, if you used named capture groups in your regex
-		-- (see README for more information.)
+		-- disable if you use named capture groups (see README for details)
 		autoBraceSimpleCaptureGroups = true,
 	},
 	prefill = {

@@ -68,6 +68,8 @@ end
 function M.incrementalPreviewAndMatchCount()
 	local state = require("rip-substitute.state").state
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
+	local hl = { active = "IncSearch", inactive = "LspInlayHint" }
+
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
 	if toSearch == "" then return end
 
@@ -95,20 +97,20 @@ function M.incrementalPreviewAndMatchCount()
 	if not ending then ending = #searchMatches end
 
 	-- HIGHLIGHT SEARCH MATCHES
-	vim.iter(searchMatches):slice(start, ending):map(parseRgResult):each(function(result)
-		local endCol = result.col + #result.text
+	vim.iter(searchMatches):slice(start, ending):map(parseRgResult):each(function(match)
+		local matchEndCol = match.col + #match.text
 		vim.api.nvim_buf_add_highlight(
 			state.targetBuf,
 			state.incPreviewNs,
-			toReplace == "" and "IncSearch" or "LspInlayHint",
-			result.lnum,
-			result.col,
-			endCol
+			toReplace == "" and hl.active or hl.inactive,
+			match.lnum,
+			match.col,
+			matchEndCol
 		)
 		-- INFO saving the end columns to correctly position the replacements.
 		-- For single files, `rg` gives us results sorted by line & column, so
 		-- that we can simply collect them in a list.
-		if toReplace ~= "" then table.insert(matchEndcolsInViewport, endCol) end
+		if toReplace ~= "" then table.insert(matchEndcolsInViewport, matchEndCol) end
 	end)
 
 	-- INSERT REPLACEMENTS AS VIRTUAL TEXT
@@ -118,16 +120,42 @@ function M.incrementalPreviewAndMatchCount()
 	local code2, replacements = runRipgrep(rgArgs)
 	if code2 ~= 0 then return #searchMatches end
 
-	vim.iter(replacements):slice(start, ending):map(parseRgResult):each(function(result)
-		local virtText = { result.text, "IncSearch" }
-		local endCol = table.remove(matchEndcolsInViewport, 1)
-		vim.api.nvim_buf_set_extmark(
-			state.targetBuf,
-			state.incPreviewNs,
-			result.lnum,
-			endCol,
-			{ virt_text = { virtText }, virt_text_pos = "inline" }
-		)
+	local displayMode = require("rip-substitute.config").config.incrementalPreview.replacementDisplay
+
+	vim.iter(replacements):slice(start, ending):map(parseRgResult):each(function(repl)
+		local matchEndCol = table.remove(matchEndcolsInViewport, 1)
+
+		if displayMode == "sideBySide" then
+			local virtText = { repl.text, hl.active }
+			vim.api.nvim_buf_set_extmark(
+				state.targetBuf,
+				state.incPreviewNs,
+				repl.lnum,
+				matchEndCol,
+				{ virt_text = { virtText }, virt_text_pos = "inline" }
+			)
+		elseif displayMode == "overlay" then
+			local searchMatchLen = matchEndCol - repl.col
+			local overlayText = { repl.text:sub(1, searchMatchLen), hl.active }
+			local inlineText = { repl.text:sub(searchMatchLen + 1), hl.active }
+			vim.api.nvim_buf_set_extmark(
+				state.targetBuf,
+				state.incPreviewNs,
+				repl.lnum,
+				repl.col,
+				{ virt_text = { overlayText }, virt_text_pos = "overlay" }
+			)
+			if #repl.text <= searchMatchLen then return end
+			vim.api.nvim_buf_set_extmark(
+				state.targetBuf,
+				state.incPreviewNs,
+				repl.lnum,
+				matchEndCol,
+				{ virt_text = { inlineText }, virt_text_pos = "inline" }
+			)
+		else
+			vim.notify_once("Unknown display mode: " .. displayMode, vim.log.levels.ERROR)
+		end
 	end)
 
 	return #searchMatches

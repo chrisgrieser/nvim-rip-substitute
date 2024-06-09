@@ -45,7 +45,7 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 - History of previous substitutions.
 - Performant: Even in a file with 5000 lines and thousands of matches, still
   performs blazingly fast.™
-- Readability comparison:
+- Syntax comparison:
   ```txt
   # all three are equivalent
 
@@ -101,11 +101,13 @@ require("rip-substitute").setup {
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
 	},
+	incrementalPreview = {
+		replacementDisplay = "sideBySide", -- "sideBySide"|"overlay"
+	},
 	regexOptions = {
-		-- pcre2 enables lookarounds and backreferences, but performs slower.
+		-- pcre2 enables lookarounds and backreferences, but performs slower
 		pcre2 = true,
-		-- disable this, if you used named capture groups in your regex
-		-- (see README for more information.)
+		-- disable if you use named capture groups (see README for details)
 		autoBraceSimpleCaptureGroups = true,
 	},
 	prefill = {
@@ -128,14 +130,13 @@ One annoying *gotcha* of `ripgrep`'s regex syntax is it treats `$1a` as the
 named capture group "1a", and *not* the as the 1st capture group followed by the
 letter "a". (See `ripgrep`'s man page on `--replace` for details.)
 
-If `autoBraceSimpleCaptureGroups` is set to `true` (the default), 
+If `autoBraceSimpleCaptureGroups` is set to `true` (the default),
 `rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
 ## Limitations
 - `--multiline` and various other flags are not supported yet.
-- The incremental preview does not support *hiding* the search terms.
 - This plugin only searches the current buffer. To search and replace in
   multiple files via `ripgrep`, use
   [grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim).
