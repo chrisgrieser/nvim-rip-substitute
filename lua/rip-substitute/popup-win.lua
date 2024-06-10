@@ -81,7 +81,7 @@ local function autoCaptureGroups()
 	local toSearch, toReplace = unpack(getPopupLines())
 
 	local _, openParenCount = toSearch:gsub("%)", "")
-	local _, closeParenCount = toSearch:gsub("%(", "")
+	local _, closeParenCount = toSearch:gsub("%([^?]", "")
 	local balancedCount = math.min(openParenCount, closeParenCount)
 
 	local captureCount = 0
@@ -150,7 +150,6 @@ function M.openSubstitutionPopup()
 		:gsub("<[Tt]ab>", "⭾ ")
 		:gsub("<[Ss]pace>", "⎵")
 		:gsub("<[Bb][Ss]>", "⌫")
-
 	local width = config.popupWin.width
 	local expectedFooterLength = #keymapHint + 11 + 2 -- 11 for "123 matches" + 2 for border
 	if expectedFooterLength > width then width = expectedFooterLength end
