@@ -81,7 +81,7 @@ local function autoCaptureGroups()
 	local toSearch, toReplace = unpack(getPopupLines())
 
 	local _, openParenCount = toSearch:gsub("%)", "")
-	local _, closeParenCount = toSearch:gsub("%([^?]", "")
+	local _, closeParenCount = toSearch:gsub("%([^?)]", "")
 	local balancedCount = math.min(openParenCount, closeParenCount)
 
 	local captureCount = 0
