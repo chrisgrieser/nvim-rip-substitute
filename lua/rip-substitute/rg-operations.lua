@@ -67,8 +67,8 @@ end
 ---@return number? -- total number of matches (including outside viewport)
 function M.incrementalPreviewAndMatchCount()
 	local state = require("rip-substitute.state").state
+	local opts = require("rip-substitute.config").config.incrementalPreview
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
-	local hl = { active = "IncSearch", inactive = "LspInlayHint" }
 
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
 	if toSearch == "" then return end
@@ -102,7 +102,7 @@ function M.incrementalPreviewAndMatchCount()
 		vim.api.nvim_buf_add_highlight(
 			state.targetBuf,
 			state.incPreviewNs,
-			toReplace == "" and hl.active or hl.inactive,
+			toReplace == "" and opts.activeSearchHlGroup or opts.inactiveSearchHlGroup,
 			match.lnum,
 			match.col,
 			matchEndCol
@@ -120,13 +120,11 @@ function M.incrementalPreviewAndMatchCount()
 	local code2, replacements = runRipgrep(rgArgs)
 	if code2 ~= 0 then return #searchMatches end
 
-	local displayMode = require("rip-substitute.config").config.incrementalPreview.replacementDisplay
-
 	vim.iter(replacements):slice(start, ending):map(parseRgResult):each(function(repl)
 		local matchEndCol = table.remove(matchEndcolsInViewport, 1)
 
-		if displayMode == "sideBySide" then
-			local virtText = { repl.text, hl.active }
+		if opts.replacementDisplay == "sideBySide" then
+			local virtText = { repl.text, opts.replacementHlGroup }
 			vim.api.nvim_buf_set_extmark(
 				state.targetBuf,
 				state.incPreviewNs,
@@ -134,10 +132,10 @@ function M.incrementalPreviewAndMatchCount()
 				matchEndCol,
 				{ virt_text = { virtText }, virt_text_pos = "inline" }
 			)
-		elseif displayMode == "overlay" then
+		elseif opts.replacementDisplay == "overlay" then
 			local searchMatchLen = matchEndCol - repl.col
-			local overlayText = { repl.text:sub(1, searchMatchLen), hl.active }
-			local inlineText = { repl.text:sub(searchMatchLen + 1), hl.active }
+			local overlayText = { repl.text:sub(1, searchMatchLen), opts.replacementHlGroup }
+			local inlineText = { repl.text:sub(searchMatchLen + 1), opts.replacementHlGroup }
 			vim.api.nvim_buf_set_extmark(
 				state.targetBuf,
 				state.incPreviewNs,
@@ -154,7 +152,7 @@ function M.incrementalPreviewAndMatchCount()
 				{ virt_text = { inlineText }, virt_text_pos = "inline" }
 			)
 		else
-			vim.notify_once("Unknown display mode: " .. displayMode, vim.log.levels.ERROR)
+			vim.notify_once("Unknown display mode: " .. opts.replacementDisplay, vim.log.levels.ERROR)
 		end
 	end)
 

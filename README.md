@@ -97,6 +97,7 @@ require("rip-substitute").setup {
 	popupWin = {
 		width = 40,
 		border = "single",
+		matchCountHlGroup = "Keyword",
 	},
 	prefill = {
 		normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
@@ -110,6 +111,9 @@ require("rip-substitute").setup {
 	},
 	incrementalPreview = {
 		replacementDisplay = "sideBySide", -- "sideBySide"|"overlay"
+		replacementHlGroup = "IncSearch",
+		activeSearchHlGroup = "IncSearch",
+		inactiveSearchHlGroup = "LspInlayHint",
 	},
 	regexOptions = {
 		-- pcre2 enables lookarounds and backreferences, but performs slower

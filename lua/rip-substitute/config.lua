@@ -6,6 +6,7 @@ local defaultConfig = {
 	popupWin = {
 		width = 40,
 		border = "single",
+		matchCountHlGroup = "Keyword",
 	},
 	prefill = {
 		normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
@@ -19,6 +20,9 @@ local defaultConfig = {
 	},
 	incrementalPreview = {
 		replacementDisplay = "sideBySide", -- "sideBySide"|"overlay"
+		replacementHlGroup = "IncSearch",
+		activeSearchHlGroup = "IncSearch",
+		inactiveSearchHlGroup = "LspInlayHint",
 	},
 	regexOptions = {
 		-- pcre2 enables lookarounds and backreferences, but performs slower

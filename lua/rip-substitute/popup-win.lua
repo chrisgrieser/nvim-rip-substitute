@@ -61,6 +61,7 @@ end
 
 ---@param numOfMatches number
 local function updateMatchCount(numOfMatches)
+	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 	local currentFooter = vim.deepcopy(vim.api.nvim_win_get_config(state.popupWinNr).footer)
 	local keymapHint = table.remove(currentFooter)
@@ -69,7 +70,8 @@ local function updateMatchCount(numOfMatches)
 	if numOfMatches > 0 then
 		local plural = numOfMatches == 1 and "" or "es"
 		local matchText = (" %s match%s "):format(numOfMatches, plural)
-		local matchSegment = numOfMatches > 0 and { matchText, "Keyword" } or nil
+		local hlGroup = config.popupWin.matchCountHlGroup
+		local matchSegment = numOfMatches > 0 and { matchText, hlGroup } or nil
 		table.insert(updatedFooter, 1, matchSegment)
 	end
 
