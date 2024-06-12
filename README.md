@@ -133,15 +133,18 @@ require("rip-substitute").sub()
 ```
 
 ## Advanced
-`regexOptions.autoBraceSimpleCaptureGroups`  
+**`autoBraceSimpleCaptureGroups`**
 One annoying *gotcha* of `ripgrep`'s regex syntax is it treats `$1a` as the
 named capture group "1a," and *not* the as the first capture group followed by the
 letter "a." (See `ripgrep`'s man page on `--replace` for details.)
 
-If `autoBraceSimpleCaptureGroups` is set to `true` (the default),
+If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 `rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
+
+**Filetype**
+The plugin sets the filetype `rip-substitute`.
 
 ## Limitations
 - `--multiline` and various other flags are not supported yet.

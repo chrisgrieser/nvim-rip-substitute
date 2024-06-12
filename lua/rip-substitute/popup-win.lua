@@ -132,9 +132,9 @@ function M.openSubstitutionPopup()
 	-- CREATE RG-BUFFER
 	state.popupBufNr = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, { prefill, "" })
-	-- adds syntax highlighting via treesitter `regex` parser
-	vim.api.nvim_set_option_value("filetype", "regex", { buf = state.popupBufNr })
 	vim.api.nvim_buf_set_name(state.popupBufNr, "rip-substitute")
+	pcall(vim.treesitter.start, state.popupBufNr, "regex")
+	vim.api.nvim_set_option_value("filetype", "rip-substitute", { buf = state.popupBufNr })
 
 	-- FOOTER & WIDTH
 	local maps = config.keymaps
