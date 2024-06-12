@@ -9,7 +9,7 @@ local defaultConfig = {
 		matchCountHlGroup = "Keyword",
 	},
 	prefill = {
-		normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
+		normal = "cursorWord", -- "cursorWord"|false
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
 	},
 	keymaps = { -- normal & visual mode
@@ -19,7 +19,6 @@ local defaultConfig = {
 		nextSubst = "<Down>",
 	},
 	incrementalPreview = {
-		replacementDisplay = "sideBySide", -- "sideBySide"|"overlay"
 		hlGroups = {
 			replacement = "IncSearch",
 			activeSearch = "IncSearch",

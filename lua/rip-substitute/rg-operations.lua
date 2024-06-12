@@ -123,38 +123,14 @@ function M.incrementalPreviewAndMatchCount()
 
 	vim.iter(replacements):slice(start, ending):map(parseRgResult):each(function(repl)
 		local matchEndCol = table.remove(matchEndcolsInViewport, 1)
-
-		if opts.replacementDisplay == "sideBySide" then
-			local virtText = { repl.text, hl.replacement }
-			vim.api.nvim_buf_set_extmark(
-				state.targetBuf,
-				state.incPreviewNs,
-				repl.lnum,
-				matchEndCol,
-				{ virt_text = { virtText }, virt_text_pos = "inline" }
-			)
-		elseif opts.replacementDisplay == "overlay" then
-			local searchMatchLen = matchEndCol - repl.col
-			local overlayText = { repl.text:sub(1, searchMatchLen), hl.replacement }
-			local inlineText = { repl.text:sub(searchMatchLen + 1), hl.replacement }
-			vim.api.nvim_buf_set_extmark(
-				state.targetBuf,
-				state.incPreviewNs,
-				repl.lnum,
-				repl.col,
-				{ virt_text = { overlayText }, virt_text_pos = "overlay" }
-			)
-			if #repl.text <= searchMatchLen then return end
-			vim.api.nvim_buf_set_extmark(
-				state.targetBuf,
-				state.incPreviewNs,
-				repl.lnum,
-				matchEndCol,
-				{ virt_text = { inlineText }, virt_text_pos = "inline" }
-			)
-		else
-			vim.notify_once("Unknown display mode: " .. opts.replacementDisplay, vim.log.levels.ERROR)
-		end
+		local virtText = { repl.text, hl.replacement }
+		vim.api.nvim_buf_set_extmark(
+			state.targetBuf,
+			state.incPreviewNs,
+			repl.lnum,
+			matchEndCol,
+			{ virt_text = { virtText }, virt_text_pos = "inline", strict = false }
+		)
 	end)
 
 	return #searchMatches

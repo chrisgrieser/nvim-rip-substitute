@@ -100,7 +100,7 @@ require("rip-substitute").setup {
 		matchCountHlGroup = "Keyword",
 	},
 	prefill = {
-		normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
+		normal = "cursorWord", -- "cursorWord"|false
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
 	},
 	keymaps = { -- normal & visual mode
@@ -110,7 +110,6 @@ require("rip-substitute").setup {
 		nextSubst = "<Down>",
 	},
 	incrementalPreview = {
-		replacementDisplay = "sideBySide", -- "sideBySide"|"overlay"
 		hlGroups = {
 			replacement = "IncSearch",
 			activeSearch = "IncSearch",

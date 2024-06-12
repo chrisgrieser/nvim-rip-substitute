@@ -119,17 +119,11 @@ function M.openSubstitutionPopup()
 	local mode = vim.fn.mode()
 	if mode == "n" and config.prefill.normal then
 		prefill = vim.fn.expand("<cword>")
-		if config.prefill.normal == "treesitterNode" then
-			local parserExists, node = pcall(vim.treesitter.get_node)
-			if parserExists and node then prefill = vim.treesitter.get_node_text(node, 0) end
-		end
 	elseif mode:find("[Vv]") and config.prefill.visual == "selectionFirstLine" then
 		vim.cmd.normal { '"zy', bang = true }
-		prefill = vim.fn.getreg("z")
+		prefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
 	end
-	prefill = prefill
-		:gsub("[\n\r].*", "") -- only first line
-		:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
+	prefill = prefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
 
 	-- CREATE RG-BUFFER
 	state.popupBufNr = vim.api.nvim_create_buf(false, true)
