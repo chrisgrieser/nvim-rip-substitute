@@ -68,6 +68,7 @@ end
 function M.incrementalPreviewAndMatchCount()
 	local state = require("rip-substitute.state").state
 	local opts = require("rip-substitute.config").config.incrementalPreview
+	local hl = opts.hlGroups
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
 
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
@@ -102,7 +103,7 @@ function M.incrementalPreviewAndMatchCount()
 		vim.api.nvim_buf_add_highlight(
 			state.targetBuf,
 			state.incPreviewNs,
-			toReplace == "" and opts.activeSearchHlGroup or opts.inactiveSearchHlGroup,
+			toReplace == "" and hl.activeSearch or hl.inactiveSearch,
 			match.lnum,
 			match.col,
 			matchEndCol
@@ -124,7 +125,7 @@ function M.incrementalPreviewAndMatchCount()
 		local matchEndCol = table.remove(matchEndcolsInViewport, 1)
 
 		if opts.replacementDisplay == "sideBySide" then
-			local virtText = { repl.text, opts.replacementHlGroup }
+			local virtText = { repl.text, hl.replacement }
 			vim.api.nvim_buf_set_extmark(
 				state.targetBuf,
 				state.incPreviewNs,
@@ -134,8 +135,8 @@ function M.incrementalPreviewAndMatchCount()
 			)
 		elseif opts.replacementDisplay == "overlay" then
 			local searchMatchLen = matchEndCol - repl.col
-			local overlayText = { repl.text:sub(1, searchMatchLen), opts.replacementHlGroup }
-			local inlineText = { repl.text:sub(searchMatchLen + 1), opts.replacementHlGroup }
+			local overlayText = { repl.text:sub(1, searchMatchLen), hl.replacement }
+			local inlineText = { repl.text:sub(searchMatchLen + 1), hl.replacement }
 			vim.api.nvim_buf_set_extmark(
 				state.targetBuf,
 				state.incPreviewNs,

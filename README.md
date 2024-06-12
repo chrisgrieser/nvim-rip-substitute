@@ -111,9 +111,11 @@ require("rip-substitute").setup {
 	},
 	incrementalPreview = {
 		replacementDisplay = "sideBySide", -- "sideBySide"|"overlay"
-		replacementHlGroup = "IncSearch",
-		activeSearchHlGroup = "IncSearch",
-		inactiveSearchHlGroup = "LspInlayHint",
+		hlGroups = {
+			replacement = "IncSearch",
+			activeSearch = "IncSearch",
+			inactiveSearch = "LspInlayHint",
+		},
 	},
 	regexOptions = {
 		-- pcre2 enables lookarounds and backreferences, but performs slower
