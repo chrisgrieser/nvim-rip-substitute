@@ -106,6 +106,7 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
         popupWin = {
             width = 40,
             border = "single",
+            matchCountHlGroup = "Keyword",
         },
         prefill = {
             normal = "cursorWord", -- "cursorWord"|"treesitterNode"|false
@@ -119,6 +120,9 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
         },
         incrementalPreview = {
             replacementDisplay = "sideBySide", -- "sideBySide"|"overlay"
+            replacementHlGroup = "IncSearch",
+            activeSearchHlGroup = "IncSearch",
+            inactiveSearchHlGroup = "LspInlayHint",
         },
         regexOptions = {
             -- pcre2 enables lookarounds and backreferences, but performs slower
@@ -146,15 +150,17 @@ In normal or visual mode, call:
 
 ADVANCED                             *rip-substitute-rip-substitute--advanced*
 
-`regexOptions.autoBraceSimpleCaptureGroups` One annoying _gotcha_ of
-`ripgrep`’s regex syntax is it treats `$1a` as the named capture group "1a,"
-and _not_ the as the first capture group followed by the letter "a." (See
-`ripgrep`’s man page on `--replace` for details.)
+**autoBraceSimpleCaptureGroups** One annoying _gotcha_ of `ripgrep`’s regex
+syntax is it treats `$1a` as the named capture group "1a," and _not_ the as the
+first capture group followed by the letter "a." (See `ripgrep`’s man page on
+`--replace` for details.)
 
-If `autoBraceSimpleCaptureGroups` is set to `true` (the default),
+If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 `rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
+
+**Filetype** The plugin sets the filetype `rip-substitute`.
 
 
 LIMITATIONS                       *rip-substitute-rip-substitute--limitations*
