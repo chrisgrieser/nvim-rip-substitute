@@ -44,7 +44,8 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 - Automatic prefill of the search term: cursorword in normal mode, and the
   selected text in visual mode.
 - Quality-of-Life features: prefill-text is automatically escaped, capture
-  groups tokens can be automatically added.
+  groups tokens can be automatically added, popup window adapts to length of
+  input.
 - History of previous substitutions.
 - Performant: Even in a file with 5000 lines and thousands of matches, still
   performs blazingly fast.™
