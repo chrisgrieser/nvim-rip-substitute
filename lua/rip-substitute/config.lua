@@ -6,6 +6,7 @@ local defaultConfig = {
 	popupWin = {
 		border = "single",
 		matchCountHlGroup = "Keyword",
+		hideSearchReplaceLabels = false,
 	},
 	prefill = {
 		normal = "cursorWord", -- "cursorWord"|false

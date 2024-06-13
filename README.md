@@ -96,9 +96,9 @@ use {
 -- default settings
 require("rip-substitute").setup {
 	popupWin = {
-		width = 40,
 		border = "single",
 		matchCountHlGroup = "Keyword",
+		hideSearchReplaceLabels = false,
 	},
 	prefill = {
 		normal = "cursorWord", -- "cursorWord"|false

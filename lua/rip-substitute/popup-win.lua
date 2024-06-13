@@ -11,6 +11,8 @@ end
 ---space in the popup window, i.e., the current content will not overlap with it.
 ---@param popupWidth number
 local function setPopupLabelsIfEnoughSpace(popupWidth)
+	local config = require("rip-substitute.config").config
+	if config.popupWin.hideSearchReplaceLabels then return end
 	local state = require("rip-substitute.state").state
 	vim.api.nvim_buf_clear_namespace(state.popupBufNr, state.labelNs, 0, -1)
 
