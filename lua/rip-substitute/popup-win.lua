@@ -216,15 +216,14 @@ function M.openSubstitutionPopup()
 		end,
 	})
 
-	-- KEYMAPS
+	-- KEYMAPS & POPUP CLOSING
 	local opts = { buffer = state.popupBufNr, nowait = true }
-	vim.keymap.set(
-		{ "n", "x" },
-		config.keymaps.abort,
-		closePopupWin,
-		{ buffer = state.popupBufNr, nowait = true }
-	)
+	vim.keymap.set({ "n", "x" }, config.keymaps.abort, closePopupWin, opts)
 	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, function()
+		rg.executeSubstitution()
+		closePopupWin()
+	end, opts)
+	vim.keymap.set("i", config.keymaps.insertModeConfirm, function()
 		rg.executeSubstitution()
 		closePopupWin()
 	end, opts)

@@ -12,11 +12,13 @@ local defaultConfig = {
 		normal = "cursorWord", -- "cursorWord"|false
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
 	},
-	keymaps = { -- normal & visual mode
+	keymaps = {
+		-- normal & visual mode
 		confirm = "<CR>",
 		abort = "q",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
+		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
 	},
 	incrementalPreview = {
 		hlGroups = {
