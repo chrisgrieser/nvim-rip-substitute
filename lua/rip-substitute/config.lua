@@ -4,7 +4,6 @@ local M = {}
 ---@class ripSubstituteConfig
 local defaultConfig = {
 	popupWin = {
-		width = 40,
 		border = "single",
 		matchCountHlGroup = "Keyword",
 	},
