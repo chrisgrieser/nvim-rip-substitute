@@ -166,7 +166,7 @@ function M.openSubstitutionPopup()
 		:gsub("<[Tt]ab>", "⭾ ")
 		:gsub("<[Ss]pace>", "⎵")
 		:gsub("<[Bb][Ss]>", "⌫")
-	local startWidth = #keymapHint + 11 + 2 -- 11 for "123 matches" + 2 for border
+	local minWidth = #keymapHint + 11 + 2 -- 11 for "123 matches" + 2 for border
 
 	-- CREATE WINDOW
 	local scrollbarOffset = 3
@@ -174,8 +174,8 @@ function M.openSubstitutionPopup()
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
 		row = vim.api.nvim_win_get_height(0) - 1 - statuslineOffset,
-		col = vim.api.nvim_win_get_width(0) - 1 - startWidth - scrollbarOffset,
-		width = startWidth,
+		col = vim.api.nvim_win_get_width(0) - 1 - minWidth - scrollbarOffset,
+		width = minWidth,
 		height = 2,
 		style = "minimal",
 		border = config.popupWin.border,
@@ -199,7 +199,7 @@ function M.openSubstitutionPopup()
 	vim.cmd.startinsert { bang = true }
 
 	-- LABELS, MATCH-HIGHLIGHTS, AND STATIC WINDOW
-	setPopupLabelsIfEnoughSpace(startWidth)
+	setPopupLabelsIfEnoughSpace(minWidth)
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		buffer = state.popupBufNr,
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
@@ -208,7 +208,7 @@ function M.openSubstitutionPopup()
 			local numOfMatches = rg.incrementalPreviewAndMatchCount() or 0
 			updateMatchCount(numOfMatches)
 			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end
-			local newWidth = adaptivePopupWidth(startWidth)
+			local newWidth = adaptivePopupWidth(minWidth)
 			setPopupLabelsIfEnoughSpace(newWidth) -- should be last
 		end,
 	})
