@@ -171,8 +171,9 @@ function M.openSubstitutionPopup()
 		list = true,
 		listchars = "multispace:·,trail:·,lead:·,tab:▸▸,precedes:…,extends:…",
 		signcolumn = "no",
-		sidescrolloff = 0,
+		sidescrolloff = 1,
 		scrolloff = 0,
+		winfixbuf = true,
 	}
 	for key, value in pairs(winOpts) do
 		vim.api.nvim_set_option_value(key, value, { win = state.popupWinNr })
