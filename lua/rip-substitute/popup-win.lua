@@ -166,15 +166,16 @@ function M.openSubstitutionPopup()
 		:gsub("<[Tt]ab>", "⭾ ")
 		:gsub("<[Ss]pace>", "⎵")
 		:gsub("<[Bb][Ss]>", "⌫")
-	local minWidth = #keymapHint + 11 + 2 -- 11 for "123 matches" + 2 for border
+	-- 11 for "234 matches" + 4 for border & footer padding
+	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
 
 	-- CREATE WINDOW
-	local scrollbarOffset = 3
-	local statuslineOffset = 3
+	local offsetScrollbar = 2
+	local offsetStatuslines = 3
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
-		row = vim.api.nvim_win_get_height(0) - 1 - statuslineOffset,
-		col = vim.api.nvim_win_get_width(0) - 1 - minWidth - scrollbarOffset,
+		row = vim.api.nvim_win_get_height(0) - 1 - offsetStatuslines,
+		col = vim.api.nvim_win_get_width(0) - 1 - minWidth - offsetScrollbar,
 		width = minWidth,
 		height = 2,
 		style = "minimal",
