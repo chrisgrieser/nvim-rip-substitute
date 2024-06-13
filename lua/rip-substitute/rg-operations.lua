@@ -31,6 +31,13 @@ local function getSearchAndReplaceValuesFromPopup()
 	return toSearch, toReplace
 end
 
+---@param line string formatted as `lnum:col:text`
+---@return { lnum: number, col: number, text: string }
+local function parseRgResult(line)
+	local lnumStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
+	return { lnum = tonumber(lnumStr) - 1, col = tonumber(colStr) - 1, text = text }
+end
+
 --------------------------------------------------------------------------------
 
 function M.executeSubstitution()
@@ -53,13 +60,6 @@ function M.executeSubstitution()
 end
 
 --------------------------------------------------------------------------------
-
----@param line string formatted as `lnum:col:text`
----@return { lnum: number, col: number, text: string }
-local function parseRgResult(line)
-	local lnumStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
-	return { lnum = tonumber(lnumStr) - 1, col = tonumber(colStr) - 1, text = text }
-end
 
 ---Creates an increments preview of search matches & replacements in the
 ---viewport, and returns the total number of matches. (The total count is derived
@@ -117,7 +117,7 @@ function M.incrementalPreviewAndMatchCount()
 	-- INSERT REPLACEMENTS AS VIRTUAL TEXT
 	if toReplace == "" then return #searchMatches end
 
-	vim.list_extend(rgArgs, { "--replace=" .. toReplace })
+	table.insert(rgArgs, "--replace=" .. toReplace)
 	local code2, replacements = runRipgrep(rgArgs)
 	if code2 ~= 0 then return #searchMatches end
 
