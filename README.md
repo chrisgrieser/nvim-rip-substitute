@@ -41,7 +41,8 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 	+ No more dealing with delimiters.
 - Sensible defaults: searches the entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
-- Range support when started from visual line mode.
+- Range support when started from visual line mode. Indicates range in the
+  popup.
 - Quality-of-Life features: automatic prefill of the escaped cursorword or
   selection, capture groups tokens can be automatically added, popup window
   adapts dynamically to length of input.

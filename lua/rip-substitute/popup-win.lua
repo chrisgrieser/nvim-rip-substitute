@@ -153,6 +153,9 @@ function M.openSubstitutionPopup(prefill)
 	-- 11 for "234 matches" + 4 for border & footer padding
 	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
 
+	local title = state.range and ("Range: L%d - L%d"):format(state.range.start, state.range.end_)
+		or " rip-substitute"
+
 	-- CREATE WINDOW
 	local offsetScrollbar = 2
 	local offsetStatuslines = 3
@@ -164,7 +167,7 @@ function M.openSubstitutionPopup(prefill)
 		height = 2,
 		style = "minimal",
 		border = config.popupWin.border,
-		title = "  rip-substitute ",
+		title = " " .. title .. " ",
 		zindex = 2, -- below nvim-notify
 		footer = {
 			{ " " .. keymapHint .. " ", "FloatBorder" },
