@@ -208,6 +208,7 @@ function M.openSubstitutionPopup(prefill)
 	vim.keymap.set("i", config.keymaps.insertModeConfirm, function()
 		rg.executeSubstitution()
 		closePopupWin()
+		vim.cmd.stopinsert()
 	end, opts)
 
 	state.historyPosition = #state.popupHistory + 1
