@@ -41,14 +41,13 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 	+ No more dealing with delimiters.
 - Sensible defaults: searches the entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
-- Range support when started from visual line mode. Indicates range in the
-  popup.
-- Quality-of-Life features: automatic prefill of the escaped cursorword or
-  selection, capture groups tokens can be automatically added, popup window
-  adapts dynamically to length of input.
+- Range support when started from visual line mode. 
 - History of previous substitutions.
 - Performant: Even in a file with 5000 lines and thousands of matches, still
   performs blazingly fast.™
+- Quality-of-Life features: automatic prefill of the escaped cursorword or
+  selection, capture groups tokens can be automatically added, popup window
+  adapts dynamically to length of input.
 - Syntax comparison:
   ```txt
   # all three are equivalent
@@ -118,6 +117,7 @@ require("rip-substitute").setup {
 			activeSearch = "IncSearch",
 			inactiveSearch = "LspInlayHint",
 		},
+		hideLinesOutsideRange = true
 	},
 	regexOptions = {
 		-- pcre2 enables lookarounds and backreferences, but performs slower

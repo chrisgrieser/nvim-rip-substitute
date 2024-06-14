@@ -11,6 +11,7 @@ local M = {}
 ---@field range CmdRange|false
 ---@field labelNs number
 ---@field incPreviewNs number
+---@field rangeNs number
 ---@field popupBufNr? number
 ---@field popupWinNr? number
 ---@field popupHistory? string[][]

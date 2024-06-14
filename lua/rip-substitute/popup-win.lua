@@ -1,4 +1,5 @@
 local M = {}
+local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
 ---@return string[]
@@ -59,6 +60,7 @@ local function closePopupWin()
 		vim.api.nvim_buf_delete(state.popupBufNr, { force = true })
 	end
 	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
+	vim.api.nvim_buf_clear_namespace(0, state.rangeNs, 0, -1)
 end
 
 ---@param numOfMatches number
@@ -121,6 +123,33 @@ local function adaptivePopupWidth(minWidth)
 	return newWidth
 end
 
+local function setupViewOfRange()
+	local enabled = require("rip-substitute.config").config.incrementalPreview.hideLinesOutsideRange
+	local state = require("rip-substitute.state").state
+	if not (enabled and state.range) then return end
+
+	-- "silencing" effect is achieved by setting the foreground to the background
+	local hl = { fg = u.getHighlightValue("Normal", "bg") }
+	vim.api.nvim_set_hl(state.rangeNs, "RipSubOutsideRange", hl)
+	vim.api.nvim_set_hl_ns(state.rangeNs)
+	local overlayLine = ("█"):rep(vim.api.nvim_win_get_width(state.targetWin))
+
+	local viewStartLnum, viewEndLnum = u.getViewport()
+	for lnum = viewStartLnum, viewEndLnum do
+		local outsideRange = lnum < state.range.start or lnum > state.range.end_
+		if outsideRange then
+			vim.api.nvim_buf_set_extmark(state.targetBuf, state.rangeNs, lnum - 1, 0, {
+				virt_text = { { overlayLine, "RipSubOutsideRange" } },
+				virt_text_pos = "overlay",
+				sign_text = "██",
+				sign_hl_group = "RipSubOutsideRange",
+				hl_mode = "blend",
+				priority = 400, -- high, since most relevant during the incremental preview
+			})
+		end
+	end
+end
+
 --------------------------------------------------------------------------------
 
 ---@param prefill string
@@ -160,11 +189,13 @@ function M.openSubstitutionPopup(prefill)
 	local offsetScrollbar = 2
 	local offsetStatuslines = 3
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
+		-- window at bottom right
 		relative = "win",
 		row = vim.api.nvim_win_get_height(0) - 1 - offsetStatuslines,
 		col = vim.api.nvim_win_get_width(0) - 1 - minWidth - offsetScrollbar,
 		width = minWidth,
 		height = 2,
+
 		style = "minimal",
 		border = config.popupWin.border,
 		title = " " .. title .. " ",
@@ -187,7 +218,7 @@ function M.openSubstitutionPopup(prefill)
 	vim.cmd.startinsert { bang = true }
 
 	-- LABELS, MATCH-HIGHLIGHTS, AND STATIC WINDOW
-	local viewStartLn, viewEndLn = require("rip-substitute.utils").getViewport()
+	local viewStartLn, viewEndLn = u.getViewport()
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		buffer = state.popupBufNr,
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
@@ -201,6 +232,7 @@ function M.openSubstitutionPopup(prefill)
 		end,
 	})
 	setPopupLabelsIfEnoughSpace(minWidth)
+	setupViewOfRange()
 
 	-- KEYMAPS & POPUP CLOSING
 	local opts = { buffer = state.popupBufNr, nowait = true }

@@ -16,5 +16,21 @@ function M.getViewport()
 	local endLnum = vim.fn.line("w$", state.targetWin)
 	return startLnum, endLnum
 end
+
+---@param hlName string name of highlight group
+---@param key "fg"|"bg"|"bold"
+---@nodiscard
+---@return string|nil the value, or nil if hlgroup or key is not available
+function M.getHighlightValue(hlName, key)
+	local hl
+	repeat
+		-- follow linked highlights
+		hl = vim.api.nvim_get_hl(0, { name = hlName })
+		hlName = hl.link
+	until not hl.link
+	local value = hl[key]
+	if value then return ("#%06x"):format(value) end
+end
+
 --------------------------------------------------------------------------------
 return M
