@@ -66,8 +66,10 @@ end
 ---Creates an increments preview of search matches & replacements in the
 ---viewport, and returns the total number of matches. (The total count is derived
 ---from this function to avoid re-running `rg` just for the count.)
+---@param viewStartLnum number
+---@param viewEndLnum number
 ---@return number? -- total number of matches (including outside viewport)
-function M.incrementalPreviewAndMatchCount()
+function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	local state = require("rip-substitute.state").state
 	local opts = require("rip-substitute.config").config.incrementalPreview
 	local hl = opts.hlGroups
@@ -99,15 +101,13 @@ function M.incrementalPreviewAndMatchCount()
 	end
 
 	-- VIEWPORT: FILTER MATCHES
-	local viewStartLnum = vim.fn.line("w0", state.targetWin)
-	local viewEndLine = vim.fn.line("w$", state.targetWin)
 	local viewStartIdx, viewEndIdx
 	for i = 1, #searchMatches do
 		local lnum = tonumber(searchMatches[i]:match("^(%d+):"))
-		if not viewStartIdx and lnum >= viewStartLnum and lnum <= viewEndLine then
+		if not viewStartIdx and lnum >= viewStartLnum and lnum <= viewEndLnum then
 			viewStartIdx = i
 		end
-		if viewStartIdx and lnum > viewEndLine then
+		if viewStartIdx and lnum > viewEndLnum then
 			viewEndIdx = i - 1
 			break
 		end

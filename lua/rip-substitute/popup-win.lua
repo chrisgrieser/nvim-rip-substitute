@@ -187,19 +187,20 @@ function M.openSubstitutionPopup(prefill)
 	vim.cmd.startinsert { bang = true }
 
 	-- LABELS, MATCH-HIGHLIGHTS, AND STATIC WINDOW
-	setPopupLabelsIfEnoughSpace(minWidth)
+	local viewStartLn, viewEndLn = require("rip-substitute.utils").getViewport()
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		buffer = state.popupBufNr,
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			ensureOnly2LinesInPopup()
-			local numOfMatches = rg.incrementalPreviewAndMatchCount() or 0
-			updateMatchCount(numOfMatches)
+			local count = rg.incrementalPreviewAndMatchCount(viewStartLn, viewEndLn) or 0
+			updateMatchCount(count)
 			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end
 			local newWidth = adaptivePopupWidth(minWidth)
 			setPopupLabelsIfEnoughSpace(newWidth) -- should be last
 		end,
 	})
+	setPopupLabelsIfEnoughSpace(minWidth)
 
 	-- KEYMAPS & POPUP CLOSING
 	local opts = { buffer = state.popupBufNr, nowait = true }
