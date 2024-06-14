@@ -123,29 +123,11 @@ end
 
 --------------------------------------------------------------------------------
 
-function M.openSubstitutionPopup()
-	-- IMPORTS & INITIALIZATION
+---@param prefill string
+function M.openSubstitutionPopup(prefill)
 	local rg = require("rip-substitute.rg-operations")
-	local config = require("rip-substitute.config").config
-	require("rip-substitute.state").update {
-		targetBuf = vim.api.nvim_get_current_buf(),
-		targetWin = vim.api.nvim_get_current_win(),
-		labelNs = vim.api.nvim_create_namespace("rip-substitute-labels"),
-		incPreviewNs = vim.api.nvim_create_namespace("rip-substitute-incpreview"),
-		targetFile = vim.api.nvim_buf_get_name(0),
-	}
 	local state = require("rip-substitute.state").state
-
-	-- PREFILL
-	local prefill = ""
-	local mode = vim.fn.mode()
-	if mode == "n" and config.prefill.normal then
-		prefill = vim.fn.expand("<cword>")
-	elseif mode:find("[Vv]") and config.prefill.visual == "selectionFirstLine" then
-		vim.cmd.normal { '"zy', bang = true }
-		prefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
-	end
-	prefill = prefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
+	local config = require("rip-substitute.config").config
 
 	-- CREATE RG-BUFFER
 	state.popupBufNr = vim.api.nvim_create_buf(false, true)

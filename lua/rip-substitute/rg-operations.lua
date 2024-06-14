@@ -54,8 +54,10 @@ function M.executeSubstitution()
 	-- preserves folds and marks
 	for _, repl in pairs(results) do
 		local lineStr, newLine = repl:match("^(%d+):(.*)")
-		local lnum = assert(tonumber(lineStr))
-		vim.api.nvim_buf_set_lines(state.targetBuf, lnum - 1, lnum, false, { newLine })
+		local lnum = assert(tonumber(lineStr), "rg parsing error")
+		if not state.range or (lnum >= state.range.start and lnum <= state.range.end_) then
+			vim.api.nvim_buf_set_lines(state.targetBuf, lnum - 1, lnum, false, { newLine })
+		end
 	end
 end
 
@@ -76,29 +78,46 @@ function M.incrementalPreviewAndMatchCount()
 
 	-- DETERMINE MATCHES
 	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
-	local matchEndcolsInViewport = {}
 	local code, searchMatches = runRipgrep(rgArgs)
 	if code ~= 0 then return end
 
-	-- FILTER MATCHES OUTSIDE VIEWPORT
+	-- RANGE: FILTER MATCHES
 	-- PERF For single files, `rg` gives us results sorted by lines, so we can
 	-- slice instead of filter to improve performance.
-	local viewportStart = vim.fn.line("w0", state.targetWin)
-	local viewportEnd = vim.fn.line("w$", state.targetWin)
-	local start, ending
+	local rangeStartIdx, rangeEndIdx
+	if state.range then
+		for i = 1, #searchMatches do
+			local lnum = tonumber(searchMatches[i]:match("^(%d+):"))
+			local inRange = lnum >= state.range.start and lnum <= state.range.end_
+			if rangeStartIdx == nil and inRange then rangeStartIdx = i end
+			if rangeStartIdx and lnum > state.range.end_ then
+				rangeEndIdx = i - 1
+				break
+			end
+		end
+		searchMatches = vim.list_slice(searchMatches, rangeStartIdx, rangeEndIdx)
+	end
+
+	-- VIEWPORT: FILTER MATCHES
+	local viewStartLnum = vim.fn.line("w0", state.targetWin)
+	local viewEndLine = vim.fn.line("w$", state.targetWin)
+	local viewStartIdx, viewEndIdx
 	for i = 1, #searchMatches do
 		local lnum = tonumber(searchMatches[i]:match("^(%d+):"))
-		if not start and lnum >= viewportStart and lnum <= viewportEnd then start = i end
-		if start and lnum > viewportEnd then
-			ending = i - 1
+		if not viewStartIdx and lnum >= viewStartLnum and lnum <= viewEndLine then
+			viewStartIdx = i
+		end
+		if viewStartIdx and lnum > viewEndLine then
+			viewEndIdx = i - 1
 			break
 		end
 	end
-	if not start then return #searchMatches end -- no matches in viewport
-	if not ending then ending = #searchMatches end
+	if not viewStartIdx then return #searchMatches end -- no matches in viewport
+	if not viewEndIdx then viewEndIdx = #searchMatches end
 
 	-- HIGHLIGHT SEARCH MATCHES
-	vim.iter(searchMatches):slice(start, ending):map(parseRgResult):each(function(match)
+	local matchEndcolsInViewport = {}
+	vim.iter(searchMatches):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(match)
 		local matchEndCol = match.col + #match.text
 		vim.api.nvim_buf_add_highlight(
 			state.targetBuf,
@@ -121,7 +140,9 @@ function M.incrementalPreviewAndMatchCount()
 	local code2, replacements = runRipgrep(rgArgs)
 	if code2 ~= 0 then return #searchMatches end
 
-	vim.iter(replacements):slice(start, ending):map(parseRgResult):each(function(repl)
+	if state.range then replacements = vim.list_slice(replacements, rangeStartIdx, rangeEndIdx) end
+
+	vim.iter(replacements):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(repl)
 		local matchEndCol = table.remove(matchEndcolsInViewport, 1)
 		local virtText = { repl.text, hl.replacement }
 		vim.api.nvim_buf_set_extmark(

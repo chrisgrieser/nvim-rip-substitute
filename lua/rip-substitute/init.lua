@@ -13,7 +13,42 @@ local M = {}
 ---@param userConfig? ripSubstituteConfig
 function M.setup(userConfig) require("rip-substitute.config").setup(userConfig) end
 
-function M.sub() require("rip-substitute.popup-win").openSubstitutionPopup() end
+function M.sub()
+	local config = require("rip-substitute.config").config
+	local mode = vim.fn.mode()
+
+	-- PREFILL
+	local prefill = ""
+	if mode == "n" and config.prefill.normal == "cursorWord" then
+		prefill = vim.fn.expand("<cword>")
+	elseif mode == "v" and config.prefill.visual == "selectionFirstLine" then
+		vim.cmd.normal { '"zy', bang = true }
+		prefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
+	end
+	prefill = prefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
+
+	-- RANGE
+	---@type CmdRange|false
+	local range = false
+	if mode == "V" then
+		vim.cmd.normal { "V", bang = true } -- leave visual mode, so marks are set
+		local startLn = vim.api.nvim_buf_get_mark(0, "<")[1]
+		local endLn = vim.api.nvim_buf_get_mark(0, ">")[1]
+		range = { start = startLn, end_ = endLn }
+	end
+
+	-- SET STATE
+	require("rip-substitute.state").update {
+		targetBuf = vim.api.nvim_get_current_buf(),
+		targetWin = vim.api.nvim_get_current_win(),
+		labelNs = vim.api.nvim_create_namespace("rip-substitute-labels"),
+		incPreviewNs = vim.api.nvim_create_namespace("rip-substitute-incpreview"),
+		targetFile = vim.api.nvim_buf_get_name(0),
+		range = range,
+	}
+
+	require("rip-substitute.popup-win").openSubstitutionPopup(prefill)
+end
 
 --------------------------------------------------------------------------------
 return M

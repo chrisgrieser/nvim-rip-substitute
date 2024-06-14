@@ -32,8 +32,8 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 - Search and replace in the current buffer using
   [ripgrep](https://github.com/BurntSushi/ripgrep).
 - Uses common regex syntax (pcre2) — no more arcane vim regex.
-- Incremental preview of matches and replacements.
-- Incrementally updated count of matches.
+- Live count of matches, incremental preview of matched strings and
+  replacements.
 - Popup window instead of command line. This entails:
 	+ Syntax highlighting of the regex.
 	+ Editing with vim motions.
@@ -41,11 +41,10 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 	+ No more dealing with delimiters.
 - Sensible defaults: searches the entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
-- Automatic prefill of the search term: cursorword in normal mode, and the
-  selected text in visual mode.
-- Quality-of-Life features: prefill-text is automatically escaped, capture
-  groups tokens can be automatically added, popup window adapts to length of
-  input.
+- Range support when started from visual line mode.
+- Quality-of-Life features: automatic prefill of the escaped cursorword or
+  selection, capture groups tokens can be automatically added, popup window
+  adapts dynamically to length of input.
 - History of previous substitutions.
 - Performant: Even in a file with 5000 lines and thousands of matches, still
   performs blazingly fast.™
@@ -134,11 +133,15 @@ require("rip-substitute").setup {
 ```
 
 ## Usage
-In normal or visual mode, call:
 
 ```lua
 require("rip-substitute").sub()
 ```
+
+- Normal mode: prefills the cursorword.
+- Visual mode: prefills the first line of the selection.
+- Visual **line** mode: replacements are only applied to the selected lines,
+  that is, the selection is used as range.
 
 ## Advanced
 **`autoBraceSimpleCaptureGroups`**

@@ -1,9 +1,14 @@
 local M = {}
 
----@class (exact) ripSubstituteState
+---@class (exact) CmdRange
+---@field start number
+---@field end_ number
+
+---@class (exact) RipSubstituteState
 ---@field targetBuf number
 ---@field targetWin number
 ---@field targetFile string
+---@field range CmdRange|false
 ---@field labelNs number
 ---@field incPreviewNs number
 ---@field popupBufNr? number
@@ -15,7 +20,7 @@ M.state = {
 	popupHistory = {},
 }
 
----@param newState ripSubstituteState
+---@param newState RipSubstituteState
 function M.update(newState) M.state = vim.tbl_deep_extend("force", M.state, newState) end
 
 return M
