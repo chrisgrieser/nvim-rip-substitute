@@ -45,12 +45,6 @@ local function ensureOnly2LinesInPopup()
 end
 
 local function closePopupWin()
-	local function closeBuf(buf)
-		if vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf, { force = true }) end
-	end
-	local function closeWin(win)
-		if vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_close(win, true) end
-	end
 	local state = require("rip-substitute.state").state
 
 	-- save last popup content for next run
@@ -59,22 +53,14 @@ local function closePopupWin()
 	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
 	if not isDuplicate then table.insert(state.popupHistory, lastPopupContent) end
 
-	-- close popup win
-	closeWin(state.popupWinNr)
-	closeBuf(state.popupBufNr)
-	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
-
-	-- remove range covers
-	if state.rangeCovers then
-		for i = 1, 2 do
-			if state.rangeCovers.bufs[i] then
-				closeWin(state.rangeCovers.wins[i])
-				closeBuf(state.rangeCovers.bufs[i])
-			end
-		end
-		state.rangeCovers = nil
+	-- close popup win and buffer
+	if vim.api.nvim_win_is_valid(state.popupWinNr) then
+		vim.api.nvim_win_close(state.popupWinNr, true)
 	end
-	vim.api.nvim_buf_clear_namespace(0, state.rangeNs, 0, -1)
+	if vim.api.nvim_buf_is_valid(state.popupBufNr) then
+		vim.api.nvim_buf_delete(state.popupBufNr, { force = true })
+	end
+	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
 end
 
 ---@param numOfMatches number
@@ -146,7 +132,7 @@ local function setupViewOfRange(popupZindex)
 	if not conf.enabled or not state.range then return end
 
 	local blend = conf.blend
-	local bufs, wins, height, row = {}, {}, {}, {}
+	local buf, win, height, row = {}, {}, {}, {}
 
 	local viewStart, viewEnd = u.getViewport()
 	local relViewStart = 0
@@ -162,8 +148,8 @@ local function setupViewOfRange(popupZindex)
 		-- if height is negative or zero, the range starts/ends before/after the
 		-- viewport, so we do not need that half of the cover
 		if height[i] > 1 then
-			bufs[i] = vim.api.nvim_create_buf(false, true)
-			wins[i] = vim.api.nvim_open_win(bufs[i], false, {
+			buf[i] = vim.api.nvim_create_buf(false, true)
+			win[i] = vim.api.nvim_open_win(buf[i], false, {
 				relative = "editor",
 				row = row[i],
 				col = 0,
@@ -174,13 +160,27 @@ local function setupViewOfRange(popupZindex)
 				zindex = popupZindex - 1, -- so the popup stays on top
 			})
 			vim.api.nvim_set_hl(0, "RipSubBackdrop", { bg = "#000000", default = true })
-			vim.wo[wins[i]].winhighlight = "Normal:RipSubBackdrop"
-			vim.wo[wins[i]].winblend = blend
-			vim.bo[bufs[i]].buftype = "nofile"
+			vim.wo[win[i]].winhighlight = "Normal:RipSubBackdrop"
+			vim.wo[win[i]].winblend = blend
+			vim.bo[buf[i]].buftype = "nofile"
 		end
 	end
 
-	state.rangeCovers = { bufs = bufs, wins = wins }
+	-- remove range covers when done
+	vim.api.nvim_create_autocmd("BufLeave", {
+		once = true,
+		buffer = state.popupBufNr,
+		callback = function()
+			for i = 1, 2 do
+				if win[i] and vim.api.nvim_win_is_valid(win[i]) then
+					vim.api.nvim_win_close(win[i], true)
+				end
+				if buf[i] and vim.api.nvim_buf_is_valid(buf[i]) then
+					vim.api.nvim_buf_delete(buf[i], { force = true })
+				end
+			end
+		end,
+	})
 end
 
 --------------------------------------------------------------------------------

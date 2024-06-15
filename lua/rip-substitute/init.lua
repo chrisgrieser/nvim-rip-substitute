@@ -43,7 +43,6 @@ function M.sub()
 		targetWin = vim.api.nvim_get_current_win(),
 		labelNs = vim.api.nvim_create_namespace("rip-substitute-labels"),
 		incPreviewNs = vim.api.nvim_create_namespace("rip-substitute-incpreview"),
-		rangeNs = vim.api.nvim_create_namespace("rip-substitute-range-signs"),
 		targetFile = vim.api.nvim_buf_get_name(0),
 		range = range,
 	}
