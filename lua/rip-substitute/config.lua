@@ -26,7 +26,10 @@ local defaultConfig = {
 			activeSearch = "IncSearch",
 			inactiveSearch = "LspInlayHint",
 		},
-		hideLinesOutsideRange = true,
+		rangeBackdrop = {
+			enabled = true,
+			blend = 50,
+		},
 	},
 	regexOptions = {
 		-- pcre2 enables lookarounds and backreferences, but performs slower

@@ -45,6 +45,12 @@ local function ensureOnly2LinesInPopup()
 end
 
 local function closePopupWin()
+	local function closeBuf(buf)
+		if vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf, { force = true }) end
+	end
+	local function closeWin(win)
+		if vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_close(win, true) end
+	end
 	local state = require("rip-substitute.state").state
 
 	-- save last popup content for next run
@@ -53,13 +59,21 @@ local function closePopupWin()
 	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
 	if not isDuplicate then table.insert(state.popupHistory, lastPopupContent) end
 
-	if vim.api.nvim_win_is_valid(state.popupWinNr) then
-		vim.api.nvim_win_close(state.popupWinNr, true)
-	end
-	if vim.api.nvim_buf_is_valid(state.popupBufNr) then
-		vim.api.nvim_buf_delete(state.popupBufNr, { force = true })
-	end
+	-- close popup win
+	closeWin(state.popupWinNr)
+	closeBuf(state.popupBufNr)
 	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
+
+	-- remove range covers
+	if state.rangeCovers then
+		for i = 1, 2 do
+			if state.rangeCovers.bufs[i] then
+				closeWin(state.rangeCovers.wins[i])
+				closeBuf(state.rangeCovers.bufs[i])
+			end
+		end
+		state.rangeCovers = nil
+	end
 	vim.api.nvim_buf_clear_namespace(0, state.rangeNs, 0, -1)
 end
 
@@ -123,31 +137,50 @@ local function adaptivePopupWidth(minWidth)
 	return newWidth
 end
 
-local function setupViewOfRange()
-	local enabled = require("rip-substitute.config").config.incrementalPreview.hideLinesOutsideRange
+---Adds two dummy-windows with `blend` to achieve a backdrop-like effect before
+---and after the range.
+---@param popupZindex integer
+local function setupViewOfRange(popupZindex)
+	local conf = require("rip-substitute.config").config.incrementalPreview.rangeBackdrop
 	local state = require("rip-substitute.state").state
-	if not (enabled and state.range) then return end
+	if not conf.enabled or not state.range then return end
 
-	-- "silencing" effect is achieved by setting the foreground to the background
-	local hl = { fg = u.getHighlightValue("Normal", "bg") }
-	vim.api.nvim_set_hl(state.rangeNs, "RipSubOutsideRange", hl)
-	vim.api.nvim_set_hl_ns(state.rangeNs)
-	local overlayLine = ("█"):rep(vim.api.nvim_win_get_width(state.targetWin))
+	local blend = conf.blend
+	local bufs, wins, height, row = {}, {}, {}, {}
 
-	local viewStartLnum, viewEndLnum = u.getViewport()
-	for lnum = viewStartLnum, viewEndLnum do
-		local outsideRange = lnum < state.range.start or lnum > state.range.end_
-		if outsideRange then
-			vim.api.nvim_buf_set_extmark(state.targetBuf, state.rangeNs, lnum - 1, 0, {
-				virt_text = { { overlayLine, "RipSubOutsideRange" } },
-				virt_text_pos = "overlay",
-				sign_text = "██",
-				sign_hl_group = "RipSubOutsideRange",
-				hl_mode = "blend",
-				priority = 400, -- high, since most relevant during the incremental preview
+	local viewStart, viewEnd = u.getViewport()
+	local relViewStart = 0
+	local relViewEnd = viewEnd - viewStart
+	local relRangeStart = state.range.start - viewStart
+	local relRangeEnd = state.range.end_ - viewStart
+	row[1] = relViewStart
+	height[1] = relRangeStart + 1
+	row[2] = relRangeEnd + 2
+	height[2] = relViewEnd - relRangeEnd + 1
+
+	for i = 1, 2 do
+		-- if height is negative or zero, the range starts/ends before/after the
+		-- viewport, so we do not need that half of the cover
+		if height[i] > 1 then
+			bufs[i] = vim.api.nvim_create_buf(false, true)
+			wins[i] = vim.api.nvim_open_win(bufs[i], false, {
+				relative = "editor",
+				row = row[i],
+				col = 0,
+				focusable = false,
+				width = vim.api.nvim_win_get_width(state.targetWin),
+				height = height[i],
+				style = "minimal",
+				zindex = popupZindex - 1, -- so the popup stays on top
 			})
+			vim.api.nvim_set_hl(0, "RipSubBackdrop", { bg = "#000000", default = true })
+			vim.wo[wins[i]].winhighlight = "Normal:RipSubBackdrop"
+			vim.wo[wins[i]].winblend = blend
+			vim.bo[bufs[i]].buftype = "nofile"
 		end
 	end
+
+	state.rangeCovers = { bufs = bufs, wins = wins }
 end
 
 --------------------------------------------------------------------------------
@@ -158,7 +191,7 @@ function M.openSubstitutionPopup(prefill)
 	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
 
-	-- CREATE RG-BUFFER
+	-- CREATE BUFFER
 	state.popupBufNr = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, { prefill, "" })
 	vim.api.nvim_buf_set_name(state.popupBufNr, "rip-substitute")
@@ -188,6 +221,7 @@ function M.openSubstitutionPopup(prefill)
 	-- CREATE WINDOW
 	local offsetScrollbar = 2
 	local offsetStatuslines = 3
+	local popupZindex = 2 -- below nvim-notify
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		-- window at bottom right
 		relative = "win",
@@ -199,7 +233,7 @@ function M.openSubstitutionPopup(prefill)
 		style = "minimal",
 		border = config.popupWin.border,
 		title = " " .. title .. " ",
-		zindex = 2, -- below nvim-notify
+		zindex = popupZindex,
 		footer = {
 			{ " " .. keymapHint .. " ", "FloatBorder" },
 		},
@@ -232,7 +266,7 @@ function M.openSubstitutionPopup(prefill)
 		end,
 	})
 	setPopupLabelsIfEnoughSpace(minWidth)
-	setupViewOfRange()
+	setupViewOfRange(popupZindex)
 
 	-- KEYMAPS & POPUP CLOSING
 	local opts = { buffer = state.popupBufNr, nowait = true }

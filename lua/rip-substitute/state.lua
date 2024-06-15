@@ -9,6 +9,7 @@ local M = {}
 ---@field targetWin number
 ---@field targetFile string
 ---@field range CmdRange|false
+---@field rangeCovers? { bufs: number[], wins: number[] }
 ---@field labelNs number
 ---@field incPreviewNs number
 ---@field rangeNs number
