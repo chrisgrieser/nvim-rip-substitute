@@ -33,23 +33,23 @@ https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/dc4bdeb1-5ae
 ## Features
 - Search and replace in the current buffer using
   [ripgrep](https://github.com/BurntSushi/ripgrep).
-- Uses common regex syntax (pcre2) — no more arcane vim regex.
-- Live count of matches, incremental preview of matched strings and
+- Uses **common regex syntax** (pcre2) — no more arcane vim regex.
+- **Live count** of matches, **incremental preview** of matched strings and
   replacements.
 - Popup window instead of command line. This entails:
 	+ Syntax highlighting of the regex.
 	+ Editing with vim motions.
 	+ Snippets and completions work.
 	+ No more dealing with delimiters.
-- Sensible defaults: searches the entire buffer (`%`), all matches in a line
+- **Sensible defaults**: searches the entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
-- Range support when started from visual line mode. 
-- History of previous substitutions.
-- Performant: Even in a file with 5000 lines and thousands of matches, still
+- **Range** support when started from visual line mode. 
+- **History** of previous substitutions.
+- **Performant**: Even in a file with 5000 lines and thousands of matches, still
   performs blazingly fast.™
-- Quality-of-Life features: automatic prefill of the escaped cursorword or
-  selection, capture groups tokens can be automatically added, popup window
-  adapts dynamically to length of input.
+- **Quality-of-Life** features: automatic prefill of the escaped cursorword, popup
+  window adapts dynamically to length of input, visual emphasis of the active
+  range, …
 - Syntax comparison:
   ```txt
   # all three are equivalent
@@ -67,9 +67,9 @@ https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/dc4bdeb1-5ae
 
 ## Installation
 **Requirements**
-- `ripgrep`
+- [ripgrep](https://github.com/BurntSushi/ripgrep)
 - nvim >= 0.10
-- `:TSInstall regex` (optional, but recommended)
+- `:TSInstall regex` (only needed for syntax highlighting)
 
 ```lua
 -- lazy.nvim
