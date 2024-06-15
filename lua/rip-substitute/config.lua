@@ -28,7 +28,7 @@ local defaultConfig = {
 		},
 		rangeBackdrop = {
 			enabled = true,
-			blend = 50,
+			blend = 50, -- between 0 and 100
 		},
 	},
 	regexOptions = {
