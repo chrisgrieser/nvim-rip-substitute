@@ -182,7 +182,7 @@ function M.openSubstitutionPopup(prefill)
 	-- 11 for "234 matches" + 4 for border & footer padding
 	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
 
-	local title = state.range and ("Range: L%d - L%d"):format(state.range.start, state.range.end_)
+	local title = state.range and ("Range: L%d – L%d"):format(state.range.start, state.range.end_)
 		or " rip-substitute"
 
 	-- CREATE WINDOW
@@ -208,12 +208,12 @@ function M.openSubstitutionPopup(prefill)
 		list = true,
 		listchars = "multispace:·,trail:·,lead:·,tab:▸▸,precedes:…,extends:…",
 		signcolumn = "no",
-		sidescrolloff = 0,
+		sidescrolloff = 0, -- no need, since we dynamically resize the window
 		scrolloff = 0,
 		winfixbuf = true,
 	}
-	for key, value in pairs(winOpts) do
-		vim.api.nvim_set_option_value(key, value, { win = state.popupWinNr })
+	for opt, value in pairs(winOpts) do
+		vim.api.nvim_set_option_value(opt, value, { win = state.popupWinNr })
 	end
 	vim.cmd.startinsert { bang = true }
 
