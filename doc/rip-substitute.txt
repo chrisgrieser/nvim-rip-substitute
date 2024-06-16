@@ -108,6 +108,7 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
         popupWin = {
             border = "single",
             matchCountHlGroup = "Keyword",
+            noMatchHlGroup = "ErrorMsg",
             hideSearchReplaceLabels = false,
         },
         prefill = {
