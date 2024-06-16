@@ -69,16 +69,10 @@ function M.executeSubstitution()
 
 	-- notify
 	if require("rip-substitute.config").config.notificationOnSuccess then
-		local pluralS = state.matchCount == 1 and "" or "s"
-		local pluralS2 = replacedLines == 1 and "" or "s"
-		u.notify(
-			("Replaced %d occurrence%s in %d line%s."):format(
-				state.matchCount,
-				pluralS,
-				replacedLines,
-				pluralS2
-			)
-		)
+		local count = state.matchCount
+		local s1 = count == 1 and "" or "s"
+		local s2 = replacedLines == 1 and "" or "s"
+		u.notify(("Replaced %d occurrence%s in %d line%s."):format(count, s1, replacedLines, s2))
 	end
 end
 
