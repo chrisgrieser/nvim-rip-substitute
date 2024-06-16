@@ -83,25 +83,25 @@ end
 ---from this function to avoid re-running `rg` just for the count.)
 ---@param viewStartLnum number
 ---@param viewEndLnum number
----@return number -- total number of matches (including outside viewport)
----@nodiscard
 function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	local state = require("rip-substitute.state").state
-	local opts = require("rip-substitute.config").config.incrementalPreview
-	local hl = opts.hlGroups
+	state.matchCount = 0
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
 
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
-	if toSearch == "" then return 0 end
+	if toSearch == "" then return end
+
+	local opts = require("rip-substitute.config").config.incrementalPreview
+	local hl = opts.hlGroups
 
 	-- DETERMINE MATCHES
 	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
 	local code, searchMatches = runRipgrep(rgArgs)
-	if code ~= 0 then return 0 end
+	if code ~= 0 then return end
 
 	-- RANGE: FILTER MATCHES
 	-- PERF For single files, `rg` gives us results sorted by lines, so we can
-	-- slice instead of filter to improve performance.
+	-- `slice` instead of `filter` to improve performance.
 	local rangeStartIdx, rangeEndIdx
 	if state.range then
 		for i = 1, #searchMatches do
@@ -116,6 +116,8 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 		searchMatches = vim.list_slice(searchMatches, rangeStartIdx, rangeEndIdx)
 	end
 
+	state.matchCount = #searchMatches
+
 	-- VIEWPORT: FILTER MATCHES
 	local viewStartIdx, viewEndIdx
 	for i = 1, #searchMatches do
@@ -128,10 +130,10 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 			break
 		end
 	end
-	if not viewStartIdx then return #searchMatches end -- no matches in viewport
+	if not viewStartIdx then return end -- no matches in viewport
 	if not viewEndIdx then viewEndIdx = #searchMatches end
 
-	-- HIGHLIGHT SEARCH MATCHES
+	-- ADD HIGHLIGHTS TO MATCHES
 	local matchEndcolsInViewport = {}
 	vim.iter(searchMatches):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(match)
 		local matchEndCol = match.col + #match.text
@@ -150,7 +152,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	end)
 
 	-- INSERT REPLACEMENTS AS VIRTUAL TEXT
-	if toReplace == "" then return #searchMatches end
+	if toReplace == "" then return end
 
 	table.insert(rgArgs, "--replace=" .. toReplace)
 	local code2, replacements = runRipgrep(rgArgs)
@@ -169,8 +171,6 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 			{ virt_text = { virtText }, virt_text_pos = "inline", strict = false }
 		)
 	end)
-
-	return #searchMatches
 end
 
 --------------------------------------------------------------------------------
