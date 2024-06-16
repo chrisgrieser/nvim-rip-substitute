@@ -63,6 +63,17 @@ local function closePopupWin()
 	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
 end
 
+local function confirmSubstitution()
+	local state = require("rip-substitute.state").state
+
+	-- block confirmation if no matches
+	if state.matchCount == 0 then return end
+
+	require("rip-substitute.rg-operations").executeSubstitution()
+	closePopupWin()
+	if vim.fn.mode() == "i" then vim.cmd.stopinsert() end
+end
+
 local function updateMatchCount()
 	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
@@ -270,15 +281,8 @@ function M.openSubstitutionPopup(prefill)
 	-- KEYMAPS & POPUP CLOSING
 	local opts = { buffer = state.popupBufNr, nowait = true }
 	vim.keymap.set({ "n", "x" }, config.keymaps.abort, closePopupWin, opts)
-	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, function()
-		rg.executeSubstitution()
-		closePopupWin()
-	end, opts)
-	vim.keymap.set("i", config.keymaps.insertModeConfirm, function()
-		rg.executeSubstitution()
-		closePopupWin()
-		vim.cmd.stopinsert()
-	end, opts)
+	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, confirmSubstitution, opts)
+	vim.keymap.set("i", config.keymaps.insertModeConfirm, confirmSubstitution, opts)
 
 	state.historyPosition = #state.popupHistory + 1
 	vim.keymap.set({ "n", "x" }, config.keymaps.prevSubst, function()

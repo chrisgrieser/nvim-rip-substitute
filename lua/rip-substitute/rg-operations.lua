@@ -46,7 +46,8 @@ function M.executeSubstitution()
 
 	local code, results = runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
 	if code ~= 0 then
-		u.notify(table.concat(results, "\n"), "error")
+		local errorMsg = vim.trim(table.concat(results, "\n"))
+		u.notify(errorMsg, "error")
 		return
 	end
 
