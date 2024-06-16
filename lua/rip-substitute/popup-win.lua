@@ -63,19 +63,18 @@ local function closePopupWin()
 	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
 end
 
----@param numOfMatches number
-local function updateMatchCount(numOfMatches)
+local function updateMatchCount()
 	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 	local currentFooter = vim.deepcopy(vim.api.nvim_win_get_config(state.popupWinNr).footer)
 	local keymapHint = table.remove(currentFooter)
 	local updatedFooter = { keymapHint }
 
-	if numOfMatches > 0 then
-		local plural = numOfMatches == 1 and "" or "es"
-		local matchText = (" %s match%s "):format(numOfMatches, plural)
+	if state.matchCount > 0 then
+		local plural = state.matchCount == 1 and "" or "es"
+		local matchText = (" %s match%s "):format(state.matchCount, plural)
 		local hlGroup = config.popupWin.matchCountHlGroup
-		local matchSegment = numOfMatches > 0 and { matchText, hlGroup } or nil
+		local matchSegment = state.matchCount > 0 and { matchText, hlGroup } or nil
 		table.insert(updatedFooter, 1, matchSegment)
 	end
 
@@ -258,8 +257,8 @@ function M.openSubstitutionPopup(prefill)
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			ensureOnly2LinesInPopup()
-			local count = rg.incrementalPreviewAndMatchCount(viewStartLn, viewEndLn) or 0
-			updateMatchCount(count)
+			state.matchCount = rg.incrementalPreviewAndMatchCount(viewStartLn, viewEndLn)
+			updateMatchCount()
 			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end
 			local newWidth = adaptivePopupWidth(minWidth)
 			setPopupLabelsIfEnoughSpace(newWidth) -- should be last

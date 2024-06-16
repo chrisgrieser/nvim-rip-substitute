@@ -52,20 +52,28 @@ function M.executeSubstitution()
 
 	-- only update individual lines as opposed to whole buffer, as this
 	-- preserves folds and marks
-	local replacementCount = 0
+	local replacedLines = 0
 	for _, repl in pairs(results) do
 		local lineStr, newLine = repl:match("^(%d+):(.*)")
 		local lnum = assert(tonumber(lineStr), "rg parsing error")
 		if not state.range or (lnum >= state.range.start and lnum <= state.range.end_) then
 			vim.api.nvim_buf_set_lines(state.targetBuf, lnum - 1, lnum, false, { newLine })
-			replacementCount = replacementCount + 1
+			replacedLines = replacedLines + 1
 		end
 	end
 
 	-- notify
 	if require("rip-substitute.config").config.notificationOnSuccess then
-		local pluralS = replacementCount == 1 and "" or "s"
-		u.notify(("%d occurrence%s replaced"):format(replacementCount, pluralS))
+		local pluralS = state.matchCount == 1 and "" or "s"
+		local pluralS2 = replacedLines == 1 and "" or "s"
+		u.notify(
+			("Replaced %d occurrence%s in %d line%s."):format(
+				state.matchCount,
+				pluralS,
+				replacedLines,
+				pluralS2
+			)
+		)
 	end
 end
 
@@ -76,7 +84,8 @@ end
 ---from this function to avoid re-running `rg` just for the count.)
 ---@param viewStartLnum number
 ---@param viewEndLnum number
----@return number? -- total number of matches (including outside viewport)
+---@return number -- total number of matches (including outside viewport)
+---@nodiscard
 function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	local state = require("rip-substitute.state").state
 	local opts = require("rip-substitute.config").config.incrementalPreview
@@ -84,12 +93,12 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
 
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
-	if toSearch == "" then return end
+	if toSearch == "" then return 0 end
 
 	-- DETERMINE MATCHES
 	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
 	local code, searchMatches = runRipgrep(rgArgs)
-	if code ~= 0 then return end
+	if code ~= 0 then return 0 end
 
 	-- RANGE: FILTER MATCHES
 	-- PERF For single files, `rg` gives us results sorted by lines, so we can
