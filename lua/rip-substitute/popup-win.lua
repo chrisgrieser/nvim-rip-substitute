@@ -127,11 +127,11 @@ end
 ---and after the range.
 ---@param popupZindex integer
 local function setupViewOfRange(popupZindex)
-	local conf = require("rip-substitute.config").config.incrementalPreview.rangeBackdrop
+	local opts = require("rip-substitute.config").config.incrementalPreview.rangeBackdrop
 	local state = require("rip-substitute.state").state
-	if not conf.enabled or not state.range then return end
+	if not opts.enabled or not state.range then return end
 
-	local blend = conf.blend
+	local blend = opts.blend
 	local buf, win, height, row = {}, {}, {}, {}
 
 	local viewStart, viewEnd = u.getViewport()
