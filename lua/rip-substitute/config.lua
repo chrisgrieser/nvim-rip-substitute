@@ -6,6 +6,7 @@ local defaultConfig = {
 	popupWin = {
 		border = "single",
 		matchCountHlGroup = "Keyword",
+		noMatchHlGroup = "ErrorMsg",
 		hideSearchReplaceLabels = false,
 	},
 	prefill = {

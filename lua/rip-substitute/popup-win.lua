@@ -75,21 +75,24 @@ local function confirmSubstitution()
 end
 
 local function updateMatchCount()
-	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
-	local currentFooter = vim.deepcopy(vim.api.nvim_win_get_config(state.popupWinNr).footer)
-	local keymapHint = table.remove(currentFooter)
-	local updatedFooter = { keymapHint }
+	local config = require("rip-substitute.config").config
+	local matchHlGroup = config.popupWin.matchCountHlGroup
+	local noMatchHlGroup = config.popupWin.noMatchHlGroup
 
-	if state.matchCount > 0 then
-		local plural = state.matchCount == 1 and "" or "es"
-		local matchText = (" %s match%s "):format(state.matchCount, plural)
-		local hlGroup = config.popupWin.matchCountHlGroup
-		local matchSegment = state.matchCount > 0 and { matchText, hlGroup } or nil
-		table.insert(updatedFooter, 1, matchSegment)
-	end
+	local currentFooter = vim.api.nvim_win_get_config(state.popupWinNr).footer
+	local keymapHint = currentFooter[#currentFooter]
 
-	vim.api.nvim_win_set_config(state.popupWinNr, { footer = updatedFooter })
+	local plural = state.matchCount == 1 and "" or "es"
+	local matchText = (" %s match%s "):format(state.matchCount, plural)
+	local matchHighlight = state.matchCount > 0 and matchHlGroup or noMatchHlGroup
+
+	vim.api.nvim_win_set_config(state.popupWinNr, {
+		footer = {
+			{ matchText, matchHighlight },
+			keymapHint,
+		},
+	})
 end
 
 local function autoCaptureGroups()
