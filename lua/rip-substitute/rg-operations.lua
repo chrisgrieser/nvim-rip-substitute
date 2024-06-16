@@ -113,6 +113,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 				break
 			end
 		end
+		if rangeStartIdx == nil then return end -- no matches in range
 		searchMatches = vim.list_slice(searchMatches, rangeStartIdx, rangeEndIdx)
 	end
 
