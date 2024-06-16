@@ -50,8 +50,13 @@ function M.executeSubstitution()
 		return
 	end
 
-	-- only update individual lines as opposed to whole buffer, as this
-	-- preserves folds and marks
+	-- INFO Only update individual lines as opposed to whole buffer, as this
+	-- preserves folds and marks. We could also use `nvim_buf_set_text` to update
+	-- only sections inside specific lines, however that requires a lot of manual
+	-- calculation when dealing with multiple matches in a line, and will only be
+	-- more complicated when features like `--multiline` support are added later
+	-- on. As the benefit of preserving marks *inside* a changed line is not that
+	-- great, we'll stick to the simpler approach.
 	local replacedLines = 0
 	for _, repl in pairs(results) do
 		local lineStr, newLine = repl:match("^(%d+):(.*)")
