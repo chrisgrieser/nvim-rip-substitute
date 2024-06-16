@@ -52,12 +52,20 @@ function M.executeSubstitution()
 
 	-- only update individual lines as opposed to whole buffer, as this
 	-- preserves folds and marks
+	local replacementCount = 0
 	for _, repl in pairs(results) do
 		local lineStr, newLine = repl:match("^(%d+):(.*)")
 		local lnum = assert(tonumber(lineStr), "rg parsing error")
 		if not state.range or (lnum >= state.range.start and lnum <= state.range.end_) then
 			vim.api.nvim_buf_set_lines(state.targetBuf, lnum - 1, lnum, false, { newLine })
+			replacementCount = replacementCount + 1
 		end
+	end
+
+	-- notify
+	if require("rip-substitute.config").config.notificationOnSuccess then
+		local pluralS = replacementCount == 1 and "" or "s"
+		u.notify(("%d occurrence%s replaced"):format(replacementCount, pluralS))
 	end
 end
 

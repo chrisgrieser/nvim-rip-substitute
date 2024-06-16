@@ -135,6 +135,7 @@ require("rip-substitute").setup {
 		-- add `$n` to the `replacement` line.
 		autoCaptureGroups = false,
 	},
+	notificationOnSuccess = true,
 }
 ```
 

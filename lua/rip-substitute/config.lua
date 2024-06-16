@@ -42,6 +42,7 @@ local defaultConfig = {
 		-- add `$n` to the `replacement` line.
 		autoCaptureGroups = false,
 	},
+	notificationOnSuccess = true,
 }
 M.config = defaultConfig
 
