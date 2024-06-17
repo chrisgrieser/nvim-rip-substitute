@@ -74,6 +74,17 @@ local function confirmSubstitution()
 	if vim.fn.mode() == "i" then vim.cmd.stopinsert() end
 end
 
+local cursorPositions = { [1] = 0, [2] = 0 }
+
+local function switchInputField()
+	local state = require("rip-substitute.state").state
+	local cursorPos = vim.api.nvim_win_get_cursor(state.popupWinNr)
+	cursorPositions[cursorPos[1]] = cursorPos[2]
+	local newLine = cursorPos[1] == 1 and 2 or 1
+	local newCol = cursorPositions[newLine] or 0
+	vim.api.nvim_win_set_cursor(state.popupWinNr, { newLine, newCol })
+end
+
 local function updateMatchCount()
 	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
@@ -286,6 +297,7 @@ function M.openSubstitutionPopup(prefill)
 	vim.keymap.set({ "n", "x" }, config.keymaps.abort, closePopupWin, opts)
 	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, confirmSubstitution, opts)
 	vim.keymap.set("i", config.keymaps.insertModeConfirm, confirmSubstitution, opts)
+	vim.keymap.set({ "n", "i" }, config.keymaps.switchInputField, switchInputField, opts)
 
 	state.historyPosition = #state.popupHistory + 1
 	vim.keymap.set({ "n", "x" }, config.keymaps.prevSubst, function()

@@ -20,6 +20,7 @@ local defaultConfig = {
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
 		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
+		switchInputField = "<Tab>",
 	},
 	incrementalPreview = {
 		hlGroups = {
