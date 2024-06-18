@@ -6,7 +6,7 @@
 <img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/rip-substitute/shield"/></a>
 -->
 
-A modern substitute for vim's `:substitute`, using `ripgrep`.
+A modern substitute for vim's `:substitute` using `ripgrep`.
 
 > [!NOTE]
 > This plugin is still in early development. Its features and options are
@@ -14,7 +14,7 @@ A modern substitute for vim's `:substitute`, using `ripgrep`.
 
 ![Showcase](https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/de7d4b38-e3b1-4bbb-afba-5bd8cefd8797)
 
-https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/3b10ef76-c61b-4314-8c74-705ffb3e1946
+https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/dbd63251-f057-4985-a20e-424c3fd6deb2
 
 ## Table of Contents
 
@@ -105,6 +105,7 @@ require("rip-substitute").setup {
 	prefill = {
 		normal = "cursorWord", -- "cursorWord"|false
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
+		startInReplaceLineIfPrefill = false,
 	},
 	keymaps = {
 		-- normal & visual mode
@@ -132,8 +133,6 @@ require("rip-substitute").setup {
 		autoBraceSimpleCaptureGroups = true,
 	},
 	editingBehavior = {
-		startInReplaceLine = false,
-
 		-- Experimental. When typing `()` in the `search` lines, automatically
 		-- add `$n` to the `replacement` line.
 		autoCaptureGroups = false,
@@ -150,11 +149,11 @@ require("rip-substitute").sub()
 
 - Normal mode: prefills the cursorword.
 - Visual mode: prefills the first line of the selection.
-- Visual **line** mode: replacements are only applied to the selected lines,
-  that is, the selection is used as range.
+- Visual *line* mode: replacements are only applied to the selected lines
+  (the selection is used as range).
 
 ## Advanced
-**`autoBraceSimpleCaptureGroups`**
+**`autoBraceSimpleCaptureGroups`**  
 One annoying *gotcha* of `ripgrep`'s regex syntax is it treats `$1a` as the
 named capture group "1a," and *not* the as the first capture group followed by the
 letter "a." (See `ripgrep`'s man page on `--replace` for details.)
@@ -164,7 +163,7 @@ If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
-**Filetype**
+**Filetype**  
 The plugin sets the filetype `rip-substitute`.
 
 ## Limitations
