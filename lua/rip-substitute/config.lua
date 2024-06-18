@@ -12,6 +12,7 @@ local defaultConfig = {
 	prefill = {
 		normal = "cursorWord", -- "cursorWord"|false
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
+		startInReplaceLineIfPrefill = false,
 	},
 	keymaps = {
 		-- normal & visual mode
@@ -39,8 +40,6 @@ local defaultConfig = {
 		autoBraceSimpleCaptureGroups = true,
 	},
 	editingBehavior = {
-		startInReplaceLine = false,
-
 		-- Experimental. When typing `()` in the `search` lines, automatically
 		-- add `$n` to the `replacement` line.
 		autoCaptureGroups = false,

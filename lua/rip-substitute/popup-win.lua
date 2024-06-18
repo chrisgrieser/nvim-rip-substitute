@@ -263,7 +263,7 @@ function M.openSubstitutionPopup(prefill)
 		vim.api.nvim_set_option_value(opt, value, { win = state.popupWinNr })
 	end
 
-	if config.editingBehavior.startInReplaceLine then
+	if config.prefill.startInReplaceLineIfPrefill and prefill[1] ~= "" then
 		vim.api.nvim_win_set_cursor(state.popupWinNr, { 2, 0 })
 	end
 	vim.cmd.startinsert { bang = true }
