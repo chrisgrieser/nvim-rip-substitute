@@ -17,13 +17,13 @@ Table of Contents                           *rip-substitute-table-of-contents*
 ==============================================================================
 1. rip-substitute                             *rip-substitute-rip-substitute-*
 
-Amodern substitute for vim’s `:substitute`, using `ripgrep`.
+Amodern substitute for vim’s `:substitute` using `ripgrep`.
 
 
   [!NOTE] This plugin is still in early development. Its features and options are
   subject to change.
 
-https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/3b10ef76-c61b-4314-8c74-705ffb3e1946
+https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/dbd63251-f057-4985-a20e-424c3fd6deb2
 
 
 TABLE OF CONTENTS           *rip-substitute-rip-substitute--table-of-contents*
@@ -114,6 +114,7 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
         prefill = {
             normal = "cursorWord", -- "cursorWord"|false
             visual = "selectionFirstLine", -- "selectionFirstLine"|false
+            startInReplaceLineIfPrefill = false,
         },
         keymaps = {
             -- normal & visual mode
@@ -141,8 +142,6 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
             autoBraceSimpleCaptureGroups = true,
         },
         editingBehavior = {
-            startInReplaceLine = false,
-    
             -- Experimental. When typing `()` in the `search` lines, automatically
             -- add `$n` to the `replacement` line.
             autoCaptureGroups = false,
@@ -160,8 +159,8 @@ USAGE                                   *rip-substitute-rip-substitute--usage*
 
 - Normal mode: prefills the cursorword.
 - Visual mode: prefills the first line of the selection.
-- Visual **line** mode: replacements are only applied to the selected lines,
-    that is, the selection is used as range.
+- Visual _line_ mode: replacements are only applied to the selected lines
+    (the selection is used as range).
 
 
 ADVANCED                             *rip-substitute-rip-substitute--advanced*
