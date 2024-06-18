@@ -99,7 +99,7 @@ local function autoCaptureGroups()
 	local state = require("rip-substitute.state").state
 	local cursorInSearchLine = vim.api.nvim_win_get_cursor(state.popupWinNr)[1] == 1
 	-- prevent updating replacement if editing replace line
-	if not cursorInSearchLine then return end 
+	if not cursorInSearchLine then return end
 
 	local toSearch, toReplace = unpack(getPopupLines())
 	local _, openParenCount = toSearch:gsub("%)", "")
