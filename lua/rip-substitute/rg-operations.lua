@@ -2,18 +2,25 @@ local M = {}
 local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
----@param args string[]
+---@param rgArgs string[]
 ---@return number exitCode
 ---@return string[] stdoutOrStderr
-local function runRipgrep(args)
+local function runRipgrep(rgArgs)
 	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 
-	local rgCmd = vim.list_extend({ "rg", "--no-config" }, args)
-	if config.regexOptions.pcre2 then table.insert(rgCmd, "--pcre2") end
-	vim.list_extend(rgCmd, { "--", state.targetFile })
-	local result = vim.system(rgCmd):wait()
+	-- args
+	table.insert(rgArgs, 1, "rg")
+	vim.list_extend(rgArgs, {
+		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
+		"--" .. config.regexOptions.casing,
+		"--no-config",
+		"--",
+		state.targetFile,
+	})
 
+	-- results
+	local result = vim.system(rgArgs):wait()
 	local text = result.code == 0 and result.stdout or result.stderr
 	return result.code, vim.split(vim.trim(text or ""), "\n")
 end

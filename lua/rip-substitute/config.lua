@@ -36,6 +36,8 @@ local defaultConfig = {
 	regexOptions = {
 		-- pcre2 enables lookarounds and backreferences, but performs slower
 		pcre2 = true,
+		---@type "case-sensitive"|"ignore-case"|"smart-case"
+		casing = "case-sensitive",
 		-- disable if you use named capture groups (see README for details)
 		autoBraceSimpleCaptureGroups = true,
 	},
