@@ -10,8 +10,9 @@ local function runRipgrep(rgArgs)
 	local state = require("rip-substitute.state").state
 
 	-- args
-	table.insert(rgArgs, 1, "rg")
-	vim.list_extend(rgArgs, {
+	local args = vim.deepcopy(rgArgs) -- copy, since list_extend modifies the *passed* original
+	table.insert(args, 1, "rg")
+	vim.list_extend(args, {
 		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
 		"--" .. config.regexOptions.casing,
 		"--no-config",
@@ -20,7 +21,7 @@ local function runRipgrep(rgArgs)
 	})
 
 	-- results
-	local result = vim.system(rgArgs):wait()
+	local result = vim.system(args):wait()
 	local text = result.code == 0 and result.stdout or result.stderr
 	return result.code, vim.split(vim.trim(text or ""), "\n")
 end
