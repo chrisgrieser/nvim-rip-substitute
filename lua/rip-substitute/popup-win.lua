@@ -142,61 +142,64 @@ end
 ---Adds two dummy-windows with `blend` to achieve a backdrop-like effect before
 ---and after the range.
 ---@param popupZindex integer
-local function setupViewOfRange(popupZindex)
+local function rangeBackdrops(popupZindex)
 	local opts = require("rip-substitute.config").config.incrementalPreview.rangeBackdrop
 	local state = require("rip-substitute.state").state
 	if not opts.enabled or not state.range then return end
 
 	local blend = opts.blend
-	local buf, win, height, row = {}, {}, {}, {}
+	local cover = { {}, {} }
 
 	local viewStart, viewEnd = u.getViewport()
-	local relViewStart = 0
-	local relViewEnd = viewEnd - viewStart
-	local relRangeStart = state.range.start - viewStart
-	local relRangeEnd = state.range.end_ - viewStart
-	row[1] = relViewStart
-	height[1] = relRangeStart + 1
-	row[2] = relRangeEnd + 2
-	height[2] = relViewEnd - relRangeEnd + 1
+	local rangeStart, rangeEnd = state.range.start, state.range.end_
+	local offset = viewStart
+
+	cover[1].start = viewStart
+	cover[1].relStart = cover[1].start - offset
+	cover[1].height = rangeStart - viewStart
+
+	cover[2].start = rangeEnd + 1
+	cover[2].relStart = cover[2].start - offset
+	cover[2].height = viewEnd - rangeEnd
 
 	for i = 1, 2 do
-		-- if height is negative or zero, the range starts/ends before/after the
+		local height = cover[i].height
+		local relStart = cover[i].relStart
+		-- if height is negative, the range starts/ends before/after the
 		-- viewport, so we do not need that half of the cover
-		if height[i] > 1 then
-			buf[i] = vim.api.nvim_create_buf(false, true)
-			win[i] = vim.api.nvim_open_win(buf[i], false, {
-				relative = "editor",
-				row = row[i],
+		if height > 0 then
+			local buf = vim.api.nvim_create_buf(false, true)
+			local win = vim.api.nvim_open_win(buf, false, {
+				relative = "win",
+				win = state.targetWin,
+				row = relStart,
 				col = 0,
 				focusable = false,
 				width = vim.api.nvim_win_get_width(state.targetWin),
-				height = height[i],
+				height = height,
 				style = "minimal",
 				zindex = popupZindex - 1, -- so the popup stays on top
 			})
 			vim.api.nvim_set_hl(0, "RipSubBackdrop", { bg = "#000000", default = true })
-			vim.wo[win[i]].winhighlight = "Normal:RipSubBackdrop"
-			vim.wo[win[i]].winblend = blend
-			vim.bo[buf[i]].buftype = "nofile"
+			vim.wo[win].winhighlight = "Normal:RipSubBackdrop"
+			vim.wo[win].winblend = blend
+			vim.bo[buf].buftype = "nofile"
+
+			-- remove range cover when done
+			vim.api.nvim_create_autocmd("BufLeave", {
+				once = true,
+				buffer = state.popupBufNr,
+				callback = function()
+					if win and vim.api.nvim_win_is_valid(win) then
+						vim.api.nvim_win_close(win, true)
+					end
+					if buf and vim.api.nvim_buf_is_valid(buf) then
+						vim.api.nvim_buf_delete(buf, { force = true })
+					end
+				end,
+			})
 		end
 	end
-
-	-- remove range covers when done
-	vim.api.nvim_create_autocmd("BufLeave", {
-		once = true,
-		buffer = state.popupBufNr,
-		callback = function()
-			for i = 1, 2 do
-				if win[i] and vim.api.nvim_win_is_valid(win[i]) then
-					vim.api.nvim_win_close(win[i], true)
-				end
-				if buf[i] and vim.api.nvim_buf_is_valid(buf[i]) then
-					vim.api.nvim_buf_delete(buf[i], { force = true })
-				end
-			end
-		end,
-	})
 end
 
 --------------------------------------------------------------------------------
@@ -286,7 +289,7 @@ function M.openSubstitutionPopup(prefill)
 		end,
 	})
 	setPopupLabelsIfEnoughSpace(minWidth)
-	setupViewOfRange(popupZindex)
+	rangeBackdrops(popupZindex)
 
 	-- KEYMAPS & POPUP CLOSING
 	local opts = { buffer = state.popupBufNr, nowait = true }
