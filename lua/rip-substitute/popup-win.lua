@@ -142,7 +142,7 @@ end
 ---Adds two dummy-windows with `blend` to achieve a backdrop-like effect before
 ---and after the range.
 ---@param popupZindex integer
-local function rangeBackdrops(popupZindex)
+local function rangeBackdrop(popupZindex)
 	local opts = require("rip-substitute.config").config.incrementalPreview.rangeBackdrop
 	local state = require("rip-substitute.state").state
 	if not opts.enabled or not state.range then return end
@@ -150,6 +150,8 @@ local function rangeBackdrops(popupZindex)
 	local blend = opts.blend
 	local cover = { {}, {} }
 
+	-- ensure folds are disabled, since they mess up the calculation of positions
+	vim.wo[state.targetWin].foldenable = false
 	local viewStart, viewEnd = u.getViewport()
 	local rangeStart, rangeEnd = state.range.start, state.range.end_
 	local offset = viewStart
@@ -194,6 +196,7 @@ local function rangeBackdrops(popupZindex)
 					if buf and vim.api.nvim_buf_is_valid(buf) then
 						vim.api.nvim_buf_delete(buf, { force = true })
 					end
+					vim.wo[state.targetWin].foldenable = true
 				end,
 			})
 		end
@@ -287,7 +290,7 @@ function M.openSubstitutionPopup(prefill)
 		end,
 	})
 	setPopupLabelsIfEnoughSpace(minWidth)
-	rangeBackdrops(popupZindex)
+	rangeBackdrop(popupZindex)
 
 	-- KEYMAPS & POPUP CLOSING
 	local opts = { buffer = state.popupBufNr, nowait = true }
