@@ -135,13 +135,17 @@ require("rip-substitute").setup {
 		autoBraceSimpleCaptureGroups = true,
 	},
 	editingBehavior = {
-		-- Experimental. When typing `()` in the `search` lines, automatically
-		-- add `$n` to the `replacement` line.
+		-- Experimental. When typing `()` in the `search` line, automatically
+		-- adds `$n` to the `replace` line.
 		autoCaptureGroups = false,
 	},
 	notificationOnSuccess = true,
 }
 ```
+
+> [!NOTE]
+> Any `ripgrep` config file set via `RIPGREP_CONFIG_PATH` is ignored by this
+> plugin.
 
 ## Usage
 
