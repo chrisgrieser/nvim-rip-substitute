@@ -6,7 +6,8 @@
 <img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/rip-substitute/shield"/></a>
 -->
 
-A modern substitute for vim's `:substitute` using `ripgrep`.
+Search & replace in the current buffer with a modern UI and modern regex flavor.
+A substitute for vim's `:substitute` using `ripgrep`.
 
 > [!NOTE]
 > This plugin is still in early development. Its features and options are
