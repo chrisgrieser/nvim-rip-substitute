@@ -6,10 +6,10 @@
 <img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/rip-substitute/shield"/></a>
 -->
 
-Search & replace in the current buffer with a modern UI and modern regex flavor.
-A substitute for vim's `:substitute` using `ripgrep`.
+Perform search and replace operations in the current buffer using a modern user
+interface and contemporary regex syntax.
 
-https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669
+<https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669>
 
 ## Table of Contents
 
@@ -28,23 +28,21 @@ https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d
 ## Features
 - Search and replace in the current buffer using
   [ripgrep](https://github.com/BurntSushi/ripgrep).
-- Uses **common regex syntax** (pcre2) — no more arcane vim regex.
-- **Live count** of matches, **incremental preview** of matched strings and
-  replacements.
+- Uses **common regex syntax** — no more dealing with arcane vim regex.
+- **Incremental preview** of matched strings and replacements, **live count** of
+  matches.
 - Popup window instead of command line. This entails:
 	+ Syntax highlighting of the regex.
 	+ Editing with vim motions.
-	+ Snippets and completions work.
 	+ No more dealing with delimiters.
 - **Sensible defaults**: searches the entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
-- **Range** support when started from visual line mode. 
+- **Range support**
 - **History** of previous substitutions.
-- **Performant**: Even in a file with 5000 lines and thousands of matches, still
-  performs blazingly fast.™
-- **Quality-of-Life** features: automatic prefill of the escaped cursorword, popup
-  window adapts dynamically to length of input, visual emphasis of the active
-  range, …
+- **Performant**: In a file with 5000 lines and thousands of matches, still
+  performs *blazingly fast*.™
+- **Quality-of-Life features**: automatic prefill of the escaped cursorword,
+  adaptive popup window width, visual emphasis of the active range, …
 - Syntax comparison:
   ```txt
   # all three are equivalent
@@ -151,8 +149,8 @@ require("rip-substitute").sub()
 
 ## Advanced
 **`autoBraceSimpleCaptureGroups`**  
-One annoying *gotcha* of `ripgrep`'s regex syntax is it treats `$1a` as the
-named capture group "1a," and *not* the as the first capture group followed by the
+A *gotcha* of `ripgrep`'s regex syntax is that it treats `$1a` as the named
+capture group "1a" and *not* as the first capture group followed by the
 letter "a." (See `ripgrep`'s man page on `--replace` for details.)
 
 If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
