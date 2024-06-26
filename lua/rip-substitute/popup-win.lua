@@ -2,6 +2,7 @@ local M = {}
 local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
+---@nodiscard
 ---@return string[]
 local function getPopupLines()
 	local state = require("rip-substitute.state").state
@@ -12,8 +13,9 @@ end
 ---space in the popup window, i.e., the current content will not overlap with it.
 ---@param popupWidth number
 local function setPopupLabelsIfEnoughSpace(popupWidth)
-	local config = require("rip-substitute.config").config
-	if config.popupWin.hideSearchReplaceLabels then return end
+	local hide = require("rip-substitute.config").config.popupWin.hideSearchReplaceLabels
+	if hide then return end
+
 	local state = require("rip-substitute.state").state
 	vim.api.nvim_buf_clear_namespace(state.popupBufNr, state.labelNs, 0, -1)
 
@@ -47,7 +49,7 @@ end
 local function closePopupWin()
 	local state = require("rip-substitute.state").state
 
-	-- save last popup content for next run
+	-- history: save last popup content for next run
 	local lastPopupContent = state.popupPresentContent or getPopupLines()
 	state.popupPresentContent = nil
 	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
@@ -241,7 +243,7 @@ function M.openSubstitutionPopup(prefill)
 	-- CREATE WINDOW
 	local offsetScrollbar = 2
 	local offsetStatuslines = 3
-	local popupZindex = 2 -- below nvim-notify
+	local popupZindex = 40 -- below nvim-notify which uses 50
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		-- window at bottom right
 		relative = "win",
@@ -262,7 +264,7 @@ function M.openSubstitutionPopup(prefill)
 		list = true,
 		listchars = "multispace:·,trail:·,lead:·,tab:▸▸,precedes:…,extends:…",
 		signcolumn = "no",
-		sidescrolloff = 0, -- no need, since we dynamically resize the window
+		sidescrolloff = 0, -- no need for scrolloff, since we dynamically resize the window
 		scrolloff = 0,
 		winfixbuf = true,
 	}
@@ -319,6 +321,7 @@ function M.openSubstitutionPopup(prefill)
 	-- also close the popup on leaving buffer, ensures there is not leftover
 	-- buffer when user closes popup in a different way, such as `:close`.
 	vim.api.nvim_create_autocmd("BufLeave", {
+		once = true,
 		buffer = state.popupBufNr,
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-leave", {}),
 		callback = closePopupWin,

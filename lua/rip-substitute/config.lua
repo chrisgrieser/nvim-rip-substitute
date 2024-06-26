@@ -55,7 +55,7 @@ function M.setup(userConfig)
 	if M.config.popupWin.border == "none" then
 		local fallback = defaultConfig.popupWin.border
 		M.config.popupWin.border = fallback
-		local msg = ('Border "none" is not supported, falling back to %q'):format(fallback)
+		local msg = ('Border "none" is not supported, falling back to %q.'):format(fallback)
 		notify(msg, "warn")
 	end
 
