@@ -143,25 +143,35 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	if not viewStartIdx then return end -- no matches in viewport
 	if not viewEndIdx then viewEndIdx = #searchMatches end
 
-	-- ADD HIGHLIGHTS TO MATCHES
+	-- SEARCH: HIGHLIGHT MATCHES
+	-- hide when there is a replacement value
 	local matchEndcolsInViewport = {}
 	vim.iter(searchMatches):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(match)
 		local matchEndCol = match.col + #match.text
-		vim.api.nvim_buf_add_highlight(
-			state.targetBuf,
-			state.incPreviewNs,
-			toReplace == "" and hl.activeSearch or hl.inactiveSearch,
-			match.lnum,
-			match.col,
-			matchEndCol
-		)
-		-- INFO saving the end columns to correctly position the replacements.
-		-- For single files, `rg` gives us results sorted by line & column, so
-		-- that we can simply collect them in a list.
-		if toReplace ~= "" then table.insert(matchEndcolsInViewport, matchEndCol) end
+		if toReplace == "" then
+			vim.api.nvim_buf_add_highlight(
+				state.targetBuf,
+				state.incPreviewNs,
+				hl.activeSearch,
+				match.lnum,
+				match.col,
+				matchEndCol
+			)
+		else
+			vim.api.nvim_buf_set_extmark(state.targetBuf, state.incPreviewNs, match.lnum, match.col, {
+				conceal = "",
+				end_col = matchEndCol,
+				end_row = match.lnum,
+			})
+
+			-- INFO saving the end columns to correctly position the replacements.
+			-- For single files, `rg` gives us results sorted by line & column, so
+			-- that we can simply collect them in a list.
+			table.insert(matchEndcolsInViewport, matchEndCol)
+		end
 	end)
 
-	-- INSERT REPLACEMENTS AS VIRTUAL TEXT
+	-- REPLACE: INSERT AS VIRTUAL TEXT
 	if toReplace == "" then return end
 
 	table.insert(rgArgs, "--replace=" .. toReplace)
@@ -178,7 +188,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 			state.incPreviewNs,
 			repl.lnum,
 			matchEndCol,
-			{ virt_text = { virtText }, virt_text_pos = "inline", strict = false }
+			{ virt_text = { virtText }, virt_text_pos = "inline" }
 		)
 	end)
 end

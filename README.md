@@ -13,9 +13,7 @@ A substitute for vim's `:substitute` using `ripgrep`.
 > This plugin is still in early development. Its features and options are
 > subject to change.
 
-![Showcase](https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/de7d4b38-e3b1-4bbb-afba-5bd8cefd8797)
-
-https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/dbd63251-f057-4985-a20e-424c3fd6deb2
+https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669
 
 ## Table of Contents
 
