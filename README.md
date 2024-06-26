@@ -9,10 +9,6 @@
 Search & replace in the current buffer with a modern UI and modern regex flavor.
 A substitute for vim's `:substitute` using `ripgrep`.
 
-> [!NOTE]
-> This plugin is still in early development. Its features and options are
-> subject to change.
-
 https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669
 
 ## Table of Contents
@@ -115,11 +111,7 @@ require("rip-substitute").setup {
 		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
 	},
 	incrementalPreview = {
-		hlGroups = {
-			replacement = "IncSearch",
-			activeSearch = "IncSearch",
-			inactiveSearch = "LspInlayHint",
-		},
+		matchHlGroup = "IncSearch",
 		rangeBackdrop = {
 			enabled = true,
 			blend = 50, -- between 0 and 100

@@ -96,12 +96,10 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	local state = require("rip-substitute.state").state
 	state.matchCount = 0
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
+	local hlGroup = require("rip-substitute.config").config.incrementalPreview.matchHlGroup
 
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
 	if toSearch == "" then return end
-
-	local opts = require("rip-substitute.config").config.incrementalPreview
-	local hl = opts.hlGroups
 
 	-- DETERMINE MATCHES
 	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
@@ -152,7 +150,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 			vim.api.nvim_buf_add_highlight(
 				state.targetBuf,
 				state.incPreviewNs,
-				hl.activeSearch,
+				hlGroup,
 				match.lnum,
 				match.col,
 				matchEndCol
@@ -182,7 +180,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 
 	vim.iter(replacements):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(repl)
 		local matchEndCol = table.remove(matchEndcolsInViewport, 1)
-		local virtText = { repl.text, hl.replacement }
+		local virtText = { repl.text, hlGroup }
 		vim.api.nvim_buf_set_extmark(
 			state.targetBuf,
 			state.incPreviewNs,

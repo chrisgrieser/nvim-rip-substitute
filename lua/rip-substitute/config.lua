@@ -1,4 +1,5 @@
 local M = {}
+local notify = require("rip-substitute.utils").notify
 --------------------------------------------------------------------------------
 
 ---@class ripSubstituteConfig
@@ -23,11 +24,7 @@ local defaultConfig = {
 		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
 	},
 	incrementalPreview = {
-		hlGroups = {
-			replacement = "IncSearch",
-			activeSearch = "IncSearch",
-			inactiveSearch = "LspInlayHint",
-		},
+		matchHlGroup = "IncSearch",
 		rangeBackdrop = {
 			enabled = true,
 			blend = 50, -- between 0 and 100
@@ -59,7 +56,13 @@ function M.setup(userConfig)
 		local fallback = defaultConfig.popupWin.border
 		M.config.popupWin.border = fallback
 		local msg = ('Border "none" is not supported, falling back to %q'):format(fallback)
-		require("rip-substitute.utils").notify(msg, "warn")
+		notify(msg, "warn")
+	end
+
+	-- DEPRECATION
+	if M.config.incrementalPreview.hlGroups then
+		local msg = "`incrementalPreview.hlGroups.{name}` is deprecated, use `incrementalPreview.matchHlGroup` instead."
+		notify(msg, "warn")
 	end
 end
 
