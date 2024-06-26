@@ -18,14 +18,14 @@ function M.sub()
 	local mode = vim.fn.mode()
 
 	-- PREFILL
-	local prefill = ""
+	local searchPrefill = ""
 	if mode == "n" and config.prefill.normal == "cursorWord" then
-		prefill = vim.fn.expand("<cword>")
+		searchPrefill = vim.fn.expand("<cword>")
 	elseif mode == "v" and config.prefill.visual == "selectionFirstLine" then
 		vim.cmd.normal { '"zy', bang = true }
-		prefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
+		searchPrefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
 	end
-	prefill = prefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
+	searchPrefill = searchPrefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
 
 	-- RANGE
 	---@type CmdRange|false
@@ -47,7 +47,7 @@ function M.sub()
 		range = range,
 	}
 
-	require("rip-substitute.popup-win").openSubstitutionPopup(prefill)
+	require("rip-substitute.popup-win").openSubstitutionPopup(searchPrefill)
 end
 
 --------------------------------------------------------------------------------
