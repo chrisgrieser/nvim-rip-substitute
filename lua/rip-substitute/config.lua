@@ -61,7 +61,8 @@ function M.setup(userConfig)
 
 	-- DEPRECATION
 	if M.config.incrementalPreview.hlGroups then
-		local msg = "`incrementalPreview.hlGroups.{name}` is deprecated, use `incrementalPreview.matchHlGroup` instead."
+		local msg =
+			"`incrementalPreview.hlGroups.{name}` is deprecated, use `incrementalPreview.matchHlGroup` instead."
 		notify(msg, "warn")
 	end
 end
