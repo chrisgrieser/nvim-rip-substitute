@@ -51,6 +51,18 @@ M.config = defaultConfig
 function M.setup(userConfig)
 	M.config = vim.tbl_deep_extend("force", M.config, userConfig or {})
 
+	-- VALIDATE `rg` installations not built with `pcre2`, see #3
+	if M.config.regexOptions.pcre2 then
+		vim.system({ "rg", "--pcre2-version" }, {}, function(out)
+			if out.code ~= 0 or out.stderr:find("PCRE2 is not available in this build of ripgrep") then
+				local msg = "`regexOptions.pcre2` has been disabled, as the installed version of `ripgrep` lacks `pcre2` support.\n\n"
+					.. "Please install `ripgrep` with `pcre2` support, or disable `regexOptions.pcre2`."
+				notify(msg, "warn")
+				M.config.regexOptions.pcre2 = false
+			end
+		end)
+	end
+
 	-- VALIDATE border `none` does not work with and title/footer used by this plugin
 	if M.config.popupWin.border == "none" then
 		local fallback = defaultConfig.popupWin.border
