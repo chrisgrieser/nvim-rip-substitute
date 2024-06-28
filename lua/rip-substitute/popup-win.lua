@@ -288,6 +288,8 @@ function M.openSubstitutionPopup(searchPrefill)
 		callback = function()
 			ensureOnly2LinesInPopup()
 			state.matches = rgMatches.getMatches()
+			local closesMatch = rgMatches.getClosestMatchAfterCursor(state.matches)
+			vim.print(closesMatch)
 			rg.incrementalPreviewAndMatchCount(viewStartLn, viewEndLn)
 			updateMatchCount()
 			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end

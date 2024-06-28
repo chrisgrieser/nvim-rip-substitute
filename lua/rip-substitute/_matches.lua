@@ -11,14 +11,14 @@ local M = {}
 
 --- i would use vim.Range, but it's weird because end is a keyword
 --- and therefore can't be used like match.end
----@class RipSubstitute.Range
+---@class RipSubstituteRange
 ---@field start RipSubstitute.Position
----@field finish RipSubstitute.Position
+---@field end_ RipSubstitute.Position
 
 ---@param line string
 ---@param row number
 ---@param search_term string
----@return RipSubstitute.Range[]
+---@return RipSubstituteRange[]
 local function getMatchesOfLine(line, row, search_term)
 	local config = require("rip-substitute.config").config
 	local matches = {}
@@ -65,7 +65,7 @@ end
 
 ---@param bufnr number
 ---@param searchTerm string
----@return RipSubstitute.Range[] | nil
+---@return RipSubstituteRange[] | nil
 function M.getMatches(bufnr, searchTerm)
 	if not searchTerm or searchTerm == "" then return {} end
 	local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
@@ -76,8 +76,8 @@ function M.getMatches(bufnr, searchTerm)
 	)
 end
 
----@param matches RipSubstitute.Range[]
----@return RipSubstitute.Range | nil
+---@param matches RipSubstituteRange[]
+---@return RipSubstituteRange | nil
 function M.get_closest_match_after_cursor(matches)
 	local state = require("rip-substitute.state").state
 	local cursor_row, cursor_col = unpack(vim.api.nvim_win_get_cursor(state.targetWin))
@@ -89,7 +89,7 @@ function M.get_closest_match_after_cursor(matches)
 		local on_same_line = match.start.row == cursor_row
 		local cursor_on_match = on_same_line
 			and match.start.col <= cursor_col
-			and match.finish.col >= cursor_col
+			and match.end_.col >= cursor_col
 		local on_same_line_after = not cursor_on_match
 			and on_same_line
 			and match.start.col > cursor_col
@@ -103,9 +103,9 @@ function M.get_closest_match_after_cursor(matches)
 	-- If no match is found after cursor, search from the beginning of the file to the cursor
 	if not closestMatch then
 		for _, match in ipairs(matches) do
-			local on_line_before = match.finish.row < cursor_row
-			local on_same_line_before = match.finish.row == cursor_row
-				and match.finish.col < cursor_col
+			local on_line_before = match.end_.row < cursor_row
+			local on_same_line_before = match.end_.row == cursor_row
+				and match.end_.col < cursor_col
 
 			if on_line_before or on_same_line_before then
 				closestMatch = match
@@ -117,17 +117,17 @@ function M.get_closest_match_after_cursor(matches)
 	return closestMatch
 end
 
---- @param match1 RipSubstitute.Range
---- @param match2 RipSubstitute.Range
+--- @param match1 RipSubstituteRange
+--- @param match2 RipSubstituteRange
 function M.equals(match1, match2)
 	return match1.start.col == match2.start.col
 		and match1.start.row == match2.start.row
-		and match1.finish.col == match2.finish.col
-		and match1.finish.row == match2.finish.row
+		and match1.end_.col == match2.end_.col
+		and match1.end_.row == match2.end_.row
 end
 
----@param current_match RipSubstitute.Range
----@param matches RipSubstitute.Range[]
+---@param current_match RipSubstituteRange
+---@param matches RipSubstituteRange[]
 function M.get_next_match(current_match, matches)
 	if current_match == nil then
 		error("must provide value for current_match")
@@ -145,8 +145,8 @@ function M.get_next_match(current_match, matches)
 	return current_index + 1 > #matches and matches[1] or matches[current_index + 1]
 end
 
----@param currentMatch RipSubstitute.Range
----@param matches RipSubstitute.Range[]
+---@param currentMatch RipSubstituteRange
+---@param matches RipSubstituteRange[]
 function M.getPrevMatch(currentMatch, matches)
 	if currentMatch == nil then
 		error("must provide value for current_match")
@@ -163,7 +163,7 @@ function M.getPrevMatch(currentMatch, matches)
 	return current_index - 1 < 1 and matches[#matches] or matches[current_index - 1]
 end
 
----@param match RipSubstitute.Range
+---@param match RipSubstituteRange
 function M.centerViewportOnMatch(match)
 	local top_line = vim.fn.line("w0") -- Get the top line of the current window
 	local bot_line = vim.fn.line("w$") -- Get the bottom line of the current window

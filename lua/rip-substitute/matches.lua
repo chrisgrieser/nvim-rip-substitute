@@ -48,8 +48,7 @@ function M.getMatches()
 		---@param line string
 		---@param i integer
 		function(line, i)
-			vim.print(line)
-			local  rowStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
+			local rowStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
 			---@type RipSubstituteMatch
 			local match = {
 				row = tonumber(rowStr) - 1,
@@ -83,52 +82,50 @@ function M.getMatches()
 			match.replacementText = replaced[i]
 		end
 	end
-	vim.print(matches)
 	return matches
 end
 
-
 ---@param matches RipSubstituteMatch[]
 ---@return RipSubstituteMatch | nil, string |nil
-function M.get_closest_match_after_cursor(matches)
+function M.getClosestMatchAfterCursor(matches)
 	local state = require("rip-substitute.state").state
-    local cursor_row, cursor_col =
-        unpack(vim.api.nvim_win_get_cursor(state.popupWinNr))
-    local closestMatch = nil -- Store the closest match found after cursor
+	local cursor_row, cursor_col =
+		 unpack(vim.api.nvim_win_get_cursor(state.targetWin))
+	local closestMatch = nil  -- Store the closest match found after cursor
 
-    -- First, try to find a match after the cursor position
-    for _, match in ipairs(matches) do
-        local on_line_after = match.start.row > cursor_row
-        local on_same_line = match.start.row == cursor_row
-        local cursor_on_match = on_same_line
-            and match.start.col <= cursor_col
-            and match.finish.col >= cursor_col
-        local on_same_line_after = not cursor_on_match
-            and on_same_line
-            and match.start.col > cursor_col
+	cursor_row = cursor_row - 1
+	-- First, try to find a match after the cursor position
+	for _, match in ipairs(matches) do
+		local on_line_after = match.row > cursor_row
+		local on_same_line = match.row == cursor_row
+		local cursor_on_match = on_same_line
+			 and match.col <= cursor_col
+			 and match.col >= cursor_col
+		local on_same_line_after = not cursor_on_match
+			 and on_same_line
+			 and match.col > cursor_col
 
-        if on_line_after or cursor_on_match or on_same_line_after then
-            closestMatch = match
-            break -- Stop the loop if a match is found
-        end
-    end
+		if on_line_after or cursor_on_match or on_same_line_after then
+			closestMatch = match
+			break    -- Stop the loop if a match is found
+		end
+	end
 
-    -- If no match is found after cursor, search from the beginning of the file to the cursor
-    if not closestMatch then
-        for _, match in ipairs(matches) do
-            local on_line_before = match.finish.row < cursor_row
-            local on_same_line_before = match.finish.row == cursor_row
-                and match.finish.col < cursor_col
+	-- If no match is found after cursor, search from the beginning of the file to the cursor
+	if not closestMatch then
+		for _, match in ipairs(matches) do
+			local on_line_before = match.row < cursor_row
+			local on_same_line_before = match.row == cursor_row
+				 and match.col < cursor_col
 
-            if on_line_before or on_same_line_before then
-                closestMatch = match
-                -- No break here; keep updating closestMatch to the last match before cursor
-            end
-        end
-    end
+			if on_line_before or on_same_line_before then
+				closestMatch = match
+				-- No break here; keep updating closestMatch to the last match before cursor
+			end
+		end
+	end
 
-    return closestMatch
+	return closestMatch
 end
-
 
 return M
