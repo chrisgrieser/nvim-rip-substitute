@@ -144,13 +144,25 @@ require("rip-substitute").setup {
 ## Usage
 
 ```lua
-require("rip-substitute").sub()
+require("rip-substitute").sub(opts)
 ```
 
+Or use the cmdline `:RipSub`. It also available with ranges - `:,$RipSub`.
+
+The possible parameters of `opts`:
+- range: (optional) Map defining the range:
+	* startLine: (number) the start line of substitution
+	* endLine: (number) the end line of substitution
+
+Behaviors:
 - Normal mode: prefills the cursorword.
 - Visual mode: prefills the first line of the selection.
 - Visual *line* mode: replacements are only applied to the selected lines
   (the selection is used as range).
+
+> [!NOTE]
+> Make sure you only use the range option or Visual *line* mode, not both. If
+> you did, the default behavior (i.e. Normal mode) will be used.
 
 ## Advanced
 **`autoBraceSimpleCaptureGroups`**  
