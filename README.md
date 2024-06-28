@@ -98,6 +98,7 @@ require("rip-substitute").setup {
 		matchCountHlGroup = "Keyword",
 		noMatchHlGroup = "ErrorMsg",
 		hideSearchReplaceLabels = false,
+		position = "bottom", -- "top"|"bottom"
 	},
 	prefill = {
 		normal = "cursorWord", -- "cursorWord"|false
