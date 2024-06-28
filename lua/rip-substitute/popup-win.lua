@@ -214,6 +214,7 @@ end
 ---@param searchPrefill string
 function M.openSubstitutionPopup(searchPrefill)
 	local rg = require("rip-substitute.rg-operations")
+	local rgMatches = require("rip-substitute.matches")
 	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
 
@@ -286,6 +287,7 @@ function M.openSubstitutionPopup(searchPrefill)
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			ensureOnly2LinesInPopup()
+			state.matches = rgMatches.getMatches()
 			rg.incrementalPreviewAndMatchCount(viewStartLn, viewEndLn)
 			updateMatchCount()
 			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end

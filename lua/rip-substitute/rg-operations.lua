@@ -2,29 +2,6 @@ local M = {}
 local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
----@param rgArgs string[]
----@return number exitCode
----@return string[] stdoutOrStderr
-local function runRipgrep(rgArgs)
-	local config = require("rip-substitute.config").config
-	local state = require("rip-substitute.state").state
-
-	-- args
-	local args = vim.deepcopy(rgArgs) -- copy, since list_extend modifies the *passed* original
-	table.insert(args, 1, "rg")
-	vim.list_extend(args, {
-		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
-		"--" .. config.regexOptions.casing,
-		"--no-config",
-		"--",
-		state.targetFile,
-	})
-
-	-- results
-	local result = vim.system(args):wait()
-	local text = result.code == 0 and result.stdout or result.stderr
-	return result.code, vim.split(vim.trim(text or ""), "\n")
-end
 
 ---@return string
 ---@return string
@@ -48,11 +25,36 @@ end
 
 --------------------------------------------------------------------------------
 
+---@param rgArgs string[]
+---@return number exitCode
+---@return string[] stdoutOrStderr
+function M.runRipgrep(rgArgs)
+	local config = require("rip-substitute.config").config
+	local state = require("rip-substitute.state").state
+
+	-- args
+	local args = vim.deepcopy(rgArgs) -- copy, since list_extend modifies the *passed* original
+	table.insert(args, 1, "rg")
+	vim.list_extend(args, {
+		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
+		"--" .. config.regexOptions.casing,
+		"--no-config",
+		"--",
+		state.targetFile,
+	})
+
+	-- results
+	local result = vim.system(args):wait()
+	local text = result.code == 0 and result.stdout or result.stderr
+	return result.code, vim.split(vim.trim(text or ""), "\n")
+end
+
+
 function M.executeSubstitution()
 	local state = require("rip-substitute.state").state
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
 
-	local code, results = runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
+	local code, results = M.runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
 	if code ~= 0 then
 		local errorMsg = vim.trim(table.concat(results, "\n"))
 		u.notify(errorMsg, "error")
@@ -107,7 +109,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 
 	-- DETERMINE MATCHES
 	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
-	local code, searchMatches = runRipgrep(rgArgs)
+	local code, searchMatches = M.runRipgrep(rgArgs)
 	if code ~= 0 then return end
 
 	-- RANGE: FILTER MATCHES
@@ -177,7 +179,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	if toReplace == "" then return end
 
 	table.insert(rgArgs, "--replace=" .. toReplace)
-	local code2, replacements = runRipgrep(rgArgs)
+	local code2, replacements = M.runRipgrep(rgArgs)
 	if code2 ~= 0 then return #searchMatches end
 
 	if state.range then replacements = vim.list_slice(replacements, rangeStartIdx, rangeEndIdx) end

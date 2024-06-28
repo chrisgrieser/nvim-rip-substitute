@@ -1,6 +1,43 @@
 local M = {}
 --------------------------------------------------------------------------------
 
+---@generic T
+---@param list Array<`T`>
+---@param cb function(value: `T`,i:integer): `T`
+M.map = function(list, cb)
+	local result = {}
+	for i, value in ipairs(list) do
+		table.insert(result, cb(value,i))
+	end
+	return result
+end
+
+---@param table table
+---@param cb function(value: any): boolean
+function M.index_of(table, cb)
+    for index, value in ipairs(table) do
+        if cb(value) then
+            return index
+        end
+    end
+    return nil
+end
+
+---@generic T
+---@param list any[]
+---@param cb function(value: `T`,i: integer): `T`[]
+---@return `T`[] | nil
+function M.flatMap(list, cb, ...)
+    local result = {}
+    for i, value in ipairs(list) do
+        local mapped = cb(value, i, ...)
+        for _, mapped_value in ipairs(mapped) do
+            table.insert(result, mapped_value)
+        end
+    end
+    return result
+end
+
 ---@param msg string
 ---@param level? "info"|"trace"|"debug"|"warn"|"error"
 function M.notify(msg, level)
