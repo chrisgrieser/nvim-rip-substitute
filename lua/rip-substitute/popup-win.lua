@@ -150,8 +150,13 @@ local function rangeBackdrop(popupZindex)
 	if not opts.enabled or not state.range then return end
 
 	-- pause folds for the duration of the substitution, since they mess up the
-	-- calculation of positions
+	-- calculation of the size of the cover windows
 	vim.wo[state.targetWin].foldenable = false
+	vim.api.nvim_create_autocmd("BufLeave", {
+		once = true,
+		buffer = state.popupBufNr,
+		callback = function() vim.wo[state.targetWin].foldenable = true end,
+	})
 
 	local viewStart, viewEnd = u.getViewport()
 	local rangeStart, rangeEnd = state.range.start, state.range.end_
@@ -198,7 +203,6 @@ local function rangeBackdrop(popupZindex)
 					if buf and vim.api.nvim_buf_is_valid(buf) then
 						vim.api.nvim_buf_delete(buf, { force = true })
 					end
-					vim.wo[state.targetWin].foldenable = true
 				end,
 			})
 		end
