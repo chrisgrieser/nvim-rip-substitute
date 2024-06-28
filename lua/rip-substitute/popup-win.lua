@@ -149,14 +149,14 @@ local function rangeBackdrop(popupZindex)
 	local state = require("rip-substitute.state").state
 	if not opts.enabled or not state.range then return end
 
-	local blend = opts.blend
-	local cover = { {}, {} }
-
-	-- ensure folds are disabled, since they mess up the calculation of positions
+	-- pause folds for the duration of the substitution, since they mess up the
+	-- calculation of positions
 	vim.wo[state.targetWin].foldenable = false
+
 	local viewStart, viewEnd = u.getViewport()
 	local rangeStart, rangeEnd = state.range.start, state.range.end_
 	local offset = viewStart
+	local cover = { {}, {} }
 
 	cover[1].start = viewStart
 	cover[1].relStart = cover[1].start - offset
@@ -186,7 +186,7 @@ local function rangeBackdrop(popupZindex)
 			})
 			vim.api.nvim_set_hl(0, "RipSubBackdrop", { bg = "#000000", default = true })
 			vim.wo[win].winhighlight = "Normal:RipSubBackdrop"
-			vim.wo[win].winblend = blend
+			vim.wo[win].winblend = opts.blend
 			vim.bo[buf].buftype = "nofile"
 
 			-- remove range cover when done
