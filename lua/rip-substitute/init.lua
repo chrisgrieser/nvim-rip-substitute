@@ -13,7 +13,8 @@ local M = {}
 ---@param userConfig? ripSubstituteConfig
 function M.setup(userConfig) require("rip-substitute.config").setup(userConfig) end
 
-function M.sub()
+---@param opts? ripSubstituteOpts
+function M.sub(opts)
 	local config = require("rip-substitute.config").config
 	local mode = vim.fn.mode()
 
@@ -29,13 +30,7 @@ function M.sub()
 
 	-- RANGE
 	---@type CmdRange|false
-	local range = false
-	if mode == "V" then
-		vim.cmd.normal { "V", bang = true } -- leave visual mode, so marks are set
-		local startLn = vim.api.nvim_buf_get_mark(0, "<")[1]
-		local endLn = vim.api.nvim_buf_get_mark(0, ">")[1]
-		range = { start = startLn, end_ = endLn }
-	end
+	local range = require("rip-substitute.opts").getRange(opts, mode)
 
 	-- SET STATE
 	require("rip-substitute.state").update {
@@ -49,6 +44,21 @@ function M.sub()
 
 	require("rip-substitute.popup-win").openSubstitutionPopup(searchPrefill)
 end
+
+vim.api.nvim_create_user_command("RipSub", function(args)
+	if args.range and args.range > 0 then
+		M.sub {
+			range = {
+				startLine = args.line1,
+				endLine = args.range > 1 and args.line2 or args.line1
+			},
+		}
+	else
+		M.sub()
+	end
+end, {
+	range = true,
+})
 
 --------------------------------------------------------------------------------
 return M
