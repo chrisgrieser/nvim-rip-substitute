@@ -27,16 +27,52 @@ body:
     id: reproduction-steps
     attributes:
       label: To Reproduce
-      description: Steps to reproduce the problem
+      description: Steps to reproduce the problem. Please include sample text for the substitution.
       placeholder: |
         For example:
         1. Go to '...'
         2. Click on '...'
         3. Scroll down to '...'
+        
+        Sample text:
     validations: { required: true }
   - type: textarea
-    id: version-info
+    id: nvim-version-info
     attributes:
       label: neovim version
+      description: Paste the output of `nvim --version` here.
       render: Text
+    validations: { required: true }
+  - type: textarea
+    id: rg-version-info
+    attributes:
+      label: ripgrep version
+      description: Paste the output of `rg --pcre2-version --version` here.
+      render: Text
+    validations: { required: true }
+  - type: textarea
+    id: repro-lua
+    attributes:
+      label: Minimal reproducible config
+      description: Minimal config to reproduce the issue. Save as `repro.lua` and run with `nvim -u repro.lua`
+      render: lua
+      value: |
+        local spec = {
+        	{
+        		"chrisgrieser/nvim-rip-substitute",
+        		opts = {}, -- insert config here
+        		keys = {
+        			{
+        				"gs",
+        				function() require("rip-substitute").sub() end,
+        				mode = { "n", "x" },
+        				desc = "rip substitute",
+        			},
+        		},
+        	},
+        }
+        --------------------------------------------------------------------------------
+        vim.env.LAZY_STDPATH = "./nvim-repro"
+        load(vim.fn.system("curl -s https://raw.githubusercontent.com/folke/lazy.nvim/main/bootstrap.lua"))()
+        require("lazy.minit").repro { spec = spec }
     validations: { required: true }
