@@ -14,6 +14,7 @@ local M = {}
 function M.setup(userConfig) require("rip-substitute.config").setup(userConfig) end
 
 function M.sub()
+	vim.cmd("silent! update") -- ensure changes are written, so `rg` can read them
 	local config = require("rip-substitute.config").config
 	local mode = vim.fn.mode()
 
