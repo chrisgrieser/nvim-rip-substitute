@@ -61,8 +61,8 @@ interface and contemporary regex syntax.
 ## Installation
 **Requirements**
 - [ripgrep](https://github.com/BurntSushi/ripgrep) with `pcre2` support
-	+ `homebrew`: `ripgrep` by default is built with `pcre2`.
-	+ `cargo`: `cargo install ripgrep --features "pcre2"`
+	+ homebrew: `brew install ripgrep` (already includes `pcre2` by default)
+	+ cargo: `cargo install ripgrep --features "pcre2"`
 	+ You can also use this plugin without `pcre2` support by setting
 	  `regexOptions.pcre2 = false` in the plugin config (see further below).
 - `nvim` >= 0.10
