@@ -160,8 +160,16 @@ USAGE                                   *rip-substitute-rip-substitute--usage*
 
 - Normal mode: prefills the cursorword.
 - Visual mode: prefills the first line of the selection.
-- Visual _line_ mode: replacements are only applied to the selected lines
+- Visual **line** mode: replacements are only applied to the selected lines
     (the selection is used as range).
+
+Alternatively, you can also use the ex command `:RipSubstitute`, which also
+accepts |a range argument|, such as:
+
+>vim
+    " substitute from current line to end of file
+    :.,$ RipSubstitute
+<
 
 
 ADVANCED                             *rip-substitute-rip-substitute--advanced*
