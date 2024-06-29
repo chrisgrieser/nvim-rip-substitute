@@ -75,13 +75,14 @@ INSTALLATION                     *rip-substitute-rip-substitute--installation*
 support + homebrew: `brew install ripgrep` (already includes `pcre2` by
 default) + cargo: `cargo install ripgrep --features "pcre2"` + You can also use
 this plugin without `pcre2` support by setting `regexOptions.pcre2 = false` in
-the plugin config (see further below). - `nvim` >= 0.10 - `:TSInstall regex`
-(only needed for syntax highlighting)
+the |rip-substitute-plugin-config|. - `nvim` >= 0.10 - `:TSInstall regex` (only
+needed for syntax highlighting)
 
 >lua
     -- lazy.nvim
     {
         "chrisgrieser/nvim-rip-substitute",
+        cmd = "RipSubstitute",
         keys = {
             {
                 "<leader>fs",
