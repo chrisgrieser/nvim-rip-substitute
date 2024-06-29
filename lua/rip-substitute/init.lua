@@ -18,10 +18,11 @@ function M.sub(exCmdArgs)
 	vim.cmd("silent! update") -- ensure changes are written, so `rg` can read them
 	local config = require("rip-substitute.config").config
 	local mode = vim.fn.mode()
+	local exCmdWithRange = exCmdArgs and exCmdArgs.range > 0
 
 	-- PREFILL
 	local searchPrefill = ""
-	if mode == "n" and config.prefill.normal == "cursorWord" then
+	if mode == "n" and not exCmdWithRange and config.prefill.normal == "cursorWord" then
 		searchPrefill = vim.fn.expand("<cword>")
 	elseif mode == "v" and config.prefill.visual == "selectionFirstLine" then
 		vim.cmd.normal { '"zy', bang = true }
@@ -37,7 +38,8 @@ function M.sub(exCmdArgs)
 		local startLn = vim.api.nvim_buf_get_mark(0, "<")[1]
 		local endLn = vim.api.nvim_buf_get_mark(0, ">")[1]
 		range = { start = startLn, end_ = endLn }
-	elseif exCmdArgs and exCmdArgs.range > 0 then
+	elseif exCmdWithRange then
+		---@diagnostic disable-next-line: need-check-nil done via condition `exCmdWithRange`
 		range = { start = exCmdArgs.line1, end_ = exCmdArgs.line2 }
 	end
 
