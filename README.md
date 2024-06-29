@@ -142,9 +142,14 @@ require("rip-substitute").setup {
 > plugin.
 
 ## Usage
-
+**lua function**  
 ```lua
-require("rip-substitute").sub()
+vim.keymap.set(
+	{ "n", "x" },
+	"<leader>fs",
+	function() require("rip-substitute").sub() end,
+	{ desc = " rip substitute" }
+)
 ```
 
 - Normal mode: prefills the cursorword.
@@ -152,11 +157,21 @@ require("rip-substitute").sub()
 - Visual **line** mode: replacements are only applied to the selected lines
   (the selection is used as range).
 
+**Ex command**  
 Alternatively, you can also use the ex command `:RipSubstitute`, which also
-accepts [a range argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges), such as:
+accepts [a range
+argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges). (Note that
+when using the ex command, visual mode and visual line mode both pass a range.
+To prefill the current selection, you therefore need to use the lua function.)
 
 ```vim
-" substitute from current line to end of file
+" Substitute in entire file. Prefills the cursorword.
+:RipSubstitute
+
+" Substitute in the line range of the visual selection.
+:'<,'>RipSubstitute
+
+" Substitute in the given range (in this case: current line to end of file)
 :.,$ RipSubstitute
 ```
 
