@@ -13,7 +13,8 @@ local M = {}
 ---@param userConfig? ripSubstituteConfig
 function M.setup(userConfig) require("rip-substitute.config").setup(userConfig) end
 
-function M.sub()
+---@param exCmdArgs? { range: number, line1: number, line2: number } only set when called via ex command `:RipSubstitute`
+function M.sub(exCmdArgs)
 	vim.cmd("silent! update") -- ensure changes are written, so `rg` can read them
 	local config = require("rip-substitute.config").config
 	local mode = vim.fn.mode()
@@ -36,6 +37,8 @@ function M.sub()
 		local startLn = vim.api.nvim_buf_get_mark(0, "<")[1]
 		local endLn = vim.api.nvim_buf_get_mark(0, ">")[1]
 		range = { start = startLn, end_ = endLn }
+	elseif exCmdArgs and exCmdArgs.range > 0 then
+		range = { start = exCmdArgs.line1, end_ = exCmdArgs.line2 }
 	end
 
 	-- SET STATE

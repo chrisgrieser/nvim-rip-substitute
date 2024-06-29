@@ -149,8 +149,16 @@ require("rip-substitute").sub()
 
 - Normal mode: prefills the cursorword.
 - Visual mode: prefills the first line of the selection.
-- Visual *line* mode: replacements are only applied to the selected lines
+- Visual **line** mode: replacements are only applied to the selected lines
   (the selection is used as range).
+
+Alternatively, you can also use the ex command `:RipSubstitute`, which also
+accepts [a range argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges), such as:
+
+```vim
+" substitute from current line to end of file
+:.,$ RipSubstitute
+```
 
 ## Advanced
 **`autoBraceSimpleCaptureGroups`**  
