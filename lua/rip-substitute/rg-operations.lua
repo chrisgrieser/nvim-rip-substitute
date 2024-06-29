@@ -92,8 +92,11 @@ end
 --------------------------------------------------------------------------------
 
 ---Creates an increments preview of search matches & replacements in the
----viewport, and returns the total number of matches. (The total count is derived
----from this function to avoid re-running `rg` just for the count.)
+---viewport, and returns the total number of matches. Searches are hidden via
+---`conceal` (requires `conceallevel` >= 2), and replacements are inserted as
+---inline virtual text. The total count is derived from this function to avoid
+---re-running `rg` just
+---for the count.
 ---@param viewStartLnum number
 ---@param viewEndLnum number
 function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
@@ -143,7 +146,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 		end
 	end
 	if not viewStartIdx then return end -- no matches in viewport
-	if not viewEndIdx then viewEndIdx = #searchMatches end
+	if not viewEndIdx then viewEndIdx = #searchMatches end -- viewport is at end of file
 
 	-- SEARCH: HIGHLIGHT MATCHES
 	-- hide when there is a replacement value
@@ -160,6 +163,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 				matchEndCol
 			)
 		else
+			-- INFO requires `conceallevel` >= 2
 			vim.api.nvim_buf_set_extmark(state.targetBuf, state.incPreviewNs, match.lnum, match.col, {
 				conceal = "",
 				end_col = matchEndCol,

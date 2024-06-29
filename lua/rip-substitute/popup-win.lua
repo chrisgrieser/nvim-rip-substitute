@@ -281,6 +281,20 @@ function M.openSubstitutionPopup(searchPrefill)
 
 	-- LABELS, MATCH-HIGHLIGHTS, AND STATIC WINDOW
 	local viewStartLn, viewEndLn = u.getViewport()
+	setPopupLabelsIfEnoughSpace(minWidth)
+	rangeBackdrop(popupZindex)
+
+	-- temporarily set conceal for the incremental preview
+	local previousConceal = vim.wo[state.targetWin].conceallevel
+	if previousConceal < 2 then
+		vim.wo[state.targetWin].conceallevel = 2
+		vim.api.nvim_create_autocmd("BufLeave", {
+			once = true,
+			buffer = state.popupBufNr,
+			callback = function() vim.wo[state.targetWin].conceallevel = previousConceal end,
+		})
+	end
+
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		buffer = state.popupBufNr,
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
@@ -293,8 +307,6 @@ function M.openSubstitutionPopup(searchPrefill)
 			setPopupLabelsIfEnoughSpace(newWidth) -- should be last
 		end,
 	})
-	setPopupLabelsIfEnoughSpace(minWidth)
-	rangeBackdrop(popupZindex)
 
 	-- KEYMAPS & POPUP CLOSING
 	local opts = { buffer = state.popupBufNr, nowait = true }
