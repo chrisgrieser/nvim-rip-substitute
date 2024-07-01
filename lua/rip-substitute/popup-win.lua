@@ -241,8 +241,12 @@ function M.openSubstitutionPopup(searchPrefill)
 	-- 11 for "234 matches" + 4 for border & footer padding
 	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
 
-	local title = state.range and ("Range: L%d – L%d"):format(state.range.start, state.range.end_)
-		or config.popupWin.title
+	local rangeTitle
+	if state.range then
+		rangeTitle = "Range: L" .. state.range.start
+		if state.range.start ~= state.range.end_ then rangeTitle = rangeTitle .. " – L" .. state.range.end_ end
+	end
+	local title = rangeTitle or config.popupWin.title
 
 	-- CREATE WINDOW
 	local offsetScrollbar = 2
