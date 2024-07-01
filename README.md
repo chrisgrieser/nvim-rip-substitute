@@ -160,7 +160,7 @@ vim.keymap.set(
   (the selection is used as range).
 
 **Ex command**  
-Alternatively, you can also use the ex command `:RipSubstitute`, which also
+Alternatively, you can use the ex command `:RipSubstitute`, which also
 accepts [a range
 argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges). (Note that
 when using the ex command, visual mode and visual line mode both pass a range.
@@ -177,10 +177,10 @@ To prefill the current selection, you therefore need to use the lua function.)
 :.,$ RipSubstitute
 ```
 
-You can also pass the search value through the command.
+You can also pass a prefill for the search value through the command:
 
 ```vim
-:RipSubstitute foobar
+:RipSubstitute prefilled string
 ```
 
 ## Advanced
