@@ -177,7 +177,8 @@ To prefill the current selection, you therefore need to use the lua function.)
 :.,$ RipSubstitute
 ```
 
-You can also pass a prefill for the search value through the command:
+You can also pass a prefill for the search value through the command. (In this
+case, the prefill is not escaped.)
 
 ```vim
 :RipSubstitute prefilled string

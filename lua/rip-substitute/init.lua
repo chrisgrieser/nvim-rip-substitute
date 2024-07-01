@@ -33,8 +33,8 @@ function M.sub(exCmdArgs)
 			vim.cmd.normal { '"zy', bang = true }
 			searchPrefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
 		end
+		searchPrefill = searchPrefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
 	end
-	searchPrefill = searchPrefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
 
 	-- RANGE
 	---@type CmdRange|false
