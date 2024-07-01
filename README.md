@@ -177,6 +177,12 @@ To prefill the current selection, you therefore need to use the lua function.)
 :.,$ RipSubstitute
 ```
 
+You can also pass the search value through the command.
+
+```vim
+:RipSubstitute foobar
+```
+
 ## Advanced
 **`autoBraceSimpleCaptureGroups`**  
 A *gotcha* of `ripgrep`'s regex syntax is that it treats `$1a` as the named
