@@ -244,7 +244,9 @@ function M.openSubstitutionPopup(searchPrefill)
 	local rangeTitle
 	if state.range then
 		rangeTitle = "Range: L" .. state.range.start
-		if state.range.start ~= state.range.end_ then rangeTitle = rangeTitle .. " – L" .. state.range.end_ end
+		if state.range.start ~= state.range.end_ then
+			rangeTitle = rangeTitle .. " – L" .. state.range.end_
+		end
 	end
 	local title = rangeTitle or config.popupWin.title
 
