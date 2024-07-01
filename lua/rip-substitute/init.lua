@@ -13,22 +13,28 @@ local M = {}
 ---@param userConfig? ripSubstituteConfig
 function M.setup(userConfig) require("rip-substitute.config").setup(userConfig) end
 
----@param exCmdArgs? { range: number, line1: number, line2: number } only set when called via ex command `:RipSubstitute`
+---@param exCmdArgs? { range: number, line1: number, line2: number, args: string } only set when called via ex command `:RipSubstitute`
 function M.sub(exCmdArgs)
 	vim.cmd("silent! update") -- ensure changes are written, so `rg` can read them
 	local config = require("rip-substitute.config").config
 	local mode = vim.fn.mode()
 	local exCmdWithRange = exCmdArgs and exCmdArgs.range > 0
+	local exSearchPrefil = exCmdArgs and exCmdArgs.args ~= ""
 
 	-- PREFILL
 	local searchPrefill = ""
-	if mode == "n" and not exCmdWithRange and config.prefill.normal == "cursorWord" then
-		searchPrefill = vim.fn.expand("<cword>")
-	elseif mode == "v" and config.prefill.visual == "selectionFirstLine" then
-		vim.cmd.normal { '"zy', bang = true }
-		searchPrefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
+	if not exSearchPrefil then
+		if mode == "n" and not exCmdWithRange and config.prefill.normal == "cursorWord" then
+			searchPrefill = vim.fn.expand("<cword>")
+		elseif mode == "v" and config.prefill.visual == "selectionFirstLine" then
+			vim.cmd.normal { '"zy', bang = true }
+			searchPrefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
+		end
+		searchPrefill = searchPrefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
+	else
+		---@diagnostic disable-next-line: need-check-nil done via condition `exSearchPrefil`
+		searchPrefill = exCmdArgs.args
 	end
-	searchPrefill = searchPrefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
 
 	-- RANGE
 	---@type CmdRange|false
