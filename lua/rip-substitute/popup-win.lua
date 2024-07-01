@@ -242,7 +242,7 @@ function M.openSubstitutionPopup(searchPrefill)
 	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
 
 	local title = state.range and ("Range: L%d – L%d"):format(state.range.start, state.range.end_)
-		or " rip-substitute"
+		or config.popupWin.title
 
 	-- CREATE WINDOW
 	local offsetScrollbar = 2
