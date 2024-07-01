@@ -188,6 +188,12 @@ selection, you therefore need to use the lua function.)
     :.,$ RipSubstitute
 <
 
+You can also pass the search value through the command.
+
+>vim
+    :RipSubstitute foobar
+<
+
 
 ADVANCED                             *rip-substitute-rip-substitute--advanced*
 
