@@ -95,6 +95,7 @@ use {
 -- default settings
 require("rip-substitute").setup {
 	popupWin = {
+		title = " rip-substitute",
 		border = "single",
 		matchCountHlGroup = "Keyword",
 		noMatchHlGroup = "ErrorMsg",
