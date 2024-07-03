@@ -226,8 +226,12 @@ function M.openSubstitutionPopup(searchPrefill)
 
 	-- FOOTER & WIDTH
 	local maps = config.keymaps
-	local suffix = #state.popupHistory == 0 and ("%s Abort"):format(maps.abort)
-		or ("%s/%s Prev/Next"):format(maps.prevSubst, maps.nextSubst)
+	local suffix = ("%s Abort"):format(maps.abort)
+	if #state.popupHistory > 0 then
+		-- randomly switch hints, so user gets to see all at some point
+		suffix = math.random() > 0.5 and ("%s/%s Prev/Next"):format(maps.prevSubst, maps.nextSubst)
+			or maps.openAtRegex101 .. " regex101"
+	end
 	local keymapHint = maps.confirm .. " Confirm  " .. suffix
 	keymapHint = keymapHint -- using only utf symbols, so they work w/o nerd fonts
 		:gsub("<[Cc][Rr]>", "↩")
@@ -238,7 +242,8 @@ function M.openSubstitutionPopup(searchPrefill)
 		:gsub("<[Tt]ab>", "⭾ ")
 		:gsub("<[Ss]pace>", "⎵")
 		:gsub("<[Bb][Ss]>", "⌫")
-	-- 11 for "234 matches" + 4 for border & footer padding
+		:gsub("( %a) ", "%1: ") -- colon, so it's clear it's a keymap
+	-- 11 for "234 matches" + 4 for border & padding of footer
 	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
 
 	local rangeTitle
@@ -316,10 +321,21 @@ function M.openSubstitutionPopup(searchPrefill)
 
 	-- KEYMAPS & POPUP CLOSING
 	local opts = { buffer = state.popupBufNr, nowait = true }
+
+	-- confirm & abort
 	vim.keymap.set({ "n", "x" }, config.keymaps.abort, closePopupWin, opts)
 	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, confirmSubstitution, opts)
 	vim.keymap.set("i", config.keymaps.insertModeConfirm, confirmSubstitution, opts)
 
+	-- regex101
+	vim.keymap.set(
+		{ "n", "x" },
+		config.keymaps.openAtRegex101,
+		function() require("rip-substitute.open-at-regex101")() end,
+		opts
+	)
+
+	-- history keymaps
 	state.historyPosition = #state.popupHistory + 1
 	vim.keymap.set({ "n", "x" }, config.keymaps.prevSubst, function()
 		if state.historyPosition < 2 then return end

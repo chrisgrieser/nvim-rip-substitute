@@ -23,6 +23,7 @@ local defaultConfig = {
 		abort = "q",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
+		openAtRegex101 = "R",
 		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
 	},
 	incrementalPreview = {

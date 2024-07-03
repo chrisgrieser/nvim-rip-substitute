@@ -28,7 +28,7 @@ end
 
 ---@return string
 ---@return string
-local function getSearchAndReplaceValuesFromPopup()
+function M.getSearchAndReplaceValuesFromPopup()
 	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 
@@ -50,7 +50,7 @@ end
 
 function M.executeSubstitution()
 	local state = require("rip-substitute.state").state
-	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
+	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
 
 	local code, results = runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
 	if code ~= 0 then
@@ -105,7 +105,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
 	local hlGroup = require("rip-substitute.config").config.incrementalPreview.matchHlGroup
 
-	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
+	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
 	if toSearch == "" then return end
 
 	-- DETERMINE MATCHES

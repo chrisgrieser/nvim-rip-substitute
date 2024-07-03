@@ -41,6 +41,8 @@ interface and contemporary regex syntax.
 - **History** of previous substitutions.
 - **Performant**: In a file with 5000 lines and thousands of matches, still
   performs *blazingly fast*.™
+- **Regex101 integration**: Open the planned substitution in a pre-configured
+  [regex101](https://regex101.com/) browser-tab for debugging.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
   adaptive popup window width, visual emphasis of the active range, …
 - Syntax comparison:
@@ -113,6 +115,7 @@ require("rip-substitute").setup {
 		abort = "q",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
+		openAtRegex101 = "R",
 		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
 	},
 	incrementalPreview = {
