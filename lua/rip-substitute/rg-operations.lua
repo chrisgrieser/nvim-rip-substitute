@@ -34,7 +34,8 @@ function M.getSearchAndReplaceValuesFromPopup()
 
 	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, false))
 	if config.regexOptions.autoBraceSimpleCaptureGroups then
-		toReplace = toReplace:gsub("%$(%d+)", "${%1}")
+		-- CAVEAT will not work if user has 10 capture groups (which should almost never happen though)
+		toReplace = toReplace:gsub("%$(%d)", "${%1}")
 	end
 	return toSearch, toReplace
 end
