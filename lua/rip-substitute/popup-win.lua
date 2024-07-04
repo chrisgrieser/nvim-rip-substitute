@@ -225,14 +225,12 @@ function M.openSubstitutionPopup(searchPrefill)
 	vim.api.nvim_set_option_value("filetype", "rip-substitute", { buf = state.popupBufNr })
 
 	-- FOOTER & WIDTH
-	local maps = config.keymaps
-	local suffix = ("%s Abort"):format(maps.abort)
-	if #state.popupHistory > 0 then
-		-- randomly switch hints, so user gets to see all at some point
-		suffix = math.random() > 0.5 and ("%s/%s Prev/Next"):format(maps.prevSubst, maps.nextSubst)
-			or maps.openAtRegex101 .. " regex101"
-	end
-	local keymapHint = maps.confirm .. " Confirm  " .. suffix
+	-- 1. display base keymaps on first run, and advanced keymaps on subsequent runs
+	-- 2. shorten them as much as possible, to keep the popup width small
+	local m = config.keymaps
+	local keymapHint = #state.popupHistory == 0
+			and ("%s Confirm  %s Abort"):format(m.confirm, m.abort)
+		or ("%s/%s Prev/Next  %s regex101"):format(m.prevSubst, m.nextSubst, m.openAtRegex101)
 	keymapHint = keymapHint -- using only utf symbols, so they work w/o nerd fonts
 		:gsub("<[Cc][Rr]>", "↩")
 		:gsub("<[dD]own>", "↓")
@@ -242,7 +240,8 @@ function M.openSubstitutionPopup(searchPrefill)
 		:gsub("<[Tt]ab>", "⭾ ")
 		:gsub("<[Ss]pace>", "⎵")
 		:gsub("<[Bb][Ss]>", "⌫")
-		:gsub("( %a) ", "%1: ") -- colon, so it's clear it's a keymap
+		:gsub(" (%a) ", " %1: ") -- add colon for single letters, so it's clear it's a keymap
+		:gsub("^(%a) ", "%1: ")
 	-- 11 for "234 matches" + 4 for border & padding of footer
 	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
 
