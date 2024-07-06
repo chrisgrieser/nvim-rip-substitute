@@ -173,10 +173,10 @@ To prefill the current selection, you therefore need to use the lua function.)
 " Substitute in entire file. Prefills the cursorword.
 :RipSubstitute
 
-" Substitute in the line range of the visual selection.
+" Substitute in line range of the visual selection.
 :'<,'>RipSubstitute
 
-" Substitute in the given range (in this case: current line to end of file)
+" Substitute in given range (in this case: current line to end of file).
 :.,$ RipSubstitute
 ```
 
@@ -199,7 +199,8 @@ regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
 **Filetype**  
-The plugin sets the filetype `rip-substitute`.
+The popup window uses the filetype `rip-substitute`. This can be useful, for 
+instance, to disable auto-pairing plugins in the popup window.
 
 ## Limitations
 - `--multiline` and various other flags are not supported yet.
