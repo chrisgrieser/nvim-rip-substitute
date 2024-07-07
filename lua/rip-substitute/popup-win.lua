@@ -330,7 +330,7 @@ function M.openSubstitutionPopup(searchPrefill)
 	vim.keymap.set(
 		{ "n", "x" },
 		config.keymaps.openAtRegex101,
-		function() require("rip-substitute.open-at-regex101")() end,
+		function() require("rip-substitute.open-at-regex101").request() end,
 		opts
 	)
 

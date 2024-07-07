@@ -1,7 +1,8 @@
+local M = {}
 local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
-return function()
+function M.request()
 	local state = require("rip-substitute.state").state
 	local toSearch, toReplace =
 		require("rip-substitute.rg-operations").getSearchAndReplaceValuesFromPopup()
@@ -19,9 +20,14 @@ return function()
 		flavor = usePcre2 and "pcre2" or "rust", -- `rg` w/o pcre2 uses rust regex
 		testString = table.concat(viewportLines, "\n"),
 	}
+	M.open(data)
+end
 
-	-- https://github.com/firasdib/Regex101/wiki/API#curl-3
+---https://github.com/firasdib/Regex101/wiki/API#curl-3
+---@param data {regex: string, substitution: string, delimiter: string, flags: string, flavor: string, testString: string}
+function M.open(data)
 	local curlTimeoutSecs = 10
+
 	-- stylua: ignore
 	local curlArgs = {
 		"curl", "--silent",
@@ -47,3 +53,6 @@ return function()
 		vim.ui.open("https://regex101.com/r/" .. response.permalinkFragment)
 	end)
 end
+
+--------------------------------------------------------------------------------
+return M
