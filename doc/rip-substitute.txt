@@ -16,6 +16,8 @@ Table of Contents                           *rip-substitute-table-of-contents*
 ==============================================================================
 1. rip-substitute                             *rip-substitute-rip-substitute-*
 
+
+
 Performsearch and replace operations in the current buffer using a modern user
 interface and contemporary regex syntax.
 
