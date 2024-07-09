@@ -1,10 +1,8 @@
 <!-- LTeX: enabled=false -->
 # rip-substitute 🪦
 <!-- LTeX: enabled=true -->
-<!-- TODO uncomment shields when available in dotfyle.com 
-<a href="https://dotfyle.com/plugins/chrisgrieser/rip-substitute">
-<img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/rip-substitute/shield"/></a>
--->
+<a href="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute">
+<img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute/shield"/></a>
 
 Perform search and replace operations in the current buffer using a modern user
 interface and contemporary regex syntax.
@@ -199,7 +197,7 @@ regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
 **Filetype**  
-The popup window uses the filetype `rip-substitute`. This can be useful, for 
+The popup window uses the filetype `rip-substitute`. This can be useful, for
 instance, to disable auto-pairing plugins in the popup window.
 
 ## Limitations
