@@ -2,7 +2,6 @@ local M = {}
 local rg = require("rip-substitute.rg-operations")
 local utils = require("rip-substitute.utils")
 
-
 ---@return string
 ---@return string
 local function getSearchAndReplaceValuesFromPopup()
@@ -10,7 +9,7 @@ local function getSearchAndReplaceValuesFromPopup()
 	local state = require("rip-substitute.state").state
 
 	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(
-		state.popupBufNr, 0, -1, false))
+	state.popupBufNr, 0, -1, false))
 	if config.regexOptions.autoBraceSimpleCaptureGroups then
 		toReplace = toReplace:gsub("%$(%d+)", "${%1}")
 	end
@@ -26,7 +25,6 @@ end
 ---@return RipSubstituteMatch[]|nil,string|nil
 function M.getMatches()
 	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
-	vim.print("[GETTING MATCHES] for ", toSearch, " ", toReplace)
 	if not toSearch then return end
 	local code, matched = rg.runRipgrep {
 		"--line-number",
@@ -35,16 +33,12 @@ function M.getMatches()
 		"--no-filename",
 		toSearch,
 	}
-	if code ~= 0 then
-		return nil, "could not get rg matches"
-	end
-	if #matched == 0 then
-		return {}, nil
-	end
-
+	if code ~= 0 then return nil, "[1]could not get rg matches" end
+	if #matched == 0 then return {}, nil end
 
 	---@type RipSubstituteMatch[]
-	local matches = utils.map(matched,
+	local matches = utils.map(
+		matched,
 		---@param line string
 		---@param i integer
 		function(line, i)
@@ -54,30 +48,34 @@ function M.getMatches()
 				row = tonumber(rowStr) - 1,
 				col = tonumber(colStr) - 1,
 				matchedText = text,
-				replacementText = ""
+				replacementText = "",
 			}
 			return match
 		end
 	)
 
+	vim.print("[2][GOT MATCHES] for ", toSearch, " ", toReplace, " found ", #matches,
+		" matches")
+
 	if toReplace and toReplace ~= "" then
 		for i, match in ipairs(matches) do
-			local replaced
-			code, replaced = rg.runRipgrep {
+			local rgArgs = {
 				"--line-number",
 				"--column",
 				"--vimgrep",
 				"--no-filename",
-				toReplace,
+				"--replace="..toReplace,
+				toSearch,
 			}
+			local replaced
+			code, replaced = rg.runRipgrep(rgArgs)
 			if code ~= 0 then
-				return nil, "could not get rg replacements"
+				vim.print(rgArgs)
+				return nil, "[3]could not get rg replacements"
 			end
-			if #matched ~= #replaced then
-				return nil, "#matched ~= #replaced"
-			end
+			if #matched ~= #replaced then return nil, "#matched ~= #replaced" end
 			if not replaced[i] then
-				return nil, "could not get replacement for " .. match.matchedText
+				return nil, "[4]could not get replacement for " .. match.matchedText
 			end
 			match.replacementText = replaced[i]
 		end
@@ -88,26 +86,25 @@ end
 ---@param matches RipSubstituteMatch[]
 ---@return RipSubstituteMatch | nil, string |nil
 function M.getClosestMatchAfterCursor(matches)
+	if #matches == 0 then return nil end
 	local state = require("rip-substitute.state").state
-	local cursor_row, cursor_col =
-		 unpack(vim.api.nvim_win_get_cursor(state.targetWin))
-	local closestMatch = nil  -- Store the closest match found after cursor
+	local cursor_row, cursor_col = unpack(vim.api.nvim_win_get_cursor(state
+	.targetWin))
+	local closestMatch = nil -- Store the closest match found after cursor
 
 	cursor_row = cursor_row - 1
 	-- First, try to find a match after the cursor position
 	for _, match in ipairs(matches) do
 		local on_line_after = match.row > cursor_row
 		local on_same_line = match.row == cursor_row
-		local cursor_on_match = on_same_line
-			 and match.col <= cursor_col
-			 and match.col >= cursor_col
-		local on_same_line_after = not cursor_on_match
-			 and on_same_line
-			 and match.col > cursor_col
+		local cursor_on_match = on_same_line and match.col <= cursor_col and
+		match.col >= cursor_col
+		local on_same_line_after = not cursor_on_match and on_same_line and
+		match.col > cursor_col
 
 		if on_line_after or cursor_on_match or on_same_line_after then
 			closestMatch = match
-			break    -- Stop the loop if a match is found
+			break -- Stop the loop if a match is found
 		end
 	end
 
@@ -115,8 +112,8 @@ function M.getClosestMatchAfterCursor(matches)
 	if not closestMatch then
 		for _, match in ipairs(matches) do
 			local on_line_before = match.row < cursor_row
-			local on_same_line_before = match.row == cursor_row
-				 and match.col < cursor_col
+			local on_same_line_before = match.row == cursor_row and
+			match.col < cursor_col
 
 			if on_line_before or on_same_line_before then
 				closestMatch = match
@@ -126,6 +123,32 @@ function M.getClosestMatchAfterCursor(matches)
 	end
 
 	return closestMatch
+end
+
+---@param match RipSubstituteMatch
+function M.centerViewportOnMatch(match)
+	local state = require("rip-substitute.state").state
+	local top_line = vim.fn.line("w0")
+	local bot_line = vim.fn.line("w$")
+	local row = match.row
+	local cursor = vim.api.nvim_win_get_cursor(0)
+	local cursor_row = cursor[1]
+	local cursor_col = cursor[2]
+
+	if row < top_line or row > bot_line then
+		vim.api.nvim_set_current_win(state.targetWin)
+		local ok, err = pcall(function() vim.api.nvim_win_set_cursor(
+			state.targetWin, { row, 0 }) end)
+		if not ok then
+			print("Error: " .. err)
+			return
+		end
+		vim.cmd("normal zz")
+		vim.schedule(function()
+			vim.api.nvim_set_current_win(state.popupWinNr)
+			vim.api.nvim_win_set_cursor(state.popupWinNr, { cursor_row, cursor_col })
+		end)
+	end
 end
 
 return M

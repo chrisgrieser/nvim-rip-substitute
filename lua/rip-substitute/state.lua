@@ -18,6 +18,7 @@ local M = {}
 ---@field historyPosition? number
 ---@field matchCount? number
 ---@field matches? RipSubstituteMatch[]
+---@field selectedMatch? RipSubstituteMatch
 M.state = {
 	popupHistory = {},
 	matchCount = 0,

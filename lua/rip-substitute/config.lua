@@ -25,7 +25,11 @@ local defaultConfig = {
 		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
 	},
 	incrementalPreview = {
-		matchHlGroup = "IncSearch",
+		hlGroups = {
+			match = "Search",
+			currentMatch = "IncSearch",
+			replacement = "CurSearch",
+		},
 		rangeBackdrop = {
 			enabled = true,
 			blend = 50, -- between 0 and 100
@@ -74,9 +78,9 @@ function M.setup(userConfig)
 
 	-- DEPRECATION
 	if M.config.incrementalPreview.hlGroups then
-		local msg =
-			"`incrementalPreview.hlGroups.{name}` is deprecated, use `incrementalPreview.matchHlGroup` instead."
-		notify(msg, "warn")
+		-- local msg =
+		-- 	"`incrementalPreview.hlGroups.{name}` is deprecated, use `incrementalPreview.matchHlGroup` instead."
+		-- notify(msg, "warn")
 	end
 end
 
