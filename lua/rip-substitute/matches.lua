@@ -31,6 +31,7 @@ function M.getMatches()
 		"--column",
 		"--vimgrep",
 		"--no-filename",
+		"--only-matching",
 		toSearch,
 	}
 	if code ~= 0 then return nil, "[1]could not get rg matches" end
@@ -64,6 +65,7 @@ function M.getMatches()
 				"--column",
 				"--vimgrep",
 				"--no-filename",
+				"--only-matching",
 				"--replace="..toReplace,
 				toSearch,
 			}
