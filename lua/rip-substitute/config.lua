@@ -20,8 +20,10 @@ local defaultConfig = {
 		-- normal & visual mode
 		confirm = "<CR>",
 		abort = "q",
-		prevSubst = "<Up>",
-		nextSubst = "<Down>",
+		prevSubst = "<A-Up>",
+		nextSubst = "<A-Down>",
+		prevMatch = "<Up>",
+		nextMatch = "<Down>",
 		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
 	},
 	incrementalPreview = {

@@ -1,5 +1,6 @@
 local M = {}
 local u = require("rip-substitute.utils")
+local matches = require("rip-substitute.matches")
 --------------------------------------------------------------------------------
 
 ---@nodiscard
@@ -301,13 +302,18 @@ function M.openSubstitutionPopup(searchPrefill)
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			ensureOnly2LinesInPopup()
-			local matches, err = rgMatches.getMatches()
+			local updatedMatches, err = rgMatches.getMatches()
 			if err then
 				vim.print(err)
 			else
-				state.matches = matches
+				print("update selected match etc.")
+				state.matches = updatedMatches
+				--TODO: this should not always run
 				state.selectedMatch = rgMatches.getClosestMatchAfterCursor(state
 				.matches)
+				if not state.selectedMatch then
+					print("no selected match")
+				end
 				rgMatches.centerViewportOnMatch(state.selectedMatch)
 			end
 			rg.incrementalPreviewAndMatchCount(viewStartLn, viewEndLn)
@@ -326,6 +332,9 @@ function M.openSubstitutionPopup(searchPrefill)
 	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, confirmSubstitution, opts)
 	vim.keymap.set("i", config.keymaps.insertModeConfirm, confirmSubstitution,
 		opts)
+
+	vim.keymap.set({ "n", "x" }, config.keymaps.prevMatch, matches.selectPrevMatch, opts)
+	vim.keymap.set({ "n", "x" }, config.keymaps.nextMatch, matches.selectNextMatch, opts)
 
 	state.historyPosition = #state.popupHistory + 1
 	vim.keymap.set({ "n", "x" }, config.keymaps.prevSubst, function()
