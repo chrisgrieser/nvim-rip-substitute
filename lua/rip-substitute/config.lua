@@ -19,12 +19,15 @@ local defaultConfig = {
 	keymaps = {
 		-- normal & visual mode
 		confirm = "<CR>",
+		confirmAll = "<S-CR>",
 		abort = "q",
 		prevSubst = "<A-Up>",
 		nextSubst = "<A-Down>",
 		prevMatch = "<Up>",
 		nextMatch = "<Down>",
-		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
+		-- insert
+		insertModeConfirm = "<C-CR>",
+		insertModeConfirmAll = "<C-S-CR>",
 	},
 	incrementalPreview = {
 		hlGroups = {

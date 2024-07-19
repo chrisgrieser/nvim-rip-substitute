@@ -240,7 +240,9 @@ function M.selectNextMatch()
 end
 
 ---@param match RipSubstituteMatch
----TODO: centering not working 100%
+--TODO: centering not working 100%
+--TODO: when returning the cursor to the replacement line in the popup it will
+--be shifted down one line
 function M.centerViewportOnMatch(match)
 	local cursor = vim.api.nvim_win_get_cursor(0)
 	local cursor_row = cursor[1]
