@@ -26,6 +26,7 @@ local defaultConfig = {
 		nextSubst = "<A-Down>",
 		prevMatch = "<Up>",
 		nextMatch = "<Down>",
+		openAtRegex101 = "R",
 		-- insert
 		insertModeConfirm = "<C-CR>",
 		insertModeConfirmAll = "<C-S-CR>",

@@ -7,7 +7,7 @@ local M = {}
 M.map = function(list, cb)
 	local result = {}
 	for i, value in ipairs(list) do
-		table.insert(result, cb(value,i))
+		table.insert(result, cb(value, i))
 	end
 	return result
 end
@@ -15,27 +15,10 @@ end
 ---@param table table
 ---@param cb function(value: any): boolean
 function M.index_of(table, cb)
-    for index, value in ipairs(table) do
-        if cb(value) then
-            return index
-        end
-    end
-    return nil
-end
-
----@generic T
----@param list any[]
----@param cb function(value: `T`,i: integer): `T`[]
----@return `T`[] | nil
-function M.flatMap(list, cb, ...)
-    local result = {}
-    for i, value in ipairs(list) do
-        local mapped = cb(value, i, ...)
-        for _, mapped_value in ipairs(mapped) do
-            table.insert(result, mapped_value)
-        end
-    end
-    return result
+	for index, value in ipairs(table) do
+		if cb(value) then return index end
+	end
+	return nil
 end
 
 ---@param msg string
@@ -68,6 +51,5 @@ function M.getHighlightValue(hlName, key)
 	local value = hl[key]
 	if value then return ("#%06x"):format(value) end
 end
-
 --------------------------------------------------------------------------------
 return M

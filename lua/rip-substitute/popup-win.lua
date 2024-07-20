@@ -1,6 +1,6 @@
 local M = {}
-local u = require("rip-substitute.utils")
 local matches = require("rip-substitute.matches")
+local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
 ---@nodiscard
@@ -14,8 +14,7 @@ end
 ---space in the popup window, i.e., the current content will not overlap with it.
 ---@param popupWidth number
 local function setPopupLabelsIfEnoughSpace(popupWidth)
-	local hide = require("rip-substitute.config").config.popupWin
-		 .hideSearchReplaceLabels
+	local hide = require("rip-substitute.config").config.popupWin.hideSearchReplaceLabels
 	if hide then return end
 
 	local state = require("rip-substitute.state").state
@@ -26,11 +25,10 @@ local function setPopupLabelsIfEnoughSpace(popupWidth)
 	for i = 1, 2 do
 		local contentOverlapsLabel = #popupLines[i] >= (popupWidth - #labels[i])
 		if not contentOverlapsLabel then
-			vim.api.nvim_buf_set_extmark(state.popupBufNr, state.labelNs, i - 1, 0,
-				{
-					virt_text = { { labels[i], "DiagnosticVirtualTextInfo" } },
-					virt_text_pos = "right_align",
-				})
+			vim.api.nvim_buf_set_extmark(state.popupBufNr, state.labelNs, i - 1, 0, {
+				virt_text = { { labels[i], "DiagnosticVirtualTextInfo" } },
+				virt_text_pos = "right_align",
+			})
 		end
 	end
 end
@@ -45,8 +43,7 @@ local function ensureOnly2LinesInPopup()
 		if lines[1] == "" then table.remove(lines, 1) end
 		if lines[3] and lines[2] == "" then table.remove(lines, 2) end
 	end
-	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, true,
-		{ lines[1], lines[2] })
+	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, true, { lines[1], lines[2] })
 	vim.cmd.normal { "zb", bang = true } -- enforce scroll position
 end
 
@@ -56,8 +53,7 @@ local function closePopupWin()
 	-- history: save last popup content for next run
 	local lastPopupContent = state.popupPresentContent or getPopupLines()
 	state.popupPresentContent = nil
-	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory],
-		lastPopupContent)
+	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
 	if not isDuplicate then table.insert(state.popupHistory, lastPopupContent) end
 
 	-- close popup win and buffer
@@ -110,8 +106,7 @@ end
 
 local function autoCaptureGroups()
 	local state = require("rip-substitute.state").state
-	local cursorInSearchLine = vim.api.nvim_win_get_cursor(state.popupWinNr)[1] ==
-		 1
+	local cursorInSearchLine = vim.api.nvim_win_get_cursor(state.popupWinNr)[1] == 1
 	-- prevent updating replacement if editing replace line
 	if not cursorInSearchLine then return end
 
@@ -122,16 +117,14 @@ local function autoCaptureGroups()
 
 	local captureCount = 0
 	for n = 1, balancedCount do
-		local hasGroupN = toReplace:match("%$" .. n) or
-			 toReplace:match("%{" .. n .. "}")
+		local hasGroupN = toReplace:match("%$" .. n) or toReplace:match("%{" .. n .. "}")
 		if not hasGroupN then break end
 		captureCount = n
 	end
 
 	if captureCount < balancedCount then
 		local newReplaceLine = toReplace .. "$" .. (captureCount + 1)
-		vim.api.nvim_buf_set_lines(state.popupBufNr, 1, 2, false,
-			{ newReplaceLine })
+		vim.api.nvim_buf_set_lines(state.popupBufNr, 1, 2, false, { newReplaceLine })
 	end
 end
 
@@ -159,8 +152,7 @@ end
 ---and after the range.
 ---@param popupZindex integer
 local function rangeBackdrop(popupZindex)
-	local opts = require("rip-substitute.config").config.incrementalPreview
-		 .rangeBackdrop
+	local opts = require("rip-substitute.config").config.incrementalPreview.rangeBackdrop
 	local state = require("rip-substitute.state").state
 	if not opts.enabled or not state.range then return end
 
@@ -204,8 +196,7 @@ local function rangeBackdrop(popupZindex)
 				style = "minimal",
 				zindex = popupZindex - 1, -- so the popup stays on top
 			})
-			vim.api.nvim_set_hl(0, "RipSubBackdrop",
-				{ bg = "#000000", default = true })
+			vim.api.nvim_set_hl(0, "RipSubBackdrop", { bg = "#000000", default = true })
 			vim.wo[win].winhighlight = "Normal:RipSubBackdrop"
 			vim.wo[win].winblend = opts.blend
 			vim.bo[buf].buftype = "nofile"
@@ -215,10 +206,7 @@ local function rangeBackdrop(popupZindex)
 				once = true,
 				buffer = state.popupBufNr,
 				callback = function()
-					if win and vim.api.nvim_win_is_valid(win) then
-						vim.api
-							 .nvim_win_close(win, true)
-					end
+					if win and vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_close(win, true) end
 					if buf and vim.api.nvim_buf_is_valid(buf) then
 						vim.api.nvim_buf_delete(buf, { force = true })
 					end
@@ -239,12 +227,10 @@ function M.openSubstitutionPopup(searchPrefill)
 
 	-- CREATE BUFFER
 	state.popupBufNr = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false,
-		{ searchPrefill, "" })
+	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, { searchPrefill, "" })
 	vim.api.nvim_buf_set_name(state.popupBufNr, "rip-substitute")
 	pcall(vim.treesitter.start, state.popupBufNr, "regex")
-	vim.api.nvim_set_option_value("filetype", "rip-substitute",
-		{ buf = state.popupBufNr })
+	vim.api.nvim_set_option_value("filetype", "rip-substitute", { buf = state.popupBufNr })
 
 	-- FOOTER & WIDTH
 	-- 1. display base keymaps on first run, and advanced keymaps on subsequent runs
@@ -280,8 +266,7 @@ function M.openSubstitutionPopup(searchPrefill)
 	local popupZindex = 40 -- below nvim-notify which uses 50
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
-		row = config.popupWin.position == "top" and 0 or
-			 vim.api.nvim_win_get_height(0) - 3,
+		row = config.popupWin.position == "top" and 0 or vim.api.nvim_win_get_height(0) - 3,
 		col = vim.api.nvim_win_get_width(0) - 1 - minWidth - offsetScrollbar,
 		width = minWidth,
 		height = 2,
@@ -336,15 +321,10 @@ function M.openSubstitutionPopup(searchPrefill)
 			if err then
 				vim.print(err)
 			else
-				print("update selected match etc.")
 				state.matches = updatedMatches
 				--TODO: this should not always run
-				state.selectedMatch = rgMatches.getClosestMatchAfterCursor(state
-					.matches)
-				if not state.selectedMatch then
-					print("no selected match")
-				end
-				rgMatches.centerViewportOnMatch(state.selectedMatch)
+				state.selectedMatch = rgMatches.getClosestMatchAfterCursor(state.matches)
+				if state.selectedMatch then rgMatches.centerViewportOnMatch(state.selectedMatch) end
 			end
 			rg.incrementalPreviewAndMatchCount(viewStartLn, viewEndLn)
 			updateMatchCount()
@@ -359,20 +339,13 @@ function M.openSubstitutionPopup(searchPrefill)
 
 	-- confirm & abort
 	vim.keymap.set({ "n", "x" }, config.keymaps.abort, closePopupWin, opts)
-	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, confirmSubstitution,
-		opts)
-	vim.keymap.set({ "n", "x" }, config.keymaps.confirmAll, confirmSubstitutionAll,
-		opts)
-	vim.keymap.set("i", config.keymaps.insertModeConfirm, confirmSubstitution,
-		opts)
-	vim.keymap.set("i", config.keymaps.insertModeConfirmAll,
-		confirmSubstitutionAll,
-		opts)
+	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, confirmSubstitution, opts)
+	vim.keymap.set({ "n", "x" }, config.keymaps.confirmAll, confirmSubstitutionAll, opts)
+	vim.keymap.set("i", config.keymaps.insertModeConfirm, confirmSubstitution, opts)
+	vim.keymap.set("i", config.keymaps.insertModeConfirmAll, confirmSubstitutionAll, opts)
 
-	vim.keymap.set({ "n", "x" }, config.keymaps.prevMatch, matches
-	.selectPrevMatch, opts)
-	vim.keymap.set({ "n", "x" }, config.keymaps.nextMatch, matches
-	.selectNextMatch, opts)
+	vim.keymap.set({ "n", "x" }, config.keymaps.prevMatch, matches.selectPrevMatch, opts)
+	vim.keymap.set({ "n", "x" }, config.keymaps.nextMatch, matches.selectNextMatch, opts)
 
 	-- regex101
 	vim.keymap.set(
@@ -387,8 +360,7 @@ function M.openSubstitutionPopup(searchPrefill)
 	vim.keymap.set({ "n", "x" }, config.keymaps.prevSubst, function()
 		if state.historyPosition < 2 then return end
 		if state.historyPosition == #state.popupHistory + 1 then
-			state.popupPresentContent = vim.api.nvim_buf_get_lines(state.popupBufNr,
-				0, -1, true)
+			state.popupPresentContent = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
 		end
 		state.historyPosition = state.historyPosition - 1
 		local content = state.popupHistory[state.historyPosition]
@@ -397,9 +369,8 @@ function M.openSubstitutionPopup(searchPrefill)
 	vim.keymap.set({ "n", "x" }, config.keymaps.nextSubst, function()
 		if state.historyPosition == #state.popupHistory + 1 then return end -- already at present
 		state.historyPosition = state.historyPosition + 1
-		local content = state.historyPosition == #state.popupHistory + 1 and
-			 state.popupPresentContent
-			 or state.popupHistory[state.historyPosition]
+		local content = state.historyPosition == #state.popupHistory + 1 and state.popupPresentContent
+			or state.popupHistory[state.historyPosition]
 		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
 	end, opts)
 

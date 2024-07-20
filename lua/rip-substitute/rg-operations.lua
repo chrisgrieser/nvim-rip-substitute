@@ -8,8 +8,7 @@ local u = require("rip-substitute.utils")
 local function getSearchAndReplaceValuesFromPopup()
 	local state = require("rip-substitute.state").state
 
-	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(
-		state.popupBufNr, 0, -1, false))
+	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, false))
 	if config.regexOptions.autoBraceSimpleCaptureGroups then
 		toReplace = toReplace:gsub("%$(%d+)", "${%1}")
 	end
@@ -29,7 +28,6 @@ end
 ---@return number exitCode
 ---@return string[] stdoutOrStderr
 function M.runRipgrep(rgArgs)
-	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 
 	-- args
@@ -46,14 +44,12 @@ function M.runRipgrep(rgArgs)
 	-- results
 	local result = vim.system(args):wait()
 	local text = result.code == 0 and result.stdout or result.stderr
-	print("rgtext: ", text)
 	return result.code, vim.split(vim.trim(text or ""), "\n")
 end
 
 ---@return string
 ---@return string
 function M.getSearchAndReplaceValuesFromPopup()
-	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 
 	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, false))
@@ -68,23 +64,13 @@ function M.substitute()
 	local state = require("rip-substitute.state").state
 	local match = state.selectedMatch
 	if not match then return end
-	print("replacing match:")
-	vim.print(match)
-	local line = vim.api.nvim_buf_get_lines(state.targetBuf, match.row,
-		match.row + 1, false)[1]
-	print("old line:")
-	vim.print(line)
-
+	local line = vim.api.nvim_buf_get_lines(state.targetBuf, match.row, match.row + 1, false)[1]
 	local start = match.col
 	local _end = match.col + #match.matchedText
 
-	local newLine = line:sub(1, start) ..
-	match.replacementText .. line:sub(_end + 1)
+	local newLine = line:sub(1, start) .. match.replacementText .. line:sub(_end + 1)
 
-	print("setting new line:")
-	vim.print(newLine)
-	vim.api.nvim_buf_set_lines(state.targetBuf, match.row, match.row + 1, false,
-		{ newLine })
+	vim.api.nvim_buf_set_lines(state.targetBuf, match.row, match.row + 1, false, { newLine })
 end
 
 function M.substituteAll()
@@ -110,8 +96,7 @@ function M.substituteAll()
 		local lineStr, newLine = repl:match("^(%d+):(.*)")
 		local lnum = assert(tonumber(lineStr), "rg parsing error")
 		if not state.range or (lnum >= state.range.start and lnum <= state.range.end_) then
-			vim.api.nvim_buf_set_lines(state.targetBuf, lnum - 1, lnum, false,
-				{ newLine })
+			vim.api.nvim_buf_set_lines(state.targetBuf, lnum - 1, lnum, false, { newLine })
 			replacedLines = replacedLines + 1
 		end
 	end
@@ -165,48 +150,33 @@ local function getViewportRange(matches, viewStartLnum, viewEndLnum)
 			break
 		end
 	end
+end
+
 ---@param match RipSubstituteMatch
 ---@param selected boolean
 ---@param targetBuf number
 ---@param incPreviewNs number
 function M.highlightReplacement(match, selected, targetBuf, incPreviewNs)
 	local hl_group = selected and config.incrementalPreview.hlGroups.currentMatch
-		 or config.incrementalPreview.hlGroups.replacement
+		or config.incrementalPreview.hlGroups.replacement
 	local ok, err = pcall(
 		function()
-			vim.api.nvim_buf_set_extmark(targetBuf, incPreviewNs, match.row,
-				match.col, {
-					virt_text = {
-						{
-							match.replacementText,
-							hl_group,
-						},
+			vim.api.nvim_buf_set_extmark(targetBuf, incPreviewNs, match.row, match.col, {
+				virt_text = {
+					{
+						match.replacementText,
+						hl_group,
 					},
-					virt_text_pos = "inline",
-					hl_mode = "replace",
-					strict = false,
-					conceal = match.matchedText,
-					end_col = match.col + #match.matchedText,
-					end_row = match.row,
-				})
+				},
+				virt_text_pos = "inline",
+				hl_mode = "replace",
+				strict = false,
+				conceal = match.matchedText,
+				end_col = match.col + #match.matchedText,
+				end_row = match.row,
+			})
 		end
 	)
-
-	if not ok then
-		print(
-			"[ERROR] setting extmark with param:",
-			"\nstate.targetBuf",
-			targetBuf,
-			"\nstate.incPreviewNs",
-			incPreviewNs,
-			"\nmatch.row",
-			match.row,
-			"\nmatch.col",
-			match.col,
-			"\nend_row = ",
-			match.row
-		)
-	end
 end
 
 --TODO: apparently some highlights that we want to keep get removed anyway-> todo comments
@@ -218,7 +188,7 @@ end
 ---@param matchEndCol number
 function M.highlightMatch(match, selected, targetBuf, incPreviewNs, matchEndCol)
 	local hlGroup = selected and config.incrementalPreview.hlGroups.currentMatch
-		 or config.incrementalPreview.hlGroups.match
+		or config.incrementalPreview.hlGroups.match
 	vim.api.nvim_buf_add_highlight(
 		targetBuf,
 		incPreviewNs,
@@ -246,8 +216,7 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 
 	state.matchCount = #matches
 
-	local viewStartIdx, viewEndIdx = getViewportRange(matches, viewStartLnum,
-		viewEndLnum)
+	local viewStartIdx, viewEndIdx = getViewportRange(matches, viewStartLnum, viewEndLnum)
 	if not viewStartIdx or not viewEndIdx then return end
 
 	-- SEARCH: HIGHLIGHT MATCHES
@@ -275,4 +244,3 @@ end
 
 --------------------------------------------------------------------------------
 return M
-

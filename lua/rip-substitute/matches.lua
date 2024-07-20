@@ -54,7 +54,6 @@ function M.getMatches()
 		end
 	)
 
-	vim.print("[2][GOT MATCHES] for ", toSearch, " ", toReplace, " found ", #matches, " matches")
 
 	if toReplace and toReplace ~= "" then
 		for i, match in ipairs(matches) do
@@ -70,7 +69,6 @@ function M.getMatches()
 			local replaced
 			code, replaced = rg.runRipgrep(rgArgs)
 			if code ~= 0 then
-				vim.print(rgArgs)
 				return nil, "[3]could not get rg replacements"
 			end
 			if #matched ~= #replaced then return nil, "#matched ~= #replaced" end
@@ -125,16 +123,6 @@ function M.getClosestMatchAfterCursor(matches)
 	return closestMatch
 end
 
----@param match RipSubstituteMatch
----@param matches RipSubstituteMatch[]
----@return number
-function M.getIndexOfMatch(match, matches)
-	for i, currentMatch in ipairs(matches) do
-		if match == currentMatch then return i end
-	end
-	return -1
-end
-
 ---@param replacing boolean
 ---@param newSelectedMatchIndex number
 local function updateSelectedMatchHighlight(replacing, newSelectedMatchIndex)
@@ -181,7 +169,10 @@ function M.selectPrevMatch()
 	local state = require("rip-substitute.state").state
 	local selectedMatch = state.selectedMatch
 	if not selectedMatch then return end
-	local currentMatchIndex = M.getIndexOfMatch(selectedMatch, state.matches)
+	local currentMatchIndex = utils.index_of(
+		state.matches,
+		function(m) return m == selectedMatch end
+	)
 	local prevIndex = -1
 	if currentMatchIndex == 1 then
 		prevIndex = #state.matches
@@ -198,7 +189,10 @@ function M.selectNextMatch()
 	local selectedMatch = state.selectedMatch
 	if not selectedMatch then return end
 	local replacing = selectedMatch.replacementText ~= ""
-	local currentMatchIndex = M.getIndexOfMatch(selectedMatch, state.matches)
+	local currentMatchIndex = utils.index_of(
+		state.matches,
+		function(m) return m == selectedMatch end
+	)
 	local nextIndex = -1
 	if currentMatchIndex == #state.matches then
 		nextIndex = 1
@@ -211,23 +205,16 @@ end
 
 ---@param match RipSubstituteMatch
 function M.centerViewportOnMatch(match)
-	print("centerViewportOnMatch")
 	local state = require("rip-substitute.state").state
 	local padding = 5
 	local row, col = match.row + 1, match.col
-	local top_line, bot_line = nil, nil
-	vim.api.nvim_win_call(state.targetWin, function()
-		top_line = vim.fn.line("w0")
-		bot_line = vim.fn.line("w$")
-	end)
-	if row < (top_line + padding) or row > (bot_line - padding) then
+	local topLine, botLine = utils.getViewport()
+	if row < (topLine + padding) or row > (botLine - padding) then
 		vim.api.nvim_win_call(
 			state.targetWin,
 			function() vim.api.nvim_win_set_cursor(state.targetWin, { row, col }) end
 		)
 		vim.api.nvim_win_call(state.targetWin, function() vim.api.nvim_command("normal zz") end)
-	else
-		print("no need to recenter")
 	end
 end
 
