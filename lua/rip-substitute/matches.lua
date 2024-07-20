@@ -135,25 +135,16 @@ function M.getIndexOfMatch(match, matches)
 	return -1
 end
 
-function M.selectPrevMatch()
-	--TODO: need to know if replacing or not to get correct hl group
+---@param replacing boolean
+---@param newSelectedMatchIndex number
+local function updateSelectedMatchHighlight(replacing, newSelectedMatchIndex)
 	local state = require("rip-substitute.state").state
-	local selectedMatch = state.selectedMatch
-	if not selectedMatch then return end
-	local currentMatchIndex = M.getIndexOfMatch(selectedMatch, state.matches)
-	local prevIndex = -1
-	if currentMatchIndex == 1 then
-		prevIndex = #state.matches
-	else
-		prevIndex = currentMatchIndex - 1
-	end
 	vim.api.nvim_buf_clear_namespace(
 		state.targetBuf,
 		state.incPreviewNs,
 		state.selectedMatch.row,
 		state.selectedMatch.row + 1
 	)
-	local replacing = selectedMatch.replacementText ~= ""
 	if replacing then
 		rg.highlightReplacement(state.selectedMatch, false, state.targetBuf, state.incPreviewNs)
 	else
@@ -165,8 +156,7 @@ function M.selectPrevMatch()
 			state.selectedMatch.col + #state.selectedMatch.matchedText
 		)
 	end
-	local lastSelectedMatch = state.selectedMatch
-	state.selectedMatch = state.matches[prevIndex]
+	state.selectedMatch = state.matches[newSelectedMatchIndex]
 	--TODO: this will probably clear too many highlights
 	vim.api.nvim_buf_clear_namespace(
 		state.targetBuf,
@@ -185,7 +175,22 @@ function M.selectPrevMatch()
 			state.selectedMatch.col + #state.selectedMatch.matchedText
 		)
 	end
-	if lastSelectedMatch then M.centerViewportOnMatch(state.selectedMatch) end
+end
+
+function M.selectPrevMatch()
+	local state = require("rip-substitute.state").state
+	local selectedMatch = state.selectedMatch
+	if not selectedMatch then return end
+	local currentMatchIndex = M.getIndexOfMatch(selectedMatch, state.matches)
+	local prevIndex = -1
+	if currentMatchIndex == 1 then
+		prevIndex = #state.matches
+	else
+		prevIndex = currentMatchIndex - 1
+	end
+	local replacing = selectedMatch.replacementText ~= ""
+	updateSelectedMatchHighlight(replacing, prevIndex)
+	M.centerViewportOnMatch(state.selectedMatch)
 end
 
 function M.selectNextMatch()
@@ -200,80 +205,29 @@ function M.selectNextMatch()
 	else
 		nextIndex = currentMatchIndex + 1
 	end
-	vim.api.nvim_buf_clear_namespace(
-		state.targetBuf,
-		state.incPreviewNs,
-		state.selectedMatch.row,
-		state.selectedMatch.row + 1
-	)
-	if replacing then
-		rg.highlightReplacement(state.selectedMatch, false, state.targetBuf, state.incPreviewNs)
-	else
-		rg.highlightMatch(
-			state.selectedMatch,
-			false,
-			state.targetBuf,
-			state.incPreviewNs,
-			state.selectedMatch.col + #state.selectedMatch.matchedText
-		)
-	end
-	local lastSelectedMatch = state.selectedMatch
-	state.selectedMatch = state.matches[nextIndex]
-	vim.api.nvim_buf_clear_namespace(
-		state.targetBuf,
-		state.incPreviewNs,
-		state.selectedMatch.row,
-		state.selectedMatch.row + 1
-	)
-	if replacing then
-		rg.highlightReplacement(state.selectedMatch, false, state.targetBuf, state.incPreviewNs)
-	else
-		rg.highlightMatch(
-			state.selectedMatch,
-			true,
-			state.targetBuf,
-			state.incPreviewNs,
-			state.selectedMatch.col + #state.selectedMatch.matchedText
-		)
-	end
-	if lastSelectedMatch then M.centerViewportOnMatch(state.selectedMatch) end
+	updateSelectedMatchHighlight(replacing, nextIndex)
+	M.centerViewportOnMatch(state.selectedMatch)
 end
 
 ---@param match RipSubstituteMatch
---TODO: centering not working 100%
---TODO: when returning the cursor to the replacement line in the popup it will
---be shifted down one line
 function M.centerViewportOnMatch(match)
-	local cursor = vim.api.nvim_win_get_cursor(0)
-	local cursor_row = cursor[1]
-	local cursor_col = cursor[2]
+	print("centerViewportOnMatch")
 	local state = require("rip-substitute.state").state
-	local row = match.row
-
-	local ok, err = pcall(function()
-		local targetCursor = vim.api.nvim_win_get_cursor(state.targetWin)
-		vim.api.nvim_win_set_cursor(state.targetWin, targetCursor)
+	local padding = 5
+	local row, col = match.row + 1, match.col
+	local top_line, bot_line = nil, nil
+	vim.api.nvim_win_call(state.targetWin, function()
+		top_line = vim.fn.line("w0")
+		bot_line = vim.fn.line("w$")
 	end)
-	if not ok then
-		print("Error: " .. err)
-		return
-	end
-	local top_line = vim.fn.line("w0")
-	local bot_line = vim.fn.line("w$")
-	ok, err = pcall(
-		function() vim.api.nvim_win_set_cursor(state.targetWin, { row + 1, match.col }) end
-	)
-	if not ok then
-		print("Error: " .. err)
-		return
-	end
-
-	if row < top_line or row > bot_line then
-		vim.schedule(function()
-			vim.cmd("normal zz")
-			vim.api.nvim_set_current_win(state.popupWinNr)
-			vim.api.nvim_win_set_cursor(state.popupWinNr, { cursor_row, cursor_col })
-		end)
+	if row < (top_line + padding) or row > (bot_line - padding) then
+		vim.api.nvim_win_call(
+			state.targetWin,
+			function() vim.api.nvim_win_set_cursor(state.targetWin, { row, col }) end
+		)
+		vim.api.nvim_win_call(state.targetWin, function() vim.api.nvim_command("normal zz") end)
+	else
+		print("no need to recenter")
 	end
 end
 
