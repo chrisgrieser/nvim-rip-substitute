@@ -50,6 +50,20 @@ function M.runRipgrep(rgArgs)
 	return result.code, vim.split(vim.trim(text or ""), "\n")
 end
 
+---@return string
+---@return string
+function M.getSearchAndReplaceValuesFromPopup()
+	local config = require("rip-substitute.config").config
+	local state = require("rip-substitute.state").state
+
+	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, false))
+	if config.regexOptions.autoBraceSimpleCaptureGroups then
+		-- CAVEAT will not work if user has 10 capture groups (which should almost never happen though)
+		toReplace = toReplace:gsub("%$(%d)", "${%1}")
+	end
+	return toSearch, toReplace
+end
+
 function M.substitute()
 	local state = require("rip-substitute.state").state
 	local match = state.selectedMatch
@@ -75,7 +89,7 @@ end
 
 function M.substituteAll()
 	local state = require("rip-substitute.state").state
-	local toSearch, toReplace = getSearchAndReplaceValuesFromPopup()
+	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
 
 	local code, results = M.runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
 	if code ~= 0 then
@@ -116,7 +130,6 @@ function M.substituteAll()
 end
 
 --------------------------------------------------------------------------------
-
 --- RANGE: FILTER MATCHES
 --- PERF For single files, `rg` gives us results sorted by lines, so we can
 --- `slice` instead of `filter` to improve performance.
@@ -152,11 +165,6 @@ local function getViewportRange(matches, viewStartLnum, viewEndLnum)
 			break
 		end
 	end
-	if not viewStartIdx then return nil, nil end -- no matches in viewport
-	if not viewEndIdx then viewEndIdx = #matches end
-	return viewStartIdx, viewEndIdx
-end
-
 ---@param match RipSubstituteMatch
 ---@param selected boolean
 ---@param targetBuf number
@@ -267,3 +275,4 @@ end
 
 --------------------------------------------------------------------------------
 return M
+

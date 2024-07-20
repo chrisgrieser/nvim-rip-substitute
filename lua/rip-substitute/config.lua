@@ -5,6 +5,7 @@ local notify = require("rip-substitute.utils").notify
 ---@class RipSubstituteConfig
 local defaultConfig = {
 	popupWin = {
+		title = " rip-substitute",
 		border = "single",
 		matchCountHlGroup = "Keyword",
 		noMatchHlGroup = "ErrorMsg",

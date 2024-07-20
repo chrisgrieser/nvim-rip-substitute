@@ -13,19 +13,28 @@ local M = {}
 ---@param userConfig? RipSubstituteConfig
 function M.setup(userConfig) require("rip-substitute.config").setup(userConfig) end
 
-function M.sub()
+---@param exCmdArgs? { range: number, line1: number, line2: number, args: string } only set when called via ex command `:RipSubstitute`
+function M.sub(exCmdArgs)
+	vim.cmd("silent! update") -- ensure changes are written, so `rg` can read them, see #8
 	local config = require("rip-substitute.config").config
 	local mode = vim.fn.mode()
+	local exCmdWithRange = exCmdArgs and exCmdArgs.range > 0
+	local exCmdHasSearchPrefill = exCmdArgs and exCmdArgs.args ~= ""
 
 	-- PREFILL
 	local searchPrefill = ""
-	if mode == "n" and config.prefill.normal == "cursorWord" then
-		searchPrefill = vim.fn.expand("<cword>")
-	elseif mode == "v" and config.prefill.visual == "selectionFirstLine" then
-		vim.cmd.normal { '"zy', bang = true }
-		searchPrefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
+	if exCmdHasSearchPrefill then
+		---@diagnostic disable-next-line: need-check-nil done via condition `exSearchPrefil`
+		searchPrefill = exCmdArgs.args
+	else
+		if mode == "n" and not exCmdWithRange and config.prefill.normal == "cursorWord" then
+			searchPrefill = vim.fn.expand("<cword>")
+		elseif mode == "v" and config.prefill.visual == "selectionFirstLine" then
+			vim.cmd.normal { '"zy', bang = true }
+			searchPrefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
+		end
+		searchPrefill = searchPrefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
 	end
-	searchPrefill = searchPrefill:gsub("[.(){}[%]*+?^$]", [[\%1]]) -- escape special chars
 
 	-- RANGE
 	---@type CmdRange|false
@@ -35,6 +44,9 @@ function M.sub()
 		local startLn = vim.api.nvim_buf_get_mark(0, "<")[1]
 		local endLn = vim.api.nvim_buf_get_mark(0, ">")[1]
 		range = { start = startLn, end_ = endLn }
+	elseif exCmdWithRange then
+		---@diagnostic disable-next-line: need-check-nil done via condition `exCmdWithRange`
+		range = { start = exCmdArgs.line1, end_ = exCmdArgs.line2 }
 	end
 
 	-- SET STATE

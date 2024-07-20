@@ -247,26 +247,34 @@ function M.openSubstitutionPopup(searchPrefill)
 		{ buf = state.popupBufNr })
 
 	-- FOOTER & WIDTH
-	local maps = config.keymaps
-	local suffix = #state.popupHistory == 0 and ("%s Abort"):format(maps.abort)
-		 or ("%s/%s Prev/Next"):format(maps.prevSubst, maps.nextSubst)
-	local keymapHint = maps.confirm .. " Confirm  " .. suffix
+	-- 1. display base keymaps on first run, and advanced keymaps on subsequent runs
+	-- 2. shorten them as much as possible, to keep the popup width small
+	local m = config.keymaps
+	local keymapHint = #state.popupHistory == 0
+			and ("%s Confirm  %s Abort"):format(m.confirm, m.abort)
+		or ("%s/%s Prev/Next  %s regex101"):format(m.prevSubst, m.nextSubst, m.openAtRegex101)
 	keymapHint = keymapHint -- using only utf symbols, so they work w/o nerd fonts
-		 :gsub("<[Cc][Rr]>", "↩")
-		 :gsub("<[dD]own>", "↓")
-		 :gsub("<[Uu]p>", "↑")
-		 :gsub("<[Rr]ight>", "→")
-		 :gsub("<[Ll]eft>", "←")
-		 :gsub("<[Tt]ab>", "⭾ ")
-		 :gsub("<[Ss]pace>", "⎵")
-		 :gsub("<[Bb][Ss]>", "⌫")
-	-- 11 for "234 matches" + 4 for border & footer padding
+		:gsub("<[Cc][Rr]>", "↩")
+		:gsub("<[dD]own>", "↓")
+		:gsub("<[Uu]p>", "↑")
+		:gsub("<[Rr]ight>", "→")
+		:gsub("<[Ll]eft>", "←")
+		:gsub("<[Tt]ab>", "⭾ ")
+		:gsub("<[Ss]pace>", "⎵")
+		:gsub("<[Bb][Ss]>", "⌫")
+		:gsub(" (%a) ", " %1: ") -- add colon for single letters, so it's clear it's a keymap
+		:gsub("^(%a) ", "%1: ")
+	-- 11 for "234 matches" + 4 for border & padding of footer
 	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
 
-	local title = state.range and
-		 ("Range: L%d – L%d"):format(state.range.start, state.range.end_)
-		 or " rip-substitute"
-
+	local rangeTitle
+	if state.range then
+		rangeTitle = "Range: L" .. state.range.start
+		if state.range.start ~= state.range.end_ then
+			rangeTitle = rangeTitle .. " – L" .. state.range.end_
+		end
+	end
+	local title = rangeTitle or config.popupWin.title
 	-- CREATE WINDOW
 	local offsetScrollbar = 2
 	local popupZindex = 40 -- below nvim-notify which uses 50
@@ -305,6 +313,20 @@ function M.openSubstitutionPopup(searchPrefill)
 
 	-- LABELS, MATCH-HIGHLIGHTS, AND STATIC WINDOW
 	local viewStartLn, viewEndLn = u.getViewport()
+	setPopupLabelsIfEnoughSpace(minWidth)
+	rangeBackdrop(popupZindex)
+
+	-- temporarily set conceal for the incremental preview
+	local previousConceal = vim.wo[state.targetWin].conceallevel
+	if previousConceal < 2 then
+		vim.wo[state.targetWin].conceallevel = 2
+		vim.api.nvim_create_autocmd("BufLeave", {
+			once = true,
+			buffer = state.popupBufNr,
+			callback = function() vim.wo[state.targetWin].conceallevel = previousConceal end,
+		})
+	end
+
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		buffer = state.popupBufNr,
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
@@ -331,11 +353,11 @@ function M.openSubstitutionPopup(searchPrefill)
 			setPopupLabelsIfEnoughSpace(newWidth) -- should be last
 		end,
 	})
-	setPopupLabelsIfEnoughSpace(minWidth)
-	rangeBackdrop(popupZindex)
 
 	-- KEYMAPS & POPUP CLOSING
 	local opts = { buffer = state.popupBufNr, nowait = true }
+
+	-- confirm & abort
 	vim.keymap.set({ "n", "x" }, config.keymaps.abort, closePopupWin, opts)
 	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, confirmSubstitution,
 		opts)
@@ -352,6 +374,15 @@ function M.openSubstitutionPopup(searchPrefill)
 	vim.keymap.set({ "n", "x" }, config.keymaps.nextMatch, matches
 	.selectNextMatch, opts)
 
+	-- regex101
+	vim.keymap.set(
+		{ "n", "x" },
+		config.keymaps.openAtRegex101,
+		function() require("rip-substitute.open-at-regex101").request() end,
+		opts
+	)
+
+	-- history keymaps
 	state.historyPosition = #state.popupHistory + 1
 	vim.keymap.set({ "n", "x" }, config.keymaps.prevSubst, function()
 		if state.historyPosition < 2 then return end

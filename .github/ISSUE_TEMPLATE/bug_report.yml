@@ -27,7 +27,7 @@ body:
     id: reproduction-steps
     attributes:
       label: To Reproduce
-      description: Steps to reproduce the problem
+      description: Steps to reproduce the problem.
       placeholder: |
         For example:
         1. Go to '...'
@@ -35,8 +35,40 @@ body:
         3. Scroll down to '...'
     validations: { required: true }
   - type: textarea
-    id: version-info
+    id: sample-text
+    attributes:
+      label: Sample Text
+      description: Sample text where the substitution is not working.
+  - type: textarea
+    id: nvim-version-info
     attributes:
       label: neovim version
-      render: Text
+      description: Paste the output of `nvim --version` here.
+    validations: { required: true }
+  - type: textarea
+    id: rg-version-info
+    attributes:
+      label: ripgrep version
+      description: Paste the output of `rg --pcre2-version --version` here.
+    validations: { required: true }
+  - type: textarea
+    id: repro-lua
+    attributes:
+      label: Minimal reproducible config
+      description: Minimal config to reproduce the issue. Save as `repro.lua` and run with `nvim -u repro.lua`
+      render: lua
+      value: |
+        local spec = {
+        	{
+        		"chrisgrieser/nvim-rip-substitute",
+        		opts = {}, -- insert config here
+        		keys = {
+              { "gs", function() require("rip-substitute").sub() end, mode = { "n", "x" } },
+        		},
+        	},
+        }
+        --------------------------------------------------------------------------------
+        vim.env.LAZY_STDPATH = "./nvim-repro"
+        load(vim.fn.system("curl -s https://raw.githubusercontent.com/folke/lazy.nvim/main/bootstrap.lua"))()
+        require("lazy.minit").repro { spec = spec }
     validations: { required: true }

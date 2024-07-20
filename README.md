@@ -1,10 +1,8 @@
 <!-- LTeX: enabled=false -->
 # rip-substitute 🪦
 <!-- LTeX: enabled=true -->
-<!-- TODO uncomment shields when available in dotfyle.com 
-<a href="https://dotfyle.com/plugins/chrisgrieser/rip-substitute">
-<img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/rip-substitute/shield"/></a>
--->
+<a href="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute">
+<img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute/shield"/></a>
 
 Perform search and replace operations in the current buffer using a modern user
 interface and contemporary regex syntax.
@@ -35,12 +33,14 @@ interface and contemporary regex syntax.
 	+ Syntax highlighting of the regex.
 	+ Editing with vim motions.
 	+ No more dealing with delimiters.
-- **Sensible defaults**: searches the entire buffer (`%`), all matches in a line
+- **Sensible defaults**: entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
 - **Range support**
 - **History** of previous substitutions.
 - **Performant**: In a file with 5000 lines and thousands of matches, still
   performs *blazingly fast*.™
+- **Regex101 integration**: Open the planned substitution in a pre-configured
+  [regex101](https://regex101.com/) browser-tab for debugging.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
   adaptive popup window width, visual emphasis of the active range, …
 - Syntax comparison:
@@ -61,10 +61,10 @@ interface and contemporary regex syntax.
 ## Installation
 **Requirements**
 - [ripgrep](https://github.com/BurntSushi/ripgrep) with `pcre2` support
-	+ `homebrew`: `ripgrep` by default is built with `pcre2`.
-	+ `cargo`: `cargo install ripgrep --features "pcre2"`
-	+ You can also use this plugin without `pcre2` support by setting
-	  `regexOptions.pcre2 = false` in the plugin config (see further below).
+	+ homebrew: `brew install ripgrep` (already includes `pcre2` by default)
+	+ cargo: `cargo install ripgrep --features "pcre2"`
+	+ You can also use this plugin without `pcre2` by setting
+	  `regexOptions.pcre2 = false` in the [plugin config](#configuration).
 - `nvim` >= 0.10
 - `:TSInstall regex` (only needed for syntax highlighting)
 
@@ -72,6 +72,7 @@ interface and contemporary regex syntax.
 -- lazy.nvim
 {
 	"chrisgrieser/nvim-rip-substitute",
+	cmd = "RipSubstitute",
 	keys = {
 		{
 			"<leader>fs",
@@ -94,6 +95,7 @@ use {
 -- default settings
 require("rip-substitute").setup {
 	popupWin = {
+		title = " rip-substitute",
 		border = "single",
 		matchCountHlGroup = "Keyword",
 		noMatchHlGroup = "ErrorMsg",
@@ -111,6 +113,7 @@ require("rip-substitute").setup {
 		abort = "q",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
+		openAtRegex101 = "R",
 		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
 	},
 	incrementalPreview = {
@@ -142,19 +145,49 @@ require("rip-substitute").setup {
 > plugin.
 
 ## Usage
-
+**lua function**  
 ```lua
-require("rip-substitute").sub()
+vim.keymap.set(
+	{ "n", "x" },
+	"<leader>fs",
+	function() require("rip-substitute").sub() end,
+	{ desc = " rip substitute" }
+)
 ```
 
 - Normal mode: prefills the cursorword.
-- Visual mode: prefills the first line of the selection.
-- Visual *line* mode: replacements are only applied to the selected lines
+- Visual mode: prefills the selection.
+- Visual **line** mode: replacements are only applied to the selected lines
   (the selection is used as range).
+
+**Ex command**  
+Alternatively, you can use the ex command `:RipSubstitute`, which also
+accepts [a range
+argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges). Note that
+when using the ex command, visual mode and visual line mode both pass a range.
+To prefill the current selection, you therefore need to use the lua function.
+
+```vim
+" Substitute in entire file. Prefills the cursorword.
+:RipSubstitute
+
+" Substitute in line range of the visual selection.
+:'<,'>RipSubstitute
+
+" Substitute in given range (in this case: current line to end of file).
+:.,$ RipSubstitute
+```
+
+You can also pass a prefill for the search value, in which
+case the prefill is not escaped.
+
+```vim
+:RipSubstitute prefilled string
+```
 
 ## Advanced
 **`autoBraceSimpleCaptureGroups`**  
-A *gotcha* of `ripgrep`'s regex syntax is that it treats `$1a` as the named
+A gotcha of `ripgrep`'s regex syntax is that it treats `$1a` as the named
 capture group "1a" and *not* as the first capture group followed by the
 letter "a." (See `ripgrep`'s man page on `--replace` for details.)
 
@@ -164,7 +197,8 @@ regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
 **Filetype**  
-The plugin sets the filetype `rip-substitute`.
+The popup window uses the filetype `rip-substitute`. This can be useful, for
+instance, to disable auto-pairing plugins in the popup window.
 
 ## Limitations
 - `--multiline` and various other flags are not supported yet.
