@@ -1,20 +1,8 @@
 local M = {}
 --------------------------------------------------------------------------------
-
----@generic T
----@param list Array<`T`>
----@param cb function(value: `T`,i:integer): `T`
-M.map = function(list, cb)
-	local result = {}
-	for i, value in ipairs(list) do
-		table.insert(result, cb(value, i))
-	end
-	return result
-end
-
 ---@param table table
 ---@param cb function(value: any): boolean
-function M.index_of(table, cb)
+function M.indexOf(table, cb)
 	for index, value in ipairs(table) do
 		if cb(value) then return index end
 	end

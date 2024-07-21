@@ -8,7 +8,8 @@ local function getSearchAndReplaceValuesFromPopup()
 	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 
-	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, false))
+	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(
+		state.popupBufNr, 0, -1, false))
 	if config.regexOptions.autoBraceSimpleCaptureGroups then
 		toReplace = toReplace:gsub("%$(%d+)", "${%1}")
 	end
@@ -37,11 +38,8 @@ function M.getMatches()
 	if #matched == 0 then return {}, nil end
 
 	---@type RipSubstituteMatch[]
-	local matches = utils.map(
-		matched,
-		---@param line string
-		---@param i integer
-		function(line, i)
+	local matches = vim.tbl_map(
+		function(line)
 			local rowStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
 			---@type RipSubstituteMatch
 			local match = {
@@ -51,9 +49,9 @@ function M.getMatches()
 				replacementText = "",
 			}
 			return match
-		end
+		end,
+		matched
 	)
-
 
 	if toReplace and toReplace ~= "" then
 		for i, match in ipairs(matches) do
@@ -90,7 +88,8 @@ end
 function M.getClosestMatchAfterCursor(matches)
 	if #matches == 0 then return nil end
 	local state = require("rip-substitute.state").state
-	local cursor_row, cursor_col = unpack(vim.api.nvim_win_get_cursor(state.targetWin))
+	local cursor_row, cursor_col = unpack(vim.api.nvim_win_get_cursor(state
+		.targetWin))
 	local closestMatch = nil -- Store the closest match found after cursor
 
 	cursor_row = cursor_row - 1
@@ -98,8 +97,10 @@ function M.getClosestMatchAfterCursor(matches)
 	for _, match in ipairs(matches) do
 		local on_line_after = match.row > cursor_row
 		local on_same_line = match.row == cursor_row
-		local cursor_on_match = on_same_line and match.col <= cursor_col and match.col >= cursor_col
-		local on_same_line_after = not cursor_on_match and on_same_line and match.col > cursor_col
+		local cursor_on_match = on_same_line and match.col <= cursor_col and
+			 match.col >= cursor_col
+		local on_same_line_after = not cursor_on_match and on_same_line and
+			 match.col > cursor_col
 
 		if on_line_after or cursor_on_match or on_same_line_after then
 			closestMatch = match
@@ -111,7 +112,8 @@ function M.getClosestMatchAfterCursor(matches)
 	if not closestMatch then
 		for _, match in ipairs(matches) do
 			local on_line_before = match.row < cursor_row
-			local on_same_line_before = match.row == cursor_row and match.col < cursor_col
+			local on_same_line_before = match.row == cursor_row and
+				 match.col < cursor_col
 
 			if on_line_before or on_same_line_before then
 				closestMatch = match
@@ -134,7 +136,8 @@ local function updateSelectedMatchHighlight(replacing, newSelectedMatchIndex)
 		state.selectedMatch.row + 1
 	)
 	if replacing then
-		rg.highlightReplacement(state.selectedMatch, false, state.targetBuf, state.incPreviewNs)
+		rg.highlightReplacement(state.selectedMatch, false, state.targetBuf,
+			state.incPreviewNs)
 	else
 		rg.highlightMatch(
 			state.selectedMatch,
@@ -153,7 +156,8 @@ local function updateSelectedMatchHighlight(replacing, newSelectedMatchIndex)
 		state.selectedMatch.row + 1
 	)
 	if replacing then
-		rg.highlightReplacement(state.selectedMatch, false, state.targetBuf, state.incPreviewNs)
+		rg.highlightReplacement(state.selectedMatch, false, state.targetBuf,
+			state.incPreviewNs)
 	else
 		rg.highlightMatch(
 			state.selectedMatch,
@@ -169,7 +173,7 @@ function M.selectPrevMatch()
 	local state = require("rip-substitute.state").state
 	local selectedMatch = state.selectedMatch
 	if not selectedMatch then return end
-	local currentMatchIndex = utils.index_of(
+	local currentMatchIndex = utils.indexOf(
 		state.matches,
 		function(m) return m == selectedMatch end
 	)
@@ -189,7 +193,7 @@ function M.selectNextMatch()
 	local selectedMatch = state.selectedMatch
 	if not selectedMatch then return end
 	local replacing = selectedMatch.replacementText ~= ""
-	local currentMatchIndex = utils.index_of(
+	local currentMatchIndex = utils.indexOf(
 		state.matches,
 		function(m) return m == selectedMatch end
 	)
@@ -214,7 +218,8 @@ function M.centerViewportOnMatch(match)
 			state.targetWin,
 			function() vim.api.nvim_win_set_cursor(state.targetWin, { row, col }) end
 		)
-		vim.api.nvim_win_call(state.targetWin, function() vim.api.nvim_command("normal zz") end)
+		vim.api.nvim_win_call(state.targetWin,
+			function() vim.api.nvim_command("normal zz") end)
 	end
 end
 
