@@ -2,7 +2,7 @@ local M = {}
 local notify = require("rip-substitute.utils").notify
 --------------------------------------------------------------------------------
 
----@class ripSubstituteConfig
+---@class RipSubstituteConfig
 local defaultConfig = {
 	popupWin = {
 		title = " rip-substitute",
@@ -20,14 +20,23 @@ local defaultConfig = {
 	keymaps = {
 		-- normal & visual mode
 		confirm = "<CR>",
+		confirmSingle = "<S-CR>",
 		abort = "q",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
+		prevMatch = "N",
+		nextMatch = "n",
 		openAtRegex101 = "R",
-		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
+		-- insert
+		insertModeConfirm = "<C-CR>",
+		insertModeConfirmSingle = "<C-S-CR>",
 	},
 	incrementalPreview = {
-		matchHlGroup = "IncSearch",
+		hlGroups = {
+			match = "Search",
+			currentMatch = "IncSearch",
+			replacement = "CurSearch",
+		},
 		rangeBackdrop = {
 			enabled = true,
 			blend = 50, -- between 0 and 100
@@ -50,7 +59,7 @@ local defaultConfig = {
 }
 M.config = defaultConfig
 
----@param userConfig? ripSubstituteConfig
+---@param userConfig? RipSubstituteConfig
 function M.setup(userConfig)
 	M.config = vim.tbl_deep_extend("force", M.config, userConfig or {})
 
@@ -76,9 +85,9 @@ function M.setup(userConfig)
 
 	-- DEPRECATION
 	if M.config.incrementalPreview.hlGroups then
-		local msg =
-			"`incrementalPreview.hlGroups.{name}` is deprecated, use `incrementalPreview.matchHlGroup` instead."
-		notify(msg, "warn")
+		-- local msg =
+		-- 	"`incrementalPreview.hlGroups.{name}` is deprecated, use `incrementalPreview.matchHlGroup` instead."
+		-- notify(msg, "warn")
 	end
 end
 

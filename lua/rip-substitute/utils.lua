@@ -1,6 +1,5 @@
 local M = {}
 --------------------------------------------------------------------------------
-
 ---@param msg string
 ---@param level? "info"|"trace"|"debug"|"warn"|"error"
 function M.notify(msg, level)
@@ -31,6 +30,5 @@ function M.getHighlightValue(hlName, key)
 	local value = hl[key]
 	if value then return ("#%06x"):format(value) end
 end
-
 --------------------------------------------------------------------------------
 return M

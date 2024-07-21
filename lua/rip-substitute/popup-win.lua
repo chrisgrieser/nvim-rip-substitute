@@ -1,4 +1,5 @@
 local M = {}
+local m = require("rip-substitute.matches")
 local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
@@ -65,13 +66,19 @@ local function closePopupWin()
 	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
 end
 
+local function confirmSingleSubstitution()
+	local state = require("rip-substitute.state").state
+	if state.matchCount == 0 then return end
+	require("rip-substitute.rg-operations").substitute()
+end
+
 local function confirmSubstitution()
 	local state = require("rip-substitute.state").state
 
 	-- block confirmation if no matches
 	if state.matchCount == 0 then return end
 
-	require("rip-substitute.rg-operations").executeSubstitution()
+	require("rip-substitute.rg-operations").substituteAll()
 	closePopupWin()
 	if vim.fn.mode() == "i" then vim.cmd.stopinsert() end
 end
@@ -227,10 +234,10 @@ function M.openSubstitutionPopup(searchPrefill)
 	-- FOOTER & WIDTH
 	-- 1. display base keymaps on first run, and advanced keymaps on subsequent runs
 	-- 2. shorten them as much as possible, to keep the popup width small
-	local m = config.keymaps
+	local km = config.keymaps
 	local keymapHint = #state.popupHistory == 0
-			and ("%s Confirm  %s Abort"):format(m.confirm, m.abort)
-		or ("%s/%s Prev/Next  %s regex101"):format(m.prevSubst, m.nextSubst, m.openAtRegex101)
+			and ("%s Confirm  %s Abort"):format(km.confirmSingle, km.abort)
+		or ("%s/%s Prev/Next  %s regex101"):format(km.prevSubst, km.nextSubst, km.openAtRegex101)
 	keymapHint = keymapHint -- using only utf symbols, so they work w/o nerd fonts
 		:gsub("<[Cc][Rr]>", "↩")
 		:gsub("<[dD]own>", "↓")
@@ -253,7 +260,6 @@ function M.openSubstitutionPopup(searchPrefill)
 		end
 	end
 	local title = rangeTitle or config.popupWin.title
-
 	-- CREATE WINDOW
 	local offsetScrollbar = 2
 	local popupZindex = 40 -- below nvim-notify which uses 50
@@ -310,6 +316,15 @@ function M.openSubstitutionPopup(searchPrefill)
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			ensureOnly2LinesInPopup()
+			local updatedMatches, err = m.getMatches()
+			if err then
+				vim.print(err)
+			else
+				state.matches = updatedMatches
+				--TODO: this should not always run
+				state.selectedMatch = m.getClosestMatchAfterCursor(state.matches)
+				if state.selectedMatch then m.centerViewportOnMatch(state.selectedMatch) end
+			end
 			rg.incrementalPreviewAndMatchCount(viewStartLn, viewEndLn)
 			updateMatchCount()
 			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end
@@ -323,8 +338,13 @@ function M.openSubstitutionPopup(searchPrefill)
 
 	-- confirm & abort
 	vim.keymap.set({ "n", "x" }, config.keymaps.abort, closePopupWin, opts)
+	vim.keymap.set({ "n", "x" }, config.keymaps.confirmSingle, confirmSingleSubstitution, opts)
 	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, confirmSubstitution, opts)
+	vim.keymap.set("i", config.keymaps.insertModeConfirmSingle, confirmSingleSubstitution, opts)
 	vim.keymap.set("i", config.keymaps.insertModeConfirm, confirmSubstitution, opts)
+
+	vim.keymap.set({ "n", "x" }, config.keymaps.prevMatch, m.selectPrevMatch, opts)
+	vim.keymap.set({ "n", "x" }, config.keymaps.nextMatch, m.selectNextMatch, opts)
 
 	-- regex101
 	vim.keymap.set(

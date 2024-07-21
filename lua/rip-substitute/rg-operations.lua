@@ -2,10 +2,32 @@ local M = {}
 local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
+---@return string
+---@return string
+local function getSearchAndReplaceValuesFromPopup()
+	local config = require("rip-substitute.config").config
+	local state = require("rip-substitute.state").state
+
+	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, false))
+	if config.regexOptions.autoBraceSimpleCaptureGroups then
+		toReplace = toReplace:gsub("%$(%d+)", "${%1}")
+	end
+	return toSearch, toReplace
+end
+
+---@param line string formatted as `lnum:col:text`
+---@return { lnum: number, col: number, text: string }
+local function parseRgResult(line)
+	local lnumStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
+	return { lnum = tonumber(lnumStr) - 1, col = tonumber(colStr) - 1, text = text }
+end
+
+--------------------------------------------------------------------------------
+
 ---@param rgArgs string[]
 ---@return number exitCode
 ---@return string[] stdoutOrStderr
-local function runRipgrep(rgArgs)
+function M.runRipgrep(rgArgs)
 	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 
@@ -40,20 +62,24 @@ function M.getSearchAndReplaceValuesFromPopup()
 	return toSearch, toReplace
 end
 
----@param line string formatted as `lnum:col:text`
----@return { lnum: number, col: number, text: string }
-local function parseRgResult(line)
-	local lnumStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
-	return { lnum = tonumber(lnumStr) - 1, col = tonumber(colStr) - 1, text = text }
+function M.substitute()
+	local state = require("rip-substitute.state").state
+	local match = state.selectedMatch
+	if not match then return end
+	local line = vim.api.nvim_buf_get_lines(state.targetBuf, match.row, match.row + 1, false)[1]
+	local start = match.col
+	local _end = match.col + #match.matchedText
+
+	local newLine = line:sub(1, start) .. match.replacementText .. line:sub(_end + 1)
+
+	vim.api.nvim_buf_set_lines(state.targetBuf, match.row, match.row + 1, false, { newLine })
 end
 
---------------------------------------------------------------------------------
-
-function M.executeSubstitution()
+function M.substituteAll()
 	local state = require("rip-substitute.state").state
 	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
 
-	local code, results = runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
+	local code, results = M.runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
 	if code ~= 0 then
 		local errorMsg = vim.trim(table.concat(results, "\n"))
 		u.notify(errorMsg, "error")
@@ -91,112 +117,117 @@ function M.executeSubstitution()
 end
 
 --------------------------------------------------------------------------------
+--- RANGE: FILTER MATCHES
+--- PERF For single files, `rg` gives us results sorted by lines, so we can
+--- `slice` instead of `filter` to improve performance.
+---@param matches RipSubstituteMatch
+---@param range CmdRange
+local function getMatchesInRange(matches, range)
+	local rangeStartIdx, rangeEndIdx
+	for i, match in ipairs(matches) do
+		local inRange = match.row >= range.start and match.row <= range.end_
+		if rangeStartIdx == nil and inRange then rangeStartIdx = i end
+		if rangeStartIdx and match.row > range.end_ then
+			rangeEndIdx = i - 1
+			break
+		end
+	end
+	if rangeStartIdx == nil then return end -- no matches in range
+	return vim.list_slice(matches, rangeStartIdx, rangeEndIdx)
+end
+
+---@param matches RipSubstituteMatch
+---@param viewStartLnum number
+---@param viewEndLnum number
+---@return number | nil
+---@return number | nil
+local function getViewportRange(matches, viewStartLnum, viewEndLnum)
+	-- VIEWPORT: FILTER MATCHES
+	local viewStartIdx, viewEndIdx
+	for i, match in ipairs(matches) do
+		if not viewStartIdx and match.row >= viewStartLnum and match.row <= viewEndLnum then
+			viewStartIdx = i
+		end
+		if viewStartIdx and match.row > viewEndLnum then
+			viewEndIdx = i - 1
+			break
+		end
+	end
+end
+
+---@param match RipSubstituteMatch
+---@param selected boolean
+function M.highlightReplacement(match, selected)
+	local config = require("rip-substitute.config").config
+	local state = require("rip-substitute.state").state
+	local hl_group = selected and config.incrementalPreview.hlGroups.currentMatch
+		or config.incrementalPreview.hlGroups.replacement
+	vim.api.nvim_buf_set_extmark(state.targetBuf, state.incPreviewNs, match.row, match.col, {
+		virt_text = {
+			{
+				match.replacementText,
+				hl_group,
+			},
+		},
+		virt_text_pos = "inline",
+		hl_mode = "replace",
+		strict = false,
+		conceal = match.matchedText,
+		end_col = match.col + #match.matchedText,
+		end_row = match.row,
+	})
+end
+
+--TODO: apparently some highlights that we want to keep get removed anyway-> todo comments
+--
+---@param match RipSubstituteMatch
+---@param selected boolean
+function M.highlightMatch(match, selected)
+	local config = require("rip-substitute.config").config
+	local state = require("rip-substitute.state").state
+	if not state then return end
+	local hlGroup = selected and config.incrementalPreview.hlGroups.currentMatch
+		or config.incrementalPreview.hlGroups.match
+	vim.api.nvim_buf_add_highlight(
+		state.targetBuf,
+		state.incPreviewNs,
+		hlGroup,
+		match.row,
+		match.col,
+		match.col + #match.matchedText
+	)
+end
 
 ---Creates an increments preview of search matches & replacements in the
----viewport, and returns the total number of matches. Searches are hidden via
----`conceal` (requires `conceallevel` >= 2), and replacements are inserted as
----inline virtual text. The total count is derived from this function to avoid
----re-running `rg` just
----for the count.
+---viewport, and returns the total number of matches. (The total count is derived
+---from this function to avoid re-running `rg` just for the count.)
 ---@param viewStartLnum number
 ---@param viewEndLnum number
 function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	local state = require("rip-substitute.state").state
 	state.matchCount = 0
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
-	local hlGroup = require("rip-substitute.config").config.incrementalPreview.matchHlGroup
 
-	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
-	if toSearch == "" then return end
+	local matches = state.matches
+	if not matches or #matches == 0 then return end
+	if state.range then matches = getMatchesInRange(matches, state.range) end
+	if not matches or #matches == 0 then return end
 
-	-- DETERMINE MATCHES
-	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
-	local code, searchMatches = runRipgrep(rgArgs)
-	if code ~= 0 then return end
+	state.matchCount = #matches
 
-	-- RANGE: FILTER MATCHES
-	-- PERF For single files, `rg` gives us results sorted by lines, so we can
-	-- `slice` instead of `filter` to improve performance.
-	local rangeStartIdx, rangeEndIdx
-	if state.range then
-		for i = 1, #searchMatches do
-			local lnum = tonumber(searchMatches[i]:match("^(%d+):"))
-			local inRange = lnum >= state.range.start and lnum <= state.range.end_
-			if rangeStartIdx == nil and inRange then rangeStartIdx = i end
-			if rangeStartIdx and lnum > state.range.end_ then
-				rangeEndIdx = i - 1
-				break
-			end
-		end
-		if rangeStartIdx == nil then return end -- no matches in range
-		searchMatches = vim.list_slice(searchMatches, rangeStartIdx, rangeEndIdx)
-	end
-
-	state.matchCount = #searchMatches
-
-	-- VIEWPORT: FILTER MATCHES
-	local viewStartIdx, viewEndIdx
-	for i = 1, #searchMatches do
-		local lnum = tonumber(searchMatches[i]:match("^(%d+):"))
-		if not viewStartIdx and lnum >= viewStartLnum and lnum <= viewEndLnum then
-			viewStartIdx = i
-		end
-		if viewStartIdx and lnum > viewEndLnum then
-			viewEndIdx = i - 1
-			break
-		end
-	end
-	if not viewStartIdx then return end -- no matches in viewport
-	if not viewEndIdx then viewEndIdx = #searchMatches end -- viewport is at end of file
+	local viewStartIdx, viewEndIdx = getViewportRange(matches, viewStartLnum, viewEndLnum)
+	if not viewStartIdx or not viewEndIdx then return end
 
 	-- SEARCH: HIGHLIGHT MATCHES
 	-- hide when there is a replacement value
 	local matchEndcolsInViewport = {}
-	vim.iter(searchMatches):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(match)
-		local matchEndCol = match.col + #match.text
-		if toReplace == "" then
-			vim.api.nvim_buf_add_highlight(
-				state.targetBuf,
-				state.incPreviewNs,
-				hlGroup,
-				match.lnum,
-				match.col,
-				matchEndCol
-			)
+	vim.iter(matches):slice(viewStartIdx, viewEndIdx):each(function(match)
+		local selected = state.selectedMatch == match
+		if match.replacementText == "" then
+			M.highlightMatch(match, selected)
 		else
-			-- INFO requires `conceallevel` >= 2
-			vim.api.nvim_buf_set_extmark(state.targetBuf, state.incPreviewNs, match.lnum, match.col, {
-				conceal = "",
-				end_col = matchEndCol,
-				end_row = match.lnum,
-			})
-
-			-- INFO saving the end columns to correctly position the replacements.
-			-- For single files, `rg` gives us results sorted by line & column, so
-			-- that we can simply collect them in a list.
-			table.insert(matchEndcolsInViewport, matchEndCol)
+			M.highlightReplacement(match, selected)
 		end
-	end)
-
-	-- REPLACE: INSERT AS VIRTUAL TEXT
-	if toReplace == "" then return end
-
-	table.insert(rgArgs, "--replace=" .. toReplace)
-	local code2, replacements = runRipgrep(rgArgs)
-	if code2 ~= 0 then return #searchMatches end
-
-	if state.range then replacements = vim.list_slice(replacements, rangeStartIdx, rangeEndIdx) end
-
-	vim.iter(replacements):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(repl)
-		local matchEndCol = table.remove(matchEndcolsInViewport, 1)
-		local virtText = { repl.text, hlGroup }
-		vim.api.nvim_buf_set_extmark(
-			state.targetBuf,
-			state.incPreviewNs,
-			repl.lnum,
-			matchEndCol,
-			{ virt_text = { virtText }, virt_text_pos = "inline" }
-		)
 	end)
 end
 
