@@ -61,11 +61,11 @@ interface and contemporary regex syntax.
 ## Installation
 **Requirements**
 - [ripgrep](https://github.com/BurntSushi/ripgrep) with `pcre2` support
-	+ homebrew: `brew install ripgrep` (already includes `pcre2` by default)
-	+ cargo: `cargo install ripgrep --features "pcre2"`
+	+ `brew install ripgrep` (already includes `pcre2` by default)
+	+ `cargo install ripgrep --features "pcre2"`
 	+ You can also use this plugin without `pcre2` by setting
-	  `regexOptions.pcre2 = false` in the [plugin config](#configuration).
-- `nvim` >= 0.10
+	  `regexOptions.pcre2 = false` in the config.
+- nvim >= 0.10
 - `:TSInstall regex` (only needed for syntax highlighting)
 
 ```lua
