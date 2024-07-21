@@ -20,16 +20,16 @@ local defaultConfig = {
 	keymaps = {
 		-- normal & visual mode
 		confirm = "<CR>",
-		confirmAll = "<S-CR>",
+		confirmSingle = "<S-CR>",
 		abort = "q",
-		prevSubst = "<A-Up>",
-		nextSubst = "<A-Down>",
-		prevMatch = "<Up>",
-		nextMatch = "<Down>",
+		prevSubst = "<Up>",
+		nextSubst = "<Down>",
+		prevMatch = "N",
+		nextMatch = "n",
 		openAtRegex101 = "R",
 		-- insert
 		insertModeConfirm = "<C-CR>",
-		insertModeConfirmAll = "<C-S-CR>",
+		insertModeConfirmSingle = "<C-S-CR>",
 	},
 	incrementalPreview = {
 		hlGroups = {

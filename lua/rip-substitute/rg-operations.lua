@@ -1,11 +1,11 @@
 local M = {}
-local config = require("rip-substitute.config").config
 local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
 ---@return string
 ---@return string
 local function getSearchAndReplaceValuesFromPopup()
+	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 
 	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, false))
@@ -28,6 +28,7 @@ end
 ---@return number exitCode
 ---@return string[] stdoutOrStderr
 function M.runRipgrep(rgArgs)
+	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 
 	-- args
@@ -50,6 +51,7 @@ end
 ---@return string
 ---@return string
 function M.getSearchAndReplaceValuesFromPopup()
+	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 
 	local toSearch, toReplace = unpack(vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, false))
@@ -137,7 +139,8 @@ end
 ---@param matches RipSubstituteMatch
 ---@param viewStartLnum number
 ---@param viewEndLnum number
----@return number|nil, number | nil
+---@return number | nil
+---@return number | nil
 local function getViewportRange(matches, viewStartLnum, viewEndLnum)
 	-- VIEWPORT: FILTER MATCHES
 	local viewStartIdx, viewEndIdx
@@ -154,48 +157,44 @@ end
 
 ---@param match RipSubstituteMatch
 ---@param selected boolean
----@param targetBuf number
----@param incPreviewNs number
-function M.highlightReplacement(match, selected, targetBuf, incPreviewNs)
+function M.highlightReplacement(match, selected)
+	local config = require("rip-substitute.config").config
+	local state = require("rip-substitute.state").state
 	local hl_group = selected and config.incrementalPreview.hlGroups.currentMatch
 		or config.incrementalPreview.hlGroups.replacement
-	local ok, err = pcall(
-		function()
-			vim.api.nvim_buf_set_extmark(targetBuf, incPreviewNs, match.row, match.col, {
-				virt_text = {
-					{
-						match.replacementText,
-						hl_group,
-					},
-				},
-				virt_text_pos = "inline",
-				hl_mode = "replace",
-				strict = false,
-				conceal = match.matchedText,
-				end_col = match.col + #match.matchedText,
-				end_row = match.row,
-			})
-		end
-	)
+	vim.api.nvim_buf_set_extmark(state.targetBuf, state.incPreviewNs, match.row, match.col, {
+		virt_text = {
+			{
+				match.replacementText,
+				hl_group,
+			},
+		},
+		virt_text_pos = "inline",
+		hl_mode = "replace",
+		strict = false,
+		conceal = match.matchedText,
+		end_col = match.col + #match.matchedText,
+		end_row = match.row,
+	})
 end
 
 --TODO: apparently some highlights that we want to keep get removed anyway-> todo comments
 --
 ---@param match RipSubstituteMatch
 ---@param selected boolean
----@param targetBuf number
----@param incPreviewNs number
----@param matchEndCol number
-function M.highlightMatch(match, selected, targetBuf, incPreviewNs, matchEndCol)
+function M.highlightMatch(match, selected)
+	local config = require("rip-substitute.config").config
+	local state = require("rip-substitute.state").state
+	if not state then return end
 	local hlGroup = selected and config.incrementalPreview.hlGroups.currentMatch
 		or config.incrementalPreview.hlGroups.match
 	vim.api.nvim_buf_add_highlight(
-		targetBuf,
-		incPreviewNs,
+		state.targetBuf,
+		state.incPreviewNs,
 		hlGroup,
 		match.row,
 		match.col,
-		matchEndCol
+		match.col + #match.matchedText
 	)
 end
 
@@ -223,21 +222,11 @@ function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
 	-- hide when there is a replacement value
 	local matchEndcolsInViewport = {}
 	vim.iter(matches):slice(viewStartIdx, viewEndIdx):each(function(match)
+		local selected = state.selectedMatch == match
 		if match.replacementText == "" then
-			M.highlightMatch(
-				match,
-				state.selectedMatch == match,
-				state.targetBuf,
-				state.incPreviewNs,
-				match.col + #match.matchedText
-			)
+			M.highlightMatch(match, selected)
 		else
-			M.highlightReplacement(
-				match,
-				state.selectedMatch == match,
-				state.targetBuf,
-				state.incPreviewNs
-			)
+			M.highlightReplacement(match, selected)
 		end
 	end)
 end

@@ -1,14 +1,5 @@
 local M = {}
 --------------------------------------------------------------------------------
----@param table table
----@param cb function(value: any): boolean
-function M.indexOf(table, cb)
-	for index, value in ipairs(table) do
-		if cb(value) then return index end
-	end
-	return nil
-end
-
 ---@param msg string
 ---@param level? "info"|"trace"|"debug"|"warn"|"error"
 function M.notify(msg, level)

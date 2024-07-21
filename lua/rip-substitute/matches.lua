@@ -29,7 +29,6 @@ function M.getMatches()
 	local code, matched = rg.runRipgrep {
 		"--line-number",
 		"--column",
-		"--vimgrep",
 		"--no-filename",
 		"--only-matching",
 		toSearch,
@@ -58,7 +57,6 @@ function M.getMatches()
 			local rgArgs = {
 				"--line-number",
 				"--column",
-				"--vimgrep",
 				"--no-filename",
 				"--only-matching",
 				"--replace=" .. toReplace,
@@ -136,14 +134,11 @@ local function updateSelectedMatchHighlight(replacing, newSelectedMatchIndex)
 		state.selectedMatch.row + 1
 	)
 	if replacing then
-		rg.highlightReplacement(state.selectedMatch, false, state.targetBuf,
-			state.incPreviewNs)
+		rg.highlightReplacement(state.selectedMatch, false)
 	else
 		rg.highlightMatch(
 			state.selectedMatch,
 			false,
-			state.targetBuf,
-			state.incPreviewNs,
 			state.selectedMatch.col + #state.selectedMatch.matchedText
 		)
 	end
@@ -156,61 +151,56 @@ local function updateSelectedMatchHighlight(replacing, newSelectedMatchIndex)
 		state.selectedMatch.row + 1
 	)
 	if replacing then
-		rg.highlightReplacement(state.selectedMatch, false, state.targetBuf,
-			state.incPreviewNs)
+		rg.highlightReplacement(state.selectedMatch, false)
 	else
 		rg.highlightMatch(
 			state.selectedMatch,
-			true,
-			state.targetBuf,
-			state.incPreviewNs,
-			state.selectedMatch.col + #state.selectedMatch.matchedText
+			true
 		)
 	end
 end
 
-function M.selectPrevMatch()
+---@param match RipSubstituteMatch
+---@return number | nil
+local function indexOfMatch(match)
+	local state = require("rip-substitute.state").state
+	for index, _match in ipairs(state.matches) do
+		if match == _match then return index end
+	end
+	return nil
+end
+
+---@param direction "next" | "prev"
+local function cycleMatches(direction)
 	local state = require("rip-substitute.state").state
 	local selectedMatch = state.selectedMatch
 	if not selectedMatch then return end
-	local currentMatchIndex = utils.indexOf(
-		state.matches,
-		function(m) return m == selectedMatch end
-	)
-	local prevIndex = -1
-	if currentMatchIndex == 1 then
-		prevIndex = #state.matches
+	local currentMatchIndex = indexOfMatch(selectedMatch)
+	local newIndex = -1
+	local matchCount = #state.matches
+	if direction == "prev" then
+		newIndex = currentMatchIndex == 1 and matchCount or currentMatchIndex - 1
 	else
-		prevIndex = currentMatchIndex - 1
+		newIndex = currentMatchIndex == matchCount and 1 or currentMatchIndex + 1
 	end
 	local replacing = selectedMatch.replacementText ~= ""
-	updateSelectedMatchHighlight(replacing, prevIndex)
+	updateSelectedMatchHighlight(replacing, newIndex)
 	M.centerViewportOnMatch(state.selectedMatch)
 end
 
 function M.selectNextMatch()
-	local state = require("rip-substitute.state").state
-	local selectedMatch = state.selectedMatch
-	if not selectedMatch then return end
-	local replacing = selectedMatch.replacementText ~= ""
-	local currentMatchIndex = utils.indexOf(
-		state.matches,
-		function(m) return m == selectedMatch end
-	)
-	local nextIndex = -1
-	if currentMatchIndex == #state.matches then
-		nextIndex = 1
-	else
-		nextIndex = currentMatchIndex + 1
-	end
-	updateSelectedMatchHighlight(replacing, nextIndex)
-	M.centerViewportOnMatch(state.selectedMatch)
+	cycleMatches("next")
 end
+
+function M.selectPrevMatch()
+	cycleMatches("prev")
+end
+
 
 ---@param match RipSubstituteMatch
 function M.centerViewportOnMatch(match)
 	local state = require("rip-substitute.state").state
-	local padding = 5
+	local padding = vim.o.scrolloff
 	local row, col = match.row + 1, match.col
 	local topLine, botLine = utils.getViewport()
 	if row < (topLine + padding) or row > (botLine - padding) then
