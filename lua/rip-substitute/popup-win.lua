@@ -73,7 +73,7 @@ local function confirmSubstitution()
 
 	require("rip-substitute.rg-operations").executeSubstitution()
 	closePopupWin()
-	if vim.fn.mode() == "i" then vim.cmd.stopinsert() end
+	vim.cmd.stopinsert()
 end
 
 local function updateMatchCount()
