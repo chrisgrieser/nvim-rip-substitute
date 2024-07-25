@@ -310,9 +310,9 @@ function M.openSubstitutionPopup(searchPrefill)
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			ensureOnly2LinesInPopup()
+			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end
 			rg.incrementalPreviewAndMatchCount(viewStartLn, viewEndLn)
 			updateMatchCount()
-			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end
 			local newWidth = adaptivePopupWidth(minWidth)
 			setPopupLabelsIfEnoughSpace(newWidth) -- should be last
 		end,
