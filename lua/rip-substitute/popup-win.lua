@@ -255,12 +255,11 @@ function M.openSubstitutionPopup(searchPrefill)
 	local title = rangeTitle or config.popupWin.title
 
 	-- CREATE WINDOW
-	local offsetScrollbar = 2
-	local popupZindex = 40 -- below nvim-notify which uses 50
+	local popupZindex = 49 -- below nvim-notify (50), above scrollbars (satellite uses 40)
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
-		row = config.popupWin.position == "top" and 0 or vim.api.nvim_win_get_height(0) - 3,
-		col = vim.api.nvim_win_get_width(0) - 1 - minWidth - offsetScrollbar,
+		row = config.popupWin.position == "top" and 0 or vim.api.nvim_win_get_height(0),
+		col = vim.api.nvim_win_get_width(0) - minWidth,
 		width = minWidth,
 		height = 2,
 
