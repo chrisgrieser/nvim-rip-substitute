@@ -1,5 +1,4 @@
 local M = {}
-local notify = require("rip-substitute.utils").notify
 --------------------------------------------------------------------------------
 
 ---@class ripSubstituteConfig
@@ -53,6 +52,7 @@ M.config = defaultConfig
 ---@param userConfig? ripSubstituteConfig
 function M.setup(userConfig)
 	M.config = vim.tbl_deep_extend("force", M.config, userConfig or {})
+	local notify = require("rip-substitute.utils").notify
 
 	-- VALIDATE `rg` installations not built with `pcre2`, see #3
 	if M.config.regexOptions.pcre2 then
@@ -71,13 +71,6 @@ function M.setup(userConfig)
 		local fallback = defaultConfig.popupWin.border
 		M.config.popupWin.border = fallback
 		local msg = ('Border "none" is not supported, falling back to %q.'):format(fallback)
-		notify(msg, "warn")
-	end
-
-	-- DEPRECATION
-	if M.config.incrementalPreview.hlGroups then
-		local msg =
-			"`incrementalPreview.hlGroups.{name}` is deprecated, use `incrementalPreview.matchHlGroup` instead."
 		notify(msg, "warn")
 	end
 end
