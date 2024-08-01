@@ -64,7 +64,7 @@ interface and contemporary regex syntax.
 	+ `brew install ripgrep` (already includes `pcre2` by default)
 	+ `cargo install ripgrep --features "pcre2"`
 	+ You can also use this plugin without `pcre2` by setting
-	  `regexOptions.pcre2 = false` in the config.
+	  `regexOptions.pcre2 = false` in the config
 - nvim >= 0.10
 - `:TSInstall regex` (only needed for syntax highlighting)
 
@@ -182,7 +182,7 @@ You can also pass a prefill for the search value, in which
 case the prefill is not escaped.
 
 ```vim
-:RipSubstitute prefilled string
+:RipSubstitute prefilled_string
 ```
 
 ## Advanced
