@@ -78,7 +78,7 @@ INSTALLATION                     *rip-substitute-rip-substitute--installation*
 **Requirements** - ripgrep <https://github.com/BurntSushi/ripgrep> with `pcre2`
 support + `brew install ripgrep` (already includes `pcre2` by default) + `cargo
 install ripgrep --features "pcre2"` + You can also use this plugin without
-`pcre2` by setting `regexOptions.pcre2 = false` in the config. - nvim >= 0.10 -
+`pcre2` by setting `regexOptions.pcre2 = false` in the config - nvim >= 0.10 -
 `:TSInstall regex` (only needed for syntax highlighting)
 
 >lua
@@ -196,11 +196,23 @@ You can also pass a prefill for the search value, in which case the prefill is
 not escaped.
 
 >vim
-    :RipSubstitute prefilled string
+    :RipSubstitute prefilled_string
 <
 
 
 ADVANCED                             *rip-substitute-rip-substitute--advanced*
+
+**Remember prefill** The function
+`require("rip-substitute").rememberCursorWord()` can be used to save the word
+under the cursor for the next time `rip-substitute` is called. (This will
+override any other prefill for that run.)
+
+One use case for this is to set a prefill for when you intend to run substitute
+with a range, since calling `rip-substitute` in visual line is not able to pick
+up a prefill.
+
+**Filetype** The popup window uses the filetype `rip-substitute`. This can be
+useful, for instance, to disable auto-pairing plugins in the popup window.
 
 **autoBraceSimpleCaptureGroups** A gotcha of `ripgrep`’s regex syntax is that
 it treats `$1a` as the named capture group "1a" and _not_ as the first capture
@@ -211,9 +223,6 @@ If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 `rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
-
-**Filetype** The popup window uses the filetype `rip-substitute`. This can be
-useful, for instance, to disable auto-pairing plugins in the popup window.
 
 
 LIMITATIONS                       *rip-substitute-rip-substitute--limitations*
