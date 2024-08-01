@@ -257,7 +257,7 @@ function M.openSubstitutionPopup()
 	local popupZindex = 49 -- below nvim-notify (50), above scrollbars (satellite uses 40)
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
-		anchor = "SE",
+		anchor = config.popupWin.position == "top" and "NE" or "SE",
 		row = config.popupWin.position == "top" and 0 or vim.api.nvim_win_get_height(0),
 		col = vim.api.nvim_win_get_width(0),
 		width = minWidth,
