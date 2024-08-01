@@ -17,6 +17,7 @@ local M = {}
 ---@field popupPresentContent? string[]
 ---@field historyPosition? number
 ---@field matchCount? number
+---@field searchPrefill? string
 ---@field rememberedPrefill? string
 M.state = {
 	popupHistory = {},
