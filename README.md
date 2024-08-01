@@ -186,6 +186,19 @@ case the prefill is not escaped.
 ```
 
 ## Advanced
+**Remember prefill**
+The function `require("rip-substitute").rememberCursorWord()` can be used to
+save the word under the cursor for the next time `rip-substitute` is called.
+(This will override any other prefill for that run.)
+
+One use case for this is to set a prefill for when you intend to run substitute 
+with a range, since calling `rip-substitute` in visual line is not able to pick
+up a prefill.
+
+**Filetype**  
+The popup window uses the filetype `rip-substitute`. This can be useful, for
+instance, to disable auto-pairing plugins in the popup window.
+
 **`autoBraceSimpleCaptureGroups`**  
 A gotcha of `ripgrep`'s regex syntax is that it treats `$1a` as the named
 capture group "1a" and *not* as the first capture group followed by the
@@ -195,10 +208,6 @@ If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 `rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
-
-**Filetype**  
-The popup window uses the filetype `rip-substitute`. This can be useful, for
-instance, to disable auto-pairing plugins in the popup window.
 
 ## Limitations
 - `--multiline` and various other flags are not supported yet.
