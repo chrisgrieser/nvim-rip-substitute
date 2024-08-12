@@ -49,6 +49,9 @@ end
 local function closePopupWin()
 	local state = require("rip-substitute.state").state
 
+	-- empty cache (relevant for larger buffers)
+	require("rip-substitute.state").targetBufCache = ""
+
 	-- history: save last popup content for next run
 	local lastPopupContent = state.popupPresentContent or getPopupLines()
 	state.popupPresentContent = nil
