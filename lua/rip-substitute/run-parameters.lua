@@ -41,16 +41,20 @@ function M.setParameters(exCmdArgs)
 	end
 
 	-- SET STATE
-	require("rip-substitute.state").update {
-		targetBuf = vim.api.nvim_get_current_buf(),
+	local stateModule = require("rip-substitute.state")
+	local bufnr = vim.api.nvim_get_current_buf()
+	stateModule.update {
+		targetBuf = bufnr,
 		targetWin = vim.api.nvim_get_current_win(),
 		labelNs = vim.api.nvim_create_namespace("rip-substitute-labels"),
 		incPreviewNs = vim.api.nvim_create_namespace("rip-substitute-incpreview"),
-		targetFile = vim.api.nvim_buf_get_name(0),
 		range = range,
 		rememberedPrefill = nil, -- reset for subsequent runs
 		searchPrefill = searchPrefill,
 	}
+
+	local targetBufLines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+	stateModule.targetBufCache = table.concat(targetBufLines, "\n")
 end
 
 --------------------------------------------------------------------------------

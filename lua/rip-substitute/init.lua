@@ -23,15 +23,6 @@ end
 
 ---@param exCmdArgs? exCmdArgs
 function M.sub(exCmdArgs)
-	vim.cmd("silent! update") -- ensure changes are written, so `rg` can read them, see #8
-
-	local currentFile = vim.api.nvim_buf_get_name(0)
-	if vim.uv.fs_stat(currentFile) == nil then
-		local u = require("rip-substitute.utils")
-		u.notify("rip-substitute: There is no file for the current buffer.", "error")
-		return
-	end
-
 	require("rip-substitute.run-parameters").setParameters(exCmdArgs)
 	require("rip-substitute.popup-win").openSubstitutionPopup()
 end

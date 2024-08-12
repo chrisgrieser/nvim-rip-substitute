@@ -7,7 +7,6 @@ local M = {}
 ---@class (exact) RipSubstituteState
 ---@field targetBuf number
 ---@field targetWin number
----@field targetFile string
 ---@field range CmdRange|false
 ---@field labelNs number
 ---@field incPreviewNs number
@@ -23,6 +22,9 @@ M.state = {
 	popupHistory = {},
 	matchCount = 0,
 }
+
+---@type string
+M.targetBufCache = ""
 
 ---@param newState RipSubstituteState
 function M.update(newState) M.state = vim.tbl_deep_extend("force", M.state, newState) end

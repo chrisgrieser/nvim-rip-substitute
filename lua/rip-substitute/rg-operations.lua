@@ -7,21 +7,20 @@ local u = require("rip-substitute.utils")
 ---@return string[] stdoutOrStderr
 local function runRipgrep(rgArgs)
 	local config = require("rip-substitute.config").config
-	local state = require("rip-substitute.state").state
+	local targetBufCache = require("rip-substitute.state").targetBufCache
 
-	-- args
-	local args = vim.deepcopy(rgArgs) -- copy, since list_extend modifies the *passed* original
-	table.insert(args, 1, "rg")
-	vim.list_extend(args, {
+	local args = {
+		"rg",
+		"--no-config",
 		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
 		"--" .. config.regexOptions.casing,
-		"--no-config",
-		"--",
-		state.targetFile,
-	})
+	}
+	vim.list_extend(args, rgArgs)
 
-	-- results
-	local result = vim.system(args):wait()
+	-- INFO reading from stdin instead of the file to deal with unsaved changes
+	-- (#8) and to be able to handle non-file buffers
+	local result = vim.system(args, { stdin = targetBufCache }):wait()
+
 	local text = result.code == 0 and result.stdout or result.stderr
 	return result.code, vim.split(vim.trim(text or ""), "\n")
 end
