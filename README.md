@@ -35,14 +35,14 @@ interface and contemporary regex syntax.
 	+ No more dealing with delimiters.
 - **Sensible defaults**: entire buffer (`%`), all matches in a line
   (`/g`), case-sensitive (`/I`).
-- **Range support**
+- Substitute only in a **range**, with visual emphasis of the range
 - **History** of previous substitutions.
 - **Performant**: In a file with 5000 lines and thousands of matches, still
   performs *blazingly fast*.™
 - **Regex101 integration**: Open the planned substitution in a pre-configured
   [regex101](https://regex101.com/) browser-tab for debugging.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
-  adaptive popup window width, visual emphasis of the active range, …
+  adaptive popup window width, automatic capture group insertion, …
 - Syntax comparison:
   ```txt
   # all three are equivalent
@@ -155,10 +155,10 @@ vim.keymap.set(
 )
 ```
 
-- Normal mode: prefills the cursorword.
-- Visual mode: prefills the selection.
+- Normal mode: prefills the word under the cursor
+- Visual mode: prefills the selection
 - Visual **line** mode: replacements are only applied to the selected lines
-  (the selection is used as range).
+  (= the selection is used as range)
 
 **Ex command**  
 Alternatively, you can use the ex command `:RipSubstitute`, which also
@@ -186,7 +186,7 @@ case the prefill is not escaped.
 ```
 
 ## Advanced
-**Remember prefill**
+**Remember prefill**  
 The function `require("rip-substitute").rememberCursorWord()` can be used to
 save the word under the cursor for the next time `rip-substitute` is called.
 (This will override any other prefill for that run.)
