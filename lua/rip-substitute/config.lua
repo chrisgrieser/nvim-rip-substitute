@@ -22,8 +22,8 @@ local defaultConfig = {
 		insertModeConfirm = "<C-CR>",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
-		openAtRegex101 = "R",
 		toggleFixedStrings = "<C-f>",
+		openAtRegex101 = "R",
 	},
 	incrementalPreview = {
 		matchHlGroup = "IncSearch",

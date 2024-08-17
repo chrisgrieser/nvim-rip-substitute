@@ -113,8 +113,8 @@ require("rip-substitute").setup {
 		insertModeConfirm = "<C-CR>",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
-		openAtRegex101 = "R",
 		toggleFixedStrings = "<C-f>",
+		openAtRegex101 = "R",
 	},
 	incrementalPreview = {
 		matchHlGroup = "IncSearch",
@@ -189,9 +189,9 @@ case the prefill is not escaped.
 **Remember prefill**  
 The function `require("rip-substitute").rememberCursorWord()` can be used to
 save the word under the cursor for the next time `rip-substitute` is called.
-(This will override any other prefill for that run.)
+(This overrides any other prefill for that run.)
 
-One use case for this is to set a prefill for when you intend to run substitute 
+One use case for this is to set a prefill for when you intend to run substitute
 with a range, since calling `rip-substitute` in visual line is not able to pick
 up a prefill.
 

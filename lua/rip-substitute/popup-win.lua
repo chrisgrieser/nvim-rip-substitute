@@ -302,8 +302,8 @@ function M.openSubstitutionPopup()
 	-- 2. shorten them as much as possible, to keep the popup width small
 	local m = config.keymaps
 	local keymapHint = #state.popupHistory == 0
-			and ("%s Confirm  %s Abort"):format(m.confirm, m.abort)
-		or ("%s/%s Prev/Next  %s regex101"):format(m.prevSubst, m.nextSubst, m.openAtRegex101)
+			and ("%s confirm  %s abort"):format(m.confirm, m.abort)
+		or ("%s/%s history  %s literal"):format(m.prevSubst, m.nextSubst, m.toggleFixedStrings)
 	keymapHint = keymapHint -- using only utf symbols, so they work w/o nerd fonts
 		:gsub("<[Cc][Rr]>", "↩")
 		:gsub("<[dD]own>", "↓")
