@@ -9,6 +9,7 @@ local function runRipgrep(rgArgs)
 	local config = require("rip-substitute.config").config
 	local targetBufCache = require("rip-substitute.state").targetBufCache
 	local state = require("rip-substitute.state").state
+	local windowsEol = vim.bo[state.targetBuf].fileformat == "dos"
 
 	local args = {
 		"rg",
@@ -16,11 +17,12 @@ local function runRipgrep(rgArgs)
 		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
 		"--" .. config.regexOptions.casing,
 		state.useFixedStrings and "--fixed-strings" or "--no-fixed-strings",
+		windowsEol and "--crlf" or "--no-crlf", -- see #17
 	}
 	vim.list_extend(args, rgArgs)
 
 	-- INFO reading from stdin instead of the file to deal with unsaved changes
-	-- (#8) and to be able to handle non-file buffers
+	-- (see #8) and to be able to handle non-file buffers
 	local result = vim.system(args, { stdin = targetBufCache }):wait()
 
 	local text = result.code == 0 and result.stdout or result.stderr
