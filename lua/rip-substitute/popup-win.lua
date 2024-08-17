@@ -133,7 +133,7 @@ local function adaptivePopupWidth(minWidth)
 	local currentOpts = vim.api.nvim_win_get_config(state.popupWinNr)
 	local searchLine, replaceLine = unpack(getPopupLines())
 	local longestLine = math.max(#searchLine, #replaceLine)
-	local newWidth = math.max(longestLine + 2, minWidth) -- + 2 for win boders
+	local newWidth = math.max(longestLine + 2, minWidth) -- + 2 for win borders
 	local diff = newWidth - currentOpts.width
 	if diff ~= 0 then vim.api.nvim_win_set_config(state.popupWinNr, { width = newWidth }) end
 	setPopupLabelsIfEnoughSpace(newWidth)
