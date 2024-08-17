@@ -133,15 +133,7 @@ local function adaptivePopupWidth(minWidth)
 	local lineLength = #vim.api.nvim_get_current_line() + 2 -- +2 for the border
 	local newWidth = math.max(lineLength, minWidth)
 	local diff = newWidth - currentOpts.width
-	if diff ~= 0 then
-		vim.api.nvim_win_set_config(state.popupWinNr, {
-			win = state.targetWin,
-			relative = currentOpts.relative,
-			row = currentOpts.row,
-			col = currentOpts.col - diff,
-			width = newWidth,
-		})
-	end
+	if diff ~= 0 then vim.api.nvim_win_set_config(state.popupWinNr, { width = newWidth }) end
 	return newWidth
 end
 
