@@ -212,6 +212,54 @@ local function rangeBackdrop(popupZindex)
 	end
 end
 
+local function createKeymaps()
+	local keymaps = require("rip-substitute.config").config.keymaps
+	local state = require("rip-substitute.state").state
+	local opts = { buffer = state.popupBufNr, nowait = true }
+
+	-- confirm & abort
+	vim.keymap.set({ "n", "x" }, keymaps.abort, closePopupWin, opts)
+	vim.keymap.set({ "n", "x" }, keymaps.confirm, confirmSubstitution, opts)
+	vim.keymap.set("i", keymaps.insertModeConfirm, confirmSubstitution, opts)
+
+	-- also close the popup on leaving buffer, ensures there is not leftover
+	-- buffer when user closes popup in a different way, such as `:close`.
+	vim.api.nvim_create_autocmd("BufLeave", {
+		once = true,
+		buffer = state.popupBufNr,
+		group = vim.api.nvim_create_augroup("rip-substitute-popup-leave", {}),
+		callback = closePopupWin,
+	})
+
+	-- regex101
+	vim.keymap.set(
+		{ "n", "x" },
+		keymaps.openAtRegex101,
+		function() require("rip-substitute.open-at-regex101").request() end,
+		opts
+	)
+
+	-- history keymaps
+	state.historyPosition = #state.popupHistory + 1
+	vim.keymap.set({ "n", "x" }, keymaps.prevSubst, function()
+		if state.historyPosition < 2 then return end
+		if state.historyPosition == #state.popupHistory + 1 then
+			state.popupPresentContent = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
+		end
+		state.historyPosition = state.historyPosition - 1
+		local content = state.popupHistory[state.historyPosition]
+		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
+	end, opts)
+	vim.keymap.set({ "n", "x" }, keymaps.nextSubst, function()
+		if state.historyPosition == #state.popupHistory + 1 then return end -- already at present
+		state.historyPosition = state.historyPosition + 1
+		local content = state.historyPosition == #state.popupHistory + 1 and state.popupPresentContent
+			or state.popupHistory[state.historyPosition]
+		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
+	end, opts)
+end
+
+
 --------------------------------------------------------------------------------
 
 function M.openSubstitutionPopup()
@@ -320,49 +368,7 @@ function M.openSubstitutionPopup()
 		end,
 	})
 
-	-- KEYMAPS & POPUP CLOSING
-	local opts = { buffer = state.popupBufNr, nowait = true }
-
-	-- confirm & abort
-	vim.keymap.set({ "n", "x" }, config.keymaps.abort, closePopupWin, opts)
-	vim.keymap.set({ "n", "x" }, config.keymaps.confirm, confirmSubstitution, opts)
-	vim.keymap.set("i", config.keymaps.insertModeConfirm, confirmSubstitution, opts)
-
-	-- regex101
-	vim.keymap.set(
-		{ "n", "x" },
-		config.keymaps.openAtRegex101,
-		function() require("rip-substitute.open-at-regex101").request() end,
-		opts
-	)
-
-	-- history keymaps
-	state.historyPosition = #state.popupHistory + 1
-	vim.keymap.set({ "n", "x" }, config.keymaps.prevSubst, function()
-		if state.historyPosition < 2 then return end
-		if state.historyPosition == #state.popupHistory + 1 then
-			state.popupPresentContent = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
-		end
-		state.historyPosition = state.historyPosition - 1
-		local content = state.popupHistory[state.historyPosition]
-		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
-	end, opts)
-	vim.keymap.set({ "n", "x" }, config.keymaps.nextSubst, function()
-		if state.historyPosition == #state.popupHistory + 1 then return end -- already at present
-		state.historyPosition = state.historyPosition + 1
-		local content = state.historyPosition == #state.popupHistory + 1 and state.popupPresentContent
-			or state.popupHistory[state.historyPosition]
-		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
-	end, opts)
-
-	-- also close the popup on leaving buffer, ensures there is not leftover
-	-- buffer when user closes popup in a different way, such as `:close`.
-	vim.api.nvim_create_autocmd("BufLeave", {
-		once = true,
-		buffer = state.popupBufNr,
-		group = vim.api.nvim_create_augroup("rip-substitute-popup-leave", {}),
-		callback = closePopupWin,
-	})
+	createKeymaps()
 end
 
 --------------------------------------------------------------------------------
