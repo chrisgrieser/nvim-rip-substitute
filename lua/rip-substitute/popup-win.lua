@@ -108,18 +108,20 @@ local function autoCaptureGroups()
 	if not featureEnabled or not cursorInSearchLine or state.useFixedStrings then return end
 
 	local toSearch, toReplace = unpack(getPopupLines())
-	local _, openParenCount = toSearch:gsub("%)", "")
-	local _, closeParenCount = toSearch:gsub("%([^?)]", "")
-	local balancedCount = math.min(openParenCount, closeParenCount)
+	local _, closeParenCount = toSearch:gsub("[^\\]%)", "")
+	local _, openParenCount1 = toSearch:gsub("^%([^)]", "")
+	local _, openParenCount2 = toSearch:gsub("[^\\]%([^)]", "")
+	local openParenCount = openParenCount1 + openParenCount2
+	local countOfBalancedParens = math.min(openParenCount, closeParenCount)
 
 	local captureCount = 0
-	for n = 1, balancedCount do
+	for n = 1, countOfBalancedParens do
 		local hasGroupN = toReplace:match("%$" .. n) or toReplace:match("%{" .. n .. "}")
 		if not hasGroupN then break end
 		captureCount = n
 	end
 
-	if captureCount < balancedCount then
+	if captureCount < countOfBalancedParens then
 		local newReplaceLine = toReplace .. "$" .. (captureCount + 1)
 		vim.api.nvim_buf_set_lines(state.popupBufNr, 1, 2, false, { newReplaceLine })
 	end

@@ -132,8 +132,8 @@ require("rip-substitute").setup {
 		autoBraceSimpleCaptureGroups = true,
 	},
 	editingBehavior = {
-		-- Experimental. When typing `()` in the `search` line, automatically
-		-- adds `$n` to the `replace` line.
+		-- When typing `()` in the `search` line, automatically adds `$n` to the
+		-- `replace` line.
 		autoCaptureGroups = false,
 	},
 	notificationOnSuccess = true,
