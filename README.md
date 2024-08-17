@@ -100,11 +100,14 @@ require("rip-substitute").setup {
 		matchCountHlGroup = "Keyword",
 		noMatchHlGroup = "ErrorMsg",
 		hideSearchReplaceLabels = false,
-		position = "bottom", -- "top"|"bottom"
+		---@type "top"|"bottom"
+		position = "bottom",
 	},
 	prefill = {
+		---@type "cursorWord"| false
 		normal = "cursorWord", -- "cursorWord"|false
-		visual = "selectionFirstLine", -- "selectionFirstLine"|false
+		---@type "selectionFirstLine"| false does not work with ex-command (see README).
+		visual = "selectionFirstLine",
 		startInReplaceLineIfPrefill = false,
 	},
 	keymaps = { -- normal & visual mode, if not stated otherwise
@@ -155,20 +158,20 @@ vim.keymap.set(
 )
 ```
 
-- Normal mode: prefills the word under the cursor
-- Visual mode: prefills the selection
-- Visual **line** mode: replacements are only applied to the selected lines
+- Normal mode: prefills the *escaped* word under the cursor
+- Visual mode: prefills the *escaped* selection
+- Visual *line* mode: replacements are only applied to the selected lines
   (= the selection is used as range)
 
-**Ex command**  
+**Ex-command**  
 Alternatively, you can use the ex command `:RipSubstitute`, which also
 accepts [a range
 argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges). Note that
-when using the ex command, visual mode and visual line mode both pass a range.
+when using the ex-command, visual mode and visual line mode both pass a range.
 To prefill the current selection, you therefore need to use the lua function.
 
 ```vim
-" Substitute in entire file. Prefills the cursorword.
+" Substitute in entire file. Prefills the *escaped* word under the cursor.
 :RipSubstitute
 
 " Substitute in line range of the visual selection.
@@ -178,11 +181,11 @@ To prefill the current selection, you therefore need to use the lua function.
 :.,$ RipSubstitute
 ```
 
-You can also pass a prefill for the search value, in which
-case the prefill is not escaped.
+You can also pass a prefill for the search value, in which case the prefill 
+is *not* escaped.
 
 ```vim
-:RipSubstitute prefilled_string
+:RipSubstitute prefilled_unescaped_string
 ```
 
 ## Advanced

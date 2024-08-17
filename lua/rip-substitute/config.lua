@@ -9,11 +9,14 @@ local defaultConfig = {
 		matchCountHlGroup = "Keyword",
 		noMatchHlGroup = "ErrorMsg",
 		hideSearchReplaceLabels = false,
-		position = "bottom", -- "top"|"bottom"
+		---@type "top"|"bottom"
+		position = "bottom",
 	},
 	prefill = {
-		normal = "cursorWord", -- "cursorWord"|false
-		visual = "selectionFirstLine", -- "selectionFirstLine"|false
+		---@type "cursorWord"| false
+		normal = "cursorWord", 
+		---@type "selectionFirstLine"| false does not work with ex-command (see README).
+		visual = "selectionFirstLine",
 		startInReplaceLineIfPrefill = false,
 	},
 	keymaps = { -- normal & visual mode, if not stated otherwise
@@ -41,8 +44,8 @@ local defaultConfig = {
 		autoBraceSimpleCaptureGroups = true,
 	},
 	editingBehavior = {
-		-- Experimental. When typing `()` in the `search` lines, automatically
-		-- add `$n` to the `replacement` line.
+		-- When typing `()` in the `search` line, automatically adds `$n` to the
+		-- `replace` line.
 		autoCaptureGroups = false,
 	},
 	notificationOnSuccess = true,
