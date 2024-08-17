@@ -18,9 +18,11 @@ local M = {}
 ---@field matchCount? number
 ---@field searchPrefill? string
 ---@field rememberedPrefill? string
+---@field useFixedStrings? boolean
 M.state = {
 	popupHistory = {},
 	matchCount = 0,
+	useFixedStrings = false,
 }
 
 ---@type string

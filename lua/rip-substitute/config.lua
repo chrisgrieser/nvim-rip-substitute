@@ -16,14 +16,14 @@ local defaultConfig = {
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
 		startInReplaceLineIfPrefill = false,
 	},
-	keymaps = {
-		-- normal & visual mode
-		confirm = "<CR>",
+	keymaps = { -- normal & visual mode, if not stated otherwise
 		abort = "q",
+		confirm = "<CR>",
+		insertModeConfirm = "<C-CR>",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
 		openAtRegex101 = "R",
-		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
+		toggleFixedStrings = "<C-f>",
 	},
 	incrementalPreview = {
 		matchHlGroup = "IncSearch",

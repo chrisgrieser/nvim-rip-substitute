@@ -101,10 +101,11 @@ local function updateMatchCount()
 end
 
 local function autoCaptureGroups()
+	-- GUARD
 	local state = require("rip-substitute.state").state
 	local cursorInSearchLine = vim.api.nvim_win_get_cursor(state.popupWinNr)[1] == 1
-	-- prevent updating replacement if editing replace line
-	if not cursorInSearchLine then return end
+	local featureEnabled = require("rip-substitute.config").config.editingBehavior.autoCaptureGroups
+	if not featureEnabled or not cursorInSearchLine or state.useFixedStrings then return end
 
 	local toSearch, toReplace = unpack(getPopupLines())
 	local _, openParenCount = toSearch:gsub("%)", "")
@@ -212,6 +213,22 @@ local function rangeBackdrop(popupZindex)
 	end
 end
 
+local function setPopupTitle()
+	local state = require("rip-substitute.state").state
+	local config = require("rip-substitute.config").config
+
+	local title = config.popupWin.title
+	if state.range then
+		title = "Range: " .. state.range.start
+		if state.range.start ~= state.range.end_ then title = title .. " – " .. state.range.end_ end
+		if state.useFixedStrings then title = title .. " [Fixed Strings]" end
+	elseif state.useFixedStrings then
+		title = "[Fixed Strings]"
+	end
+
+	vim.api.nvim_win_set_config(state.popupWinNr, { title = " " .. title .. " " })
+end
+
 local function createKeymaps()
 	local keymaps = require("rip-substitute.config").config.keymaps
 	local state = require("rip-substitute.state").state
@@ -257,13 +274,19 @@ local function createKeymaps()
 			or state.popupHistory[state.historyPosition]
 		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
 	end, opts)
-end
 
+	-- toggle fixed strings
+	vim.keymap.set({ "n", "x" }, keymaps.toggleFixedStrings, function()
+		state.useFixedStrings = not state.useFixedStrings
+		require("rip-substitute.rg-operations").incrementalPreviewAndMatchCount()
+		updateMatchCount()
+		setPopupTitle()
+	end, opts)
+end
 
 --------------------------------------------------------------------------------
 
 function M.openSubstitutionPopup()
-	local rg = require("rip-substitute.rg-operations")
 	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
 
@@ -295,15 +318,6 @@ function M.openSubstitutionPopup()
 	-- 11 for "234 matches" + 4 for border & padding of footer
 	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
 
-	local rangeTitle
-	if state.range then
-		rangeTitle = "Range: L" .. state.range.start
-		if state.range.start ~= state.range.end_ then
-			rangeTitle = rangeTitle .. " – L" .. state.range.end_
-		end
-	end
-	local title = rangeTitle or config.popupWin.title
-
 	-- CREATE WINDOW
 	local popupZindex = 49 -- below nvim-notify (50), above scrollbars (satellite uses 40)
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
@@ -316,12 +330,12 @@ function M.openSubstitutionPopup()
 
 		style = "minimal",
 		border = config.popupWin.border,
-		title = " " .. title .. " ",
 		zindex = popupZindex,
 		footer = {
 			{ " " .. keymapHint .. " ", "FloatBorder" },
 		},
 	})
+	setPopupTitle()
 	local winOpts = {
 		list = true,
 		listchars = "multispace:·,trail:·,lead:·,tab:▸▸,precedes:…,extends:…",
@@ -334,13 +348,13 @@ function M.openSubstitutionPopup()
 		vim.api.nvim_set_option_value(opt, value, { win = state.popupWinNr })
 	end
 
+	-- PREFILL and CURSOR PLACEMENT
 	if config.prefill.startInReplaceLineIfPrefill and state.searchPrefill ~= "" then
 		vim.api.nvim_win_set_cursor(state.popupWinNr, { 2, 0 })
 	end
 	vim.cmd.startinsert { bang = true }
 
 	-- LABELS, MATCH-HIGHLIGHTS, AND STATIC WINDOW
-	local viewStartLn, viewEndLn = u.getViewport()
 	setPopupLabelsIfEnoughSpace(minWidth)
 	rangeBackdrop(popupZindex)
 
@@ -360,11 +374,12 @@ function M.openSubstitutionPopup()
 		group = vim.api.nvim_create_augroup("rip-substitute-popup-changes", {}),
 		callback = function()
 			ensureOnly2LinesInPopup()
-			if config.editingBehavior.autoCaptureGroups then autoCaptureGroups() end
-			rg.incrementalPreviewAndMatchCount(viewStartLn, viewEndLn)
-			updateMatchCount()
+			autoCaptureGroups()
 			local newWidth = adaptivePopupWidth(minWidth)
 			setPopupLabelsIfEnoughSpace(newWidth) -- should be last
+
+			require("rip-substitute.rg-operations").incrementalPreviewAndMatchCount()
+			updateMatchCount()
 		end,
 	})
 

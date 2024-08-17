@@ -8,12 +8,14 @@ local u = require("rip-substitute.utils")
 local function runRipgrep(rgArgs)
 	local config = require("rip-substitute.config").config
 	local targetBufCache = require("rip-substitute.state").targetBufCache
+	local state = require("rip-substitute.state").state
 
 	local args = {
 		"rg",
 		"--no-config",
 		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
 		"--" .. config.regexOptions.casing,
+		state.useFixedStrings and "--fixed-strings" or "--no-fixed-strings",
 	}
 	vim.list_extend(args, rgArgs)
 
@@ -95,11 +97,9 @@ end
 ---viewport, and returns the total number of matches. Searches are hidden via
 ---`conceal` (requires `conceallevel` >= 2), and replacements are inserted as
 ---inline virtual text. The total count is derived from this function to avoid
----re-running `rg` just
----for the count.
----@param viewStartLnum number
----@param viewEndLnum number
-function M.incrementalPreviewAndMatchCount(viewStartLnum, viewEndLnum)
+---re-running `rg` just for the count.
+function M.incrementalPreviewAndMatchCount()
+	local viewStartLnum, viewEndLnum = u.getViewport()
 	local state = require("rip-substitute.state").state
 	state.matchCount = 0
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)

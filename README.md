@@ -42,7 +42,7 @@ interface and contemporary regex syntax.
 - **Regex101 integration**: Open the planned substitution in a pre-configured
   [regex101](https://regex101.com/) browser-tab for debugging.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
-  adaptive popup window width, automatic capture group insertion, …
+  adaptive popup window width, toggle `--fixed-strings`, …
 - Syntax comparison:
   ```txt
   # all three are equivalent
@@ -107,14 +107,14 @@ require("rip-substitute").setup {
 		visual = "selectionFirstLine", -- "selectionFirstLine"|false
 		startInReplaceLineIfPrefill = false,
 	},
-	keymaps = {
-		-- normal & visual mode
-		confirm = "<CR>",
+	keymaps = { -- normal & visual mode, if not stated otherwise
 		abort = "q",
+		confirm = "<CR>",
+		insertModeConfirm = "<C-CR>",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
 		openAtRegex101 = "R",
-		insertModeConfirm = "<C-CR>", -- (except this one, obviously)
+		toggleFixedStrings = "<C-f>",
 	},
 	incrementalPreview = {
 		matchHlGroup = "IncSearch",
