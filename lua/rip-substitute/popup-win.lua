@@ -126,15 +126,15 @@ local function autoCaptureGroups()
 end
 
 ---@param minWidth integer
----@return integer newWidth
 local function adaptivePopupWidth(minWidth)
 	local state = require("rip-substitute.state").state
 	local currentOpts = vim.api.nvim_win_get_config(state.popupWinNr)
-	local lineLength = #vim.api.nvim_get_current_line() + 2 -- +2 for the border
-	local newWidth = math.max(lineLength, minWidth)
+	local searchLine, replaceLine = unpack(getPopupLines())
+	local longestLine = math.max(#searchLine, #replaceLine)
+	local newWidth = math.max(longestLine + 2, minWidth) -- + 2 for win boders
 	local diff = newWidth - currentOpts.width
 	if diff ~= 0 then vim.api.nvim_win_set_config(state.popupWinNr, { width = newWidth }) end
-	return newWidth
+	setPopupLabelsIfEnoughSpace(newWidth)
 end
 
 ---Adds two dummy-windows with `blend` to achieve a backdrop-like effect before
@@ -367,8 +367,7 @@ function M.openSubstitutionPopup()
 		callback = function()
 			ensureOnly2LinesInPopup()
 			autoCaptureGroups()
-			local newWidth = adaptivePopupWidth(minWidth)
-			setPopupLabelsIfEnoughSpace(newWidth) -- should be last
+			adaptivePopupWidth(minWidth)
 
 			require("rip-substitute.rg-operations").incrementalPreviewAndMatchCount()
 			updateMatchCount()
