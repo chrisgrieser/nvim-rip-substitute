@@ -14,7 +14,7 @@ local defaultConfig = {
 	},
 	prefill = {
 		---@type "cursorWord"| false
-		normal = "cursorWord", 
+		normal = "cursorWord",
 		---@type "selectionFirstLine"| false does not work with ex-command (see README).
 		visual = "selectionFirstLine",
 		startInReplaceLineIfPrefill = false,
