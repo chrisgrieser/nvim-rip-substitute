@@ -1,6 +1,11 @@
 local version = vim.version()
 if version.major == 0 and version.minor < 10 then
-	vim.notify('"nvim-rip-substitute" requires at least nvim 0.10.', vim.log.levels.WARN)
+	vim.notify('"nvim-rip-substitute" requires at least nvim 0.10.', vim.log.levels.ERROR)
+	return
+end
+if vim.fn.executable("rg") == 0 then
+	local msg = '"nvim-rip-substitute" requires `ripgrep`, which cannot be found.'
+	vim.notify(msg, vim.log.levels.ERROR)
 	return
 end
 --------------------------------------------------------------------------------

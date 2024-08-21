@@ -57,12 +57,6 @@ function M.setup(userConfig)
 	M.config = vim.tbl_deep_extend("force", M.config, userConfig or {})
 	local notify = require("rip-substitute.utils").notify
 
-	if vim.fn.executable("rg") == 0 then
-		local msg = "ripgrep not found. Please install ripgrep."
-		notify(msg, "error")
-		return
-	end
-
 	-- VALIDATE `rg` installations not built with `pcre2`, see #3
 	if M.config.regexOptions.pcre2 then
 		vim.system({ "rg", "--pcre2-version" }, {}, function(out)
