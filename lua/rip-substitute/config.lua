@@ -26,6 +26,7 @@ local defaultConfig = {
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
 		toggleFixedStrings = "<C-f>",
+		toggleCaseSensitive = "<C-c>c",
 		openAtRegex101 = "R",
 	},
 	incrementalPreview = {
