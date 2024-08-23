@@ -36,6 +36,8 @@ local defaultConfig = {
 		},
 	},
 	regexOptions = {
+		-- Start with regex off
+		literalByDefault = false,
 		-- pcre2 enables lookarounds and backreferences, but performs slower
 		pcre2 = true,
 		---@type "case-sensitive"|"ignore-case"|"smart-case"

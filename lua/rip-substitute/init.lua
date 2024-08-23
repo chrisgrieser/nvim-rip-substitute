@@ -16,7 +16,12 @@ local M = {}
 --------------------------------------------------------------------------------
 
 ---@param userConfig? ripSubstituteConfig
-function M.setup(userConfig) require("rip-substitute.config").setup(userConfig) end
+function M.setup(userConfig)
+	require("rip-substitute.config").setup(userConfig)
+	if userConfig.regexOptions.literalByDefault then
+		require("rip-substitute.state").state.useFixedStrings = true
+	end
+end
 
 function M.rememberCursorWord()
 	local state = require("rip-substitute.state").state
