@@ -36,6 +36,7 @@ local defaultConfig = {
 		},
 	},
 	regexOptions = {
+		startWithFixedStringsOn = false,
 		-- pcre2 enables lookarounds and backreferences, but performs slower
 		pcre2 = true,
 		---@type "case-sensitive"|"ignore-case"|"smart-case"
@@ -56,6 +57,10 @@ M.config = defaultConfig
 function M.setup(userConfig)
 	M.config = vim.tbl_deep_extend("force", M.config, userConfig or {})
 	local notify = require("rip-substitute.utils").notify
+
+	if M.config.regexOptions.startWithFixedStringsOn then
+		require("rip-substitute.state").state.useFixedStrings = true
+	end
 
 	-- VALIDATE `rg` installations not built with `pcre2`, see #3
 	if M.config.regexOptions.pcre2 then

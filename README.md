@@ -127,6 +127,7 @@ require("rip-substitute").setup {
 		},
 	},
 	regexOptions = {
+		startWithFixedStringsOn = false,
 		-- pcre2 enables lookarounds and backreferences, but performs slower
 		pcre2 = true,
 		---@type "case-sensitive"|"ignore-case"|"smart-case"
