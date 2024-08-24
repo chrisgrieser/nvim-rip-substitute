@@ -212,7 +212,7 @@ local function setPopupTitle()
 	local config = require("rip-substitute.config").config
 
 	local title
-	if (state.useIgnoreCase or state.useFixedStrings) then
+	if state.useIgnoreCase or state.useFixedStrings then
 		title = ""
 		title = state.useFixedStrings and title .. " --fixed-strings" or title
 		title = state.useIgnoreCase and title .. " --ignore-case" or title
