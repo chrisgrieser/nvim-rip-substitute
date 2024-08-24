@@ -22,7 +22,7 @@ function M.setParameters(exCmdArgs)
 		vim.cmd.normal { '"zy', bang = true }
 		searchPrefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
 	end
-	if not exCmdHasSearchPrefill and not config.regexOptions.literalByDefault then
+	if not exCmdHasSearchPrefill and not config.regexOptions.startWithFixedStringsOn then
 		-- escape special chars only when not using prefill and not literal mode
 		-- by default
 		searchPrefill = searchPrefill:gsub("[.(){}[%]*+?^$]", [[\%1]])
