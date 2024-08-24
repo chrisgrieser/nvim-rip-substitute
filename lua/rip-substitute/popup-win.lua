@@ -211,14 +211,18 @@ local function setPopupTitle()
 	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
 
-	local title = config.popupWin.title
-	if state.range then
+	local title
+	if (state.useIgnoreCase or state.useFixedStrings) then
+		title = ""
+		title = state.useFixedStrings and title .. " --fixed-strings" or title
+		title = state.useIgnoreCase and title .. " --ignore-case" or title
+		title = vim.trim(title)
+	elseif state.range then
 		title = "Range: " .. state.range.start
 		if state.range.start ~= state.range.end_ then title = title .. " – " .. state.range.end_ end
+	else
+		title = config.popupWin.title
 	end
-
-	title = state.useFixedStrings and title .. " -F" or title
-	title = state.useIgnoreCase and title .. " -i" or title
 
 	vim.api.nvim_win_set_config(state.popupWinNr, { title = " " .. title .. " " })
 end
