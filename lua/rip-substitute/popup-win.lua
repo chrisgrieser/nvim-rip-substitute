@@ -319,12 +319,12 @@ function M.openSubstitutionPopup()
 		:gsub("<[Uu]p>", "↑")
 		:gsub("<[Rr]ight>", "→")
 		:gsub("<[Ll]eft>", "←")
-		:gsub("<[Tt]ab>", "↹")
+		:gsub("<[Tt]ab>", "↹ ")
 		:gsub("<[Ss]pace>", "⎵")
 		:gsub("<[Bb][Ss]>", "⌫")
-		:gsub("<[Cc]%-(.)>", "⌃%1")
-		:gsub("<[Mm]%-(.)>", "⌥%1")
-		:gsub("<[Dd]%-(.)>", "⌘%1") -- D-key -> macOS cmd key
+		:gsub("<[Cc]%-(.)>", function(char) return "⌃" .. char:upper() end)
+		:gsub("<[Mm]%-(.)>", function(char) return "⌥" .. char:upper() end)
+		:gsub("<[Dd]%-(.)>", function(char) return "⌘" .. char:upper() end) -- D-key -> macOS cmd key
 		:gsub(" (%a) ", " %1: ") -- add colon for single letters, so it's clear it's a keymap
 		:gsub("^(%a) ", "%1: ")
 	-- 11 for "234 matches" + 4 for border & padding of footer
