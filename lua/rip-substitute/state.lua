@@ -19,12 +19,12 @@ local M = {}
 ---@field searchPrefill? string
 ---@field rememberedPrefill? string
 ---@field useFixedStrings? boolean
----@field caseSensitive? boolean
+---@field useCaseSensitive? boolean
 M.state = {
 	popupHistory = {},
 	matchCount = 0,
 	useFixedStrings = false,
-	caseSensitive = false,
+	useCaseSensitive = false,
 }
 
 ---@type string

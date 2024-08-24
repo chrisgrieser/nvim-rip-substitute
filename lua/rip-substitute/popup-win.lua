@@ -217,17 +217,8 @@ local function setPopupTitle()
 		if state.range.start ~= state.range.end_ then title = title .. " – " .. state.range.end_ end
 	end
 
-	if state.useFixedStrings then
-		title = title .. " 󰑑 󰅙"
-	else
-		title = title .. " 󰑑 󰗠"
-	end
-
-	if state.caseSensitive then
-		title = title .. " Aa 󰗠"
-	else
-		title = title .. " Aa 󰅙"
-	end
+	title = state.useFixedStrings and title .. " -F" or title
+	title = state.useCaseSensitive and title .. " -s" or title .. " -i"
 
 	vim.api.nvim_win_set_config(state.popupWinNr, { title = " " .. title .. " " })
 end
@@ -288,7 +279,7 @@ local function createKeymaps()
 
 	-- toggle case sensitive
 	vim.keymap.set({ "n", "x" }, keymaps.toggleCaseSensitive, function()
-		state.caseSensitive = not state.caseSensitive
+		state.useCaseSensitive = not state.useCaseSensitive
 		require("rip-substitute.rg-operations").incrementalPreviewAndMatchCount()
 		updateMatchCount()
 		setPopupTitle()
@@ -314,12 +305,7 @@ function M.openSubstitutionPopup()
 	local m = config.keymaps
 	local keymapHint = #state.popupHistory == 0
 			and ("%s confirm  %s abort"):format(m.confirm, m.abort)
-		or ("%s/%s history  %s literal %s case sensitive"):format(
-			m.prevSubst,
-			m.nextSubst,
-			m.toggleFixedStrings,
-			m.toggleCaseSensitive
-		)
+		or ("%s/%s history %s literal"):format(m.prevSubst, m.nextSubst, m.toggleFixedStrings)
 	keymapHint = keymapHint -- using only utf symbols, so they work w/o nerd fonts
 		:gsub("<[Cc][Rr]>", "↩")
 		:gsub("<[dD]own>", "↓")

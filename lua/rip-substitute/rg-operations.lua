@@ -17,7 +17,7 @@ local function runRipgrep(rgArgs)
 		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
 		"--" .. config.regexOptions.casing,
 		state.useFixedStrings and "--fixed-strings" or "--no-fixed-strings",
-		state.caseSensitive and "--case-sensitive" or "--ignore-case",
+		state.useCaseSensitive and "--case-sensitive" or "--ignore-case",
 		windowsEol and "--crlf" or "--no-crlf", -- see #17
 	}
 	vim.list_extend(args, rgArgs)
