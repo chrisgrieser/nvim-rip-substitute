@@ -110,14 +110,14 @@ require("rip-substitute").setup {
 		visual = "selectionFirstLine",
 		startInReplaceLineIfPrefill = false,
 	},
-	keymaps = { -- normal & visual mode if not stated otherwise
+	keymaps = { -- normal & visual mode, if not stated otherwise
 		abort = "q",
 		confirm = "<CR>",
 		insertModeConfirm = "<C-CR>",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
-		toggleFixedStrings = "<C-f>",
-		toggleCaseSensitive = "<C-c>",
+		toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
+		toggleIgnoreCase = "<C-c>", -- ripgrep's `--ignore-case`
 		openAtRegex101 = "R",
 	},
 	incrementalPreview = {
@@ -129,7 +129,7 @@ require("rip-substitute").setup {
 	},
 	regexOptions = {
 		startWithFixedStringsOn = false,
-		startWithCaseInsensitive = false,
+		startWithIgnoreCase = false,
 		-- pcre2 enables lookarounds and backreferences, but performs slower
 		pcre2 = true,
 		-- disable if you use named capture groups (see README for details)

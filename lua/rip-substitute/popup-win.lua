@@ -218,7 +218,7 @@ local function setPopupTitle()
 	end
 
 	title = state.useFixedStrings and title .. " -F" or title
-	title = state.useCaseInsensitive and title .. " -i" or title
+	title = state.useIgnoreCase and title .. " -i" or title
 
 	vim.api.nvim_win_set_config(state.popupWinNr, { title = " " .. title .. " " })
 end
@@ -278,8 +278,8 @@ local function createKeymaps()
 	end, opts)
 
 	-- toggle case sensitive
-	vim.keymap.set({ "n", "x" }, keymaps.toggleCaseInsensitive, function()
-		state.useCaseInsensitive = not state.useCaseInsensitive
+	vim.keymap.set({ "n", "x" }, keymaps.toggleIgnoreCase, function()
+		state.useIgnoreCase = not state.useIgnoreCase
 		require("rip-substitute.rg-operations").incrementalPreviewAndMatchCount()
 		updateMatchCount()
 		setPopupTitle()

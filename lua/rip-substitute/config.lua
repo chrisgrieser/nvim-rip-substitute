@@ -25,8 +25,8 @@ local defaultConfig = {
 		insertModeConfirm = "<C-CR>",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
-		toggleFixedStrings = "<C-f>",
-		toggleCaseInsensitive = "<C-c>",
+		toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
+		toggleIgnoreCase = "<C-c>", -- ripgrep's `--ignore-case`
 		openAtRegex101 = "R",
 	},
 	incrementalPreview = {
@@ -38,7 +38,7 @@ local defaultConfig = {
 	},
 	regexOptions = {
 		startWithFixedStringsOn = false,
-		startWithCaseInsensitive = false,
+		startWithIgnoreCase = false,
 		-- pcre2 enables lookarounds and backreferences, but performs slower
 		pcre2 = true,
 		-- disable if you use named capture groups (see README for details)
@@ -65,8 +65,8 @@ function M.setup(userConfig)
 	if M.config.regexOptions.startWithFixedStringsOn then
 		require("rip-substitute.state").state.useFixedStrings = true
 	end
-	if M.config.regexOptions.startWithCaseInsensitive then
-		require("rip-substitute.state").state.useCaseInsensitive = true
+	if M.config.regexOptions.startWithIgnoreCase then
+		require("rip-substitute.state").state.useIgnoreCase = true
 	end
 
 	-- VALIDATE `rg` installations not built with `pcre2`, see #3
