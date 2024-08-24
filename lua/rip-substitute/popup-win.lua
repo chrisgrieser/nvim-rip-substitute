@@ -307,18 +307,24 @@ function M.openSubstitutionPopup()
 	-- 1. display base keymaps on first run, and advanced keymaps on subsequent runs
 	-- 2. shorten them as much as possible, to keep the popup width small
 	local m = config.keymaps
-	local keymapHint = #state.popupHistory == 0
-			and ("%s confirm  %s abort"):format(m.confirm, m.abort)
-		or ("%s/%s history %s literal"):format(m.prevSubst, m.nextSubst, m.toggleFixedStrings)
+	local keymapHint = ("%s confirm  %s abort"):format(m.confirm, m.abort)
+	if #state.popupHistory > 0 then
+		keymapHint = #state.popupHistory % 2 == 0
+				and ("%s fixed  %s case"):format(m.toggleFixedStrings, m.toggleIgnoreCase)
+			or ("%s/%s history  %s regex101"):format(m.prevSubst, m.nextSubst, m.openAtRegex101)
+	end
 	keymapHint = keymapHint -- using only utf symbols, so they work w/o nerd fonts
 		:gsub("<[Cc][Rr]>", "↩")
 		:gsub("<[dD]own>", "↓")
 		:gsub("<[Uu]p>", "↑")
 		:gsub("<[Rr]ight>", "→")
 		:gsub("<[Ll]eft>", "←")
-		:gsub("<[Tt]ab>", "⭾ ")
+		:gsub("<[Tt]ab>", "↹")
 		:gsub("<[Ss]pace>", "⎵")
 		:gsub("<[Bb][Ss]>", "⌫")
+		:gsub("<[Cc]%-(.)>", "⌃%1")
+		:gsub("<[Mm]%-(.)>", "⌥%1")
+		:gsub("<[Dd]%-(.)>", "⌘%1") -- D-key -> macOS cmd key
 		:gsub(" (%a) ", " %1: ") -- add colon for single letters, so it's clear it's a keymap
 		:gsub("^(%a) ", "%1: ")
 	-- 11 for "234 matches" + 4 for border & padding of footer
