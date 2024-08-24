@@ -26,6 +26,7 @@ local defaultConfig = {
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
 		toggleFixedStrings = "<C-f>",
+		toggleCaseInsensitive = "<C-c>",
 		openAtRegex101 = "R",
 	},
 	incrementalPreview = {
@@ -37,10 +38,9 @@ local defaultConfig = {
 	},
 	regexOptions = {
 		startWithFixedStringsOn = false,
+		startWithCaseInsensitive = false,
 		-- pcre2 enables lookarounds and backreferences, but performs slower
 		pcre2 = true,
-		---@type "case-sensitive"|"ignore-case"|"smart-case"
-		casing = "case-sensitive",
 		-- disable if you use named capture groups (see README for details)
 		autoBraceSimpleCaptureGroups = true,
 	},
@@ -51,6 +51,9 @@ local defaultConfig = {
 	},
 	notificationOnSuccess = true,
 }
+
+--------------------------------------------------------------------------------
+
 M.config = defaultConfig
 
 ---@param userConfig? ripSubstituteConfig
@@ -58,8 +61,12 @@ function M.setup(userConfig)
 	M.config = vim.tbl_deep_extend("force", M.config, userConfig or {})
 	local notify = require("rip-substitute.utils").notify
 
+	-- set initial state for regex options
 	if M.config.regexOptions.startWithFixedStringsOn then
 		require("rip-substitute.state").state.useFixedStrings = true
+	end
+	if M.config.regexOptions.startWithCaseInsensitive then
+		require("rip-substitute.state").state.useCaseInsensitive = true
 	end
 
 	-- VALIDATE `rg` installations not built with `pcre2`, see #3

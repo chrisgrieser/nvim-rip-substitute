@@ -105,18 +105,19 @@ require("rip-substitute").setup {
 	},
 	prefill = {
 		---@type "cursorWord"| false
-		normal = "cursorWord", -- "cursorWord"|false
+		normal = "cursorWord",
 		---@type "selectionFirstLine"| false does not work with ex-command (see README).
 		visual = "selectionFirstLine",
 		startInReplaceLineIfPrefill = false,
 	},
-	keymaps = { -- normal & visual mode, if not stated otherwise
+	keymaps = { -- normal & visual mode if not stated otherwise
 		abort = "q",
 		confirm = "<CR>",
 		insertModeConfirm = "<C-CR>",
 		prevSubst = "<Up>",
 		nextSubst = "<Down>",
 		toggleFixedStrings = "<C-f>",
+		toggleCaseSensitive = "<C-c>",
 		openAtRegex101 = "R",
 	},
 	incrementalPreview = {
@@ -128,10 +129,9 @@ require("rip-substitute").setup {
 	},
 	regexOptions = {
 		startWithFixedStringsOn = false,
+		startWithCaseInsensitive = false,
 		-- pcre2 enables lookarounds and backreferences, but performs slower
 		pcre2 = true,
-		---@type "case-sensitive"|"ignore-case"|"smart-case"
-		casing = "case-sensitive",
 		-- disable if you use named capture groups (see README for details)
 		autoBraceSimpleCaptureGroups = true,
 	},
