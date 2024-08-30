@@ -95,7 +95,7 @@ end
 
 --------------------------------------------------------------------------------
 
----Creates an increments preview of search matches & replacements in the
+---Creates an incremental preview of search matches & replacements in the
 ---viewport, and returns the total number of matches. Searches are hidden via
 ---`conceal` (requires `conceallevel` >= 2), and replacements are inserted as
 ---inline virtual text. The total count is derived from this function to avoid
