@@ -77,9 +77,10 @@ INSTALLATION                     *rip-substitute-rip-substitute--installation*
 
 **Requirements** - ripgrep <https://github.com/BurntSushi/ripgrep> with `pcre2`
 support + `brew install ripgrep` (already includes `pcre2` by default) + `cargo
-install ripgrep --features "pcre2"` + You can also use this plugin without
-`pcre2` by setting `regexOptions.pcre2 = false` in the config - nvim >= 0.10 -
-`:TSInstall regex` (only needed for syntax highlighting)
+install ripgrep --features pcre2` - Alternatively, you can also use this plugin
+without `pcre2` by setting `regexOptions.pcre2 = false` in the config. However,
+you will then miss some features like lookaheads. - nvim >= 0.10 - optional:
+`:TSInstall regex` (adds syntax highlighting)
 
 >lua
     -- lazy.nvim
@@ -124,14 +125,14 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
             visual = "selectionFirstLine",
             startInReplaceLineIfPrefill = false,
         },
-        keymaps = { -- normal & visual mode if not stated otherwise
+        keymaps = { -- normal & visual mode, if not stated otherwise
             abort = "q",
             confirm = "<CR>",
             insertModeConfirm = "<C-CR>",
             prevSubst = "<Up>",
             nextSubst = "<Down>",
-            toggleFixedStrings = "<C-f>",
-            toggleCaseSensitive = "<C-c>",
+            toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
+            toggleIgnoreCase = "<C-c>", -- ripgrep's `--ignore-case`
             openAtRegex101 = "R",
         },
         incrementalPreview = {
@@ -143,7 +144,7 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
         },
         regexOptions = {
             startWithFixedStringsOn = false,
-            startWithCaseInsensitive = false,
+            startWithIgnoreCase = false,
             -- pcre2 enables lookarounds and backreferences, but performs slower
             pcre2 = true,
             -- disable if you use named capture groups (see README for details)
