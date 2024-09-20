@@ -28,6 +28,12 @@ end
 
 ---@param exCmdArgs? exCmdArgs
 function M.sub(exCmdArgs)
+	if not vim.bo.modifiable then
+		local u = require("rip-substitute.utils")
+		u.notify("Buffer is not modifiable.", "error")
+		return
+	end
+
 	require("rip-substitute.run-parameters").setParameters(exCmdArgs)
 	require("rip-substitute.popup-win").openSubstitutionPopup()
 end
