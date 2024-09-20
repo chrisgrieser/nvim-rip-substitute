@@ -64,9 +64,9 @@ interface and contemporary regex syntax.
 	+ `brew install ripgrep` (already includes `pcre2` by default)
 	+ `cargo install ripgrep --features pcre2`
 - Alternatively, you can also use this plugin without `pcre2` by setting
-  `regexOptions.pcre2 = false` in the config. However, you will then miss
-  some features like lookaheads.
-- nvim >= 0.10
+  `regexOptions.pcre2 = false` in the config. However, some features like
+  lookaheads are not supported then.
+- Nvim >= 0.10
 - optional: `:TSInstall regex` (adds syntax highlighting)
 
 ```lua
