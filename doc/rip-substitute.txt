@@ -79,8 +79,8 @@ INSTALLATION                     *rip-substitute-rip-substitute--installation*
 support + `brew install ripgrep` (already includes `pcre2` by default) + `cargo
 install ripgrep --features pcre2` - Alternatively, you can also use this plugin
 without `pcre2` by setting `regexOptions.pcre2 = false` in the config. However,
-you will then miss some features like lookaheads. - nvim >= 0.10 - optional:
-`:TSInstall regex` (adds syntax highlighting)
+some features like lookaheads are not supported then. - Nvim >= 0.10 -
+optional: `:TSInstall regex` (adds syntax highlighting)
 
 >lua
     -- lazy.nvim
@@ -124,6 +124,7 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
             ---@type "selectionFirstLine"| false does not work with ex-command (see README).
             visual = "selectionFirstLine",
             startInReplaceLineIfPrefill = false,
+            alsoPrefillReplaceLine = false,
         },
         keymaps = { -- normal & visual mode, if not stated otherwise
             abort = "q",
