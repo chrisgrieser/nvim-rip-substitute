@@ -16,7 +16,7 @@ local M = {}
 ---@field popupPresentContent? string[]
 ---@field historyPosition? number
 ---@field matchCount? number
----@field searchPrefill? string
+---@field prefill? string[]
 ---@field rememberedPrefill? string
 ---@field useFixedStrings? boolean
 ---@field useIgnoreCase? boolean

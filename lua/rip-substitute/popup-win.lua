@@ -298,7 +298,7 @@ function M.openSubstitutionPopup()
 
 	-- CREATE BUFFER
 	state.popupBufNr = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, { state.searchPrefill, "" })
+	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, state.prefill)
 	vim.api.nvim_buf_set_name(state.popupBufNr, "rip-substitute")
 	pcall(vim.treesitter.start, state.popupBufNr, "regex")
 	vim.api.nvim_set_option_value("filetype", "rip-substitute", { buf = state.popupBufNr })
@@ -360,8 +360,8 @@ function M.openSubstitutionPopup()
 		vim.api.nvim_set_option_value(opt, value, { win = state.popupWinNr })
 	end
 
-	-- PREFILL and CURSOR PLACEMENT
-	if config.prefill.startInReplaceLineIfPrefill and state.searchPrefill ~= "" then
+	-- CURSOR PLACEMENT
+	if config.prefill.startInReplaceLineIfPrefill and state.prefill[1] ~= "" then
 		vim.api.nvim_win_set_cursor(state.popupWinNr, { 2, 0 })
 	end
 	vim.cmd.startinsert { bang = true }

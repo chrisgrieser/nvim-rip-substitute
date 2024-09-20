@@ -18,6 +18,7 @@ local defaultConfig = {
 		---@type "selectionFirstLine"| false does not work with ex-command (see README).
 		visual = "selectionFirstLine",
 		startInReplaceLineIfPrefill = false,
+		alsoPrefillReplaceLine = false,
 	},
 	keymaps = { -- normal & visual mode, if not stated otherwise
 		abort = "q",
