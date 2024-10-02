@@ -224,7 +224,8 @@ local function setPopupTitle()
 		title = config.popupWin.title
 	end
 
-	vim.api.nvim_win_set_config(state.popupWinNr, { title = " " .. title .. " " })
+	if title ~= "" then title = " " .. title .. " " end
+	vim.api.nvim_win_set_config(state.popupWinNr, { title = title })
 end
 
 local function createKeymaps()
