@@ -6,6 +6,9 @@ local u = require("rip-substitute.utils")
 ---@return number exitCode
 ---@return string[] stdoutOrStderr
 local function runRipgrep(rgArgs)
+	local argOrderValid = rgArgs[#rgArgs - 1] == "--"
+	assert(argOrderValid, "Last 2 args must be `--` & searchValue for proper parsing.") -- see #26
+
 	local config = require("rip-substitute.config").config
 	local targetBufCache = require("rip-substitute.state").targetBufCache
 	local state = require("rip-substitute.state").state
@@ -56,7 +59,7 @@ function M.executeSubstitution()
 	local state = require("rip-substitute.state").state
 	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
 
-	local code, results = runRipgrep { toSearch, "--replace=" .. toReplace, "--line-number" }
+	local code, results = runRipgrep { "--replace=" .. toReplace, "--line-number", "--", toSearch }
 	if code ~= 0 then
 		local errorMsg = vim.trim(table.concat(results, "\n"))
 		u.notify(errorMsg, "error")
@@ -111,7 +114,7 @@ function M.incrementalPreviewAndMatchCount()
 	if toSearch == "" then return end
 
 	-- DETERMINE MATCHES
-	local rgArgs = { toSearch, "--line-number", "--column", "--only-matching" }
+	local rgArgs = { "--line-number", "--column", "--only-matching", "--", toSearch }
 	local code, searchMatches = runRipgrep(rgArgs)
 	if code ~= 0 then return end
 
@@ -182,7 +185,7 @@ function M.incrementalPreviewAndMatchCount()
 	-- REPLACE: INSERT AS VIRTUAL TEXT
 	if toReplace == "" then return end
 
-	table.insert(rgArgs, "--replace=" .. toReplace)
+	table.insert(rgArgs, 1, "--replace=" .. toReplace) -- prepend, so `-- searchValue` is still at the end
 	local code2, replacements = runRipgrep(rgArgs)
 	if code2 ~= 0 then return #searchMatches end
 
