@@ -12,7 +12,6 @@ local function runRipgrep(rgArgs)
 	local config = require("rip-substitute.config").config
 	local targetBufCache = require("rip-substitute.state").targetBufCache
 	local state = require("rip-substitute.state").state
-	local windowsEol = vim.bo[state.targetBuf].fileformat == "dos"
 
 	local args = {
 		"rg",
@@ -20,7 +19,7 @@ local function runRipgrep(rgArgs)
 		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
 		state.useFixedStrings and "--fixed-strings" or "--no-fixed-strings",
 		state.useIgnoreCase and "--ignore-case" or "--case-sensitive",
-		windowsEol and "--crlf" or "--no-crlf", -- see #17
+		"--no-crlf", -- see #17
 	}
 	vim.list_extend(args, rgArgs)
 
