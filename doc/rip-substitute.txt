@@ -18,8 +18,8 @@ Table of Contents                           *rip-substitute-table-of-contents*
 
 
 
-Performsearch and replace operations in the current buffer using a modern user
-interface and contemporary regex syntax.
+Searchand replace in the current buffer with incremental preview, a convenient
+UI, and modern regex syntax.
 
 
 <https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669>
