@@ -83,7 +83,7 @@ function M.executeSubstitution()
 	end
 
 	-- notify
-	if require("rip-substitute.config").config.notificationOnSuccess then
+	if require("rip-substitute.config").config.notification.onSuccess then
 		local count = state.matchCount
 		local s1 = count == 1 and "" or "s"
 		local msg = ("Replaced %d occurrence%s"):format(count, s1)

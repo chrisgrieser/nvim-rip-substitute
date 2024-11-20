@@ -50,7 +50,9 @@ local defaultConfig = {
 		-- `replace` line.
 		autoCaptureGroups = false,
 	},
-	notificationOnSuccess = true,
+	notification = {
+		onSuccess = true,
+	}
 }
 
 --------------------------------------------------------------------------------
@@ -68,6 +70,12 @@ function M.setup(userConfig)
 	end
 	if M.config.regexOptions.startWithIgnoreCase then
 		require("rip-substitute.state").state.useIgnoreCase = true
+	end
+
+	-- DEPRECATION
+	if M.config.notificationOnSuccess then ---@diagnostic disable-line: undefined-field
+		local msg = "`notificationOnSuccess` has been deprecated. Use `notification.onSuccess` instead."
+		notify(msg, "warn")
 	end
 
 	-- DEPRECATION

@@ -142,7 +142,9 @@ require("rip-substitute").setup {
 		-- `replace` line.
 		autoCaptureGroups = false,
 	},
-	notificationOnSuccess = true,
+	notification = {
+		onSuccess = true,
+	}
 }
 ```
 
