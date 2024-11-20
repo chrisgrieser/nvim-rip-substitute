@@ -53,7 +53,7 @@ local defaultConfig = {
 	notification = {
 		onSuccess = true,
 		icon = "", -- requires `snacks.nvim`
-	}
+	},
 }
 
 --------------------------------------------------------------------------------
@@ -75,7 +75,8 @@ function M.setup(userConfig)
 
 	-- DEPRECATION
 	if M.config.notificationOnSuccess then ---@diagnostic disable-line: undefined-field
-		local msg = "`notificationOnSuccess` has been deprecated. Use `notification.onSuccess` instead."
+		local msg =
+			"`notificationOnSuccess` has been deprecated. Use `notification.onSuccess` instead."
 		notify(msg, "warn")
 	end
 
