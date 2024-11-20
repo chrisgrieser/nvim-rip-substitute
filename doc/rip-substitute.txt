@@ -156,7 +156,10 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
             -- `replace` line.
             autoCaptureGroups = false,
         },
-        notificationOnSuccess = true,
+        notification = {
+            onSuccess = true,
+            icon = "", -- requires `snacks.nvim`
+        }
     }
 <
 
