@@ -1,7 +1,7 @@
 local M = {}
 --------------------------------------------------------------------------------
 
----@class ripSubstituteConfig
+---@class RipSubstitute.Config
 local defaultConfig = {
 	popupWin = {
 		title = " rip-substitute",
@@ -60,7 +60,7 @@ local defaultConfig = {
 
 M.config = defaultConfig
 
----@param userConfig? ripSubstituteConfig
+---@param userConfig? RipSubstitute.Config
 function M.setup(userConfig)
 	M.config = vim.tbl_deep_extend("force", M.config, userConfig or {})
 	local notify = require("rip-substitute.utils").notify

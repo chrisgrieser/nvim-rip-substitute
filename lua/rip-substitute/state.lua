@@ -1,25 +1,25 @@
 local M = {}
 
----@class (exact) CmdRange
+---@class (exact) RipSubstitute.CmdRange
 ---@field start number
 ---@field end_ number
 
----@class (exact) RipSubstituteState
----@field targetBuf number
----@field targetWin number
----@field range CmdRange|false
----@field labelNs number
----@field incPreviewNs number
----@field popupBufNr? number
----@field popupWinNr? number
+---@class (exact) RipSubstitute.State
 ---@field popupHistory? string[][]
----@field popupPresentContent? string[]
----@field historyPosition? number
 ---@field matchCount? number
----@field prefill? string[]
----@field rememberedPrefill? string
 ---@field useFixedStrings? boolean
 ---@field useIgnoreCase? boolean
+---@field targetBuf? number
+---@field targetWin? number
+---@field range? RipSubstitute.CmdRange|false
+---@field popupBufNr? number
+---@field popupWinNr? number
+---@field popupPresentContent? string[]
+---@field historyPosition? number
+---@field prefill? string[]
+---@field rememberedPrefill? string
+
+---@type RipSubstitute.State
 M.state = {
 	popupHistory = {},
 	matchCount = 0,
@@ -30,7 +30,7 @@ M.state = {
 ---@type string
 M.targetBufCache = ""
 
----@param newState RipSubstituteState
+---@param newState RipSubstitute.State
 function M.update(newState) M.state = vim.tbl_deep_extend("force", M.state, newState) end
 
 return M

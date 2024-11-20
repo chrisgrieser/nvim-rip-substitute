@@ -17,14 +17,15 @@ local function setPopupLabelsIfEnoughSpace(popupWidth)
 	if hide then return end
 
 	local state = require("rip-substitute.state").state
-	vim.api.nvim_buf_clear_namespace(state.popupBufNr, state.labelNs, 0, -1)
+	local ns = vim.api.nvim_create_namespace("rip-substitute.labels")
+	vim.api.nvim_buf_clear_namespace(state.popupBufNr, ns, 0, -1)
 
 	local popupLines = getPopupLines()
 	local labels = { " Search", "Replace" }
 	for i = 1, 2 do
 		local contentOverlapsLabel = #popupLines[i] >= (popupWidth - #labels[i])
 		if not contentOverlapsLabel then
-			vim.api.nvim_buf_set_extmark(state.popupBufNr, state.labelNs, i - 1, 0, {
+			vim.api.nvim_buf_set_extmark(state.popupBufNr, ns, i - 1, 0, {
 				virt_text = { { labels[i], "DiagnosticVirtualTextInfo" } },
 				virt_text_pos = "right_align",
 			})
@@ -65,7 +66,8 @@ local function closePopupWin()
 	if vim.api.nvim_buf_is_valid(state.popupBufNr) then
 		vim.api.nvim_buf_delete(state.popupBufNr, { force = true })
 	end
-	vim.api.nvim_buf_clear_namespace(0, state.incPreviewNs, 0, -1)
+	local ns = vim.api.nvim_create_namespace("rip-substitute.incPreview")
+	vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
 end
 
 local function confirmSubstitution()

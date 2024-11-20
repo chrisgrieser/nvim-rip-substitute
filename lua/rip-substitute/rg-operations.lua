@@ -105,8 +105,9 @@ end
 function M.incrementalPreviewAndMatchCount()
 	local viewStartLnum, viewEndLnum = u.getViewport()
 	local state = require("rip-substitute.state").state
+	local ns = vim.api.nvim_create_namespace("rip-substitute.incPreview")
 	state.matchCount = 0
-	vim.api.nvim_buf_clear_namespace(state.targetBuf, state.incPreviewNs, 0, -1)
+	vim.api.nvim_buf_clear_namespace(state.targetBuf, ns, 0, -1)
 	local hlGroup = require("rip-substitute.config").config.incrementalPreview.matchHlGroup
 
 	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
@@ -160,7 +161,7 @@ function M.incrementalPreviewAndMatchCount()
 		if toReplace == "" then
 			vim.api.nvim_buf_add_highlight(
 				state.targetBuf,
-				state.incPreviewNs,
+				ns,
 				hlGroup,
 				match.lnum,
 				match.col,
@@ -168,7 +169,7 @@ function M.incrementalPreviewAndMatchCount()
 			)
 		else
 			-- INFO requires `conceallevel` >= 2
-			vim.api.nvim_buf_set_extmark(state.targetBuf, state.incPreviewNs, match.lnum, match.col, {
+			vim.api.nvim_buf_set_extmark(state.targetBuf, ns, match.lnum, match.col, {
 				conceal = "",
 				end_col = matchEndCol,
 				end_row = match.lnum,
@@ -193,13 +194,10 @@ function M.incrementalPreviewAndMatchCount()
 	vim.iter(replacements):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(repl)
 		local matchEndCol = table.remove(matchEndcolsInViewport, 1)
 		local virtText = { repl.text, hlGroup }
-		vim.api.nvim_buf_set_extmark(
-			state.targetBuf,
-			state.incPreviewNs,
-			repl.lnum,
-			matchEndCol,
-			{ virt_text = { virtText }, virt_text_pos = "inline" }
-		)
+		vim.api.nvim_buf_set_extmark(state.targetBuf, ns, repl.lnum, matchEndCol, {
+			virt_text = { virtText },
+			virt_text_pos = "inline",
+		})
 	end)
 end
 

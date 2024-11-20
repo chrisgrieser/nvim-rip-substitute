@@ -29,7 +29,7 @@ function M.setParameters(exCmdArgs)
 	end
 
 	-- RANGE
-	---@type CmdRange|false
+	---@type RipSubstitute.CmdRange|false
 	local range = false
 	if mode == "V" then
 		vim.cmd.normal { "V", bang = true } -- leave visual mode, so marks are set
@@ -47,8 +47,6 @@ function M.setParameters(exCmdArgs)
 	stateModule.update {
 		targetBuf = bufnr,
 		targetWin = vim.api.nvim_get_current_win(),
-		labelNs = vim.api.nvim_create_namespace("rip-substitute-labels"),
-		incPreviewNs = vim.api.nvim_create_namespace("rip-substitute-incpreview"),
 		range = range,
 		rememberedPrefill = nil, -- reset for subsequent runs
 		prefill = { searchPrefill, replacePrefill },
