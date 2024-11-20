@@ -78,13 +78,6 @@ function M.setup(userConfig)
 		notify(msg, "warn")
 	end
 
-	-- DEPRECATION
-	if M.config.regexOptions.casing then
-		local msg = "`regexOptions.casing` has been deprecated. Use `regexOptions.startWithIgnoreCase` "
-			.. "instead, and toggle with `keymaps.toggleIgnoreCase`."
-		notify(msg, "warn")
-	end
-
 	-- VALIDATE `rg` installations not built with `pcre2`, see #3
 	if M.config.regexOptions.pcre2 then
 		vim.system({ "rg", "--pcre2-version" }, {}, function(out)
