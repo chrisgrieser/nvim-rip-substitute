@@ -52,6 +52,7 @@ local defaultConfig = {
 	},
 	notification = {
 		onSuccess = true,
+		icon = "", -- requires `snacks.nvim`
 	}
 }
 
