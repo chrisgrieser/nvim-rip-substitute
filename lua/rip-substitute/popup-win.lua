@@ -302,7 +302,7 @@ function M.openSubstitutionPopup()
 	-- CREATE BUFFER
 	state.popupBufNr = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, state.prefill)
-	vim.api.nvim_buf_set_name(state.popupBufNr, "rip-substitute")
+	vim.api.nvim_buf_set_name(state.popupBufNr, config.popupWin.title)
 	pcall(vim.treesitter.start, state.popupBufNr, "regex")
 	vim.api.nvim_set_option_value("filetype", "rip-substitute", { buf = state.popupBufNr })
 
