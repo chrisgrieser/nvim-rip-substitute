@@ -144,7 +144,7 @@ require("rip-substitute").setup {
 	},
 	notification = {
 		onSuccess = true,
-		icon = "", -- requires `snacks.nvim`
+		icon = "",
 	}
 }
 ```

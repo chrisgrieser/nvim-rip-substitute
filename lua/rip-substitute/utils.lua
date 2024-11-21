@@ -6,7 +6,12 @@ local M = {}
 function M.notify(msg, level)
 	if not level then level = "info" end
 	local icon = require("rip-substitute.config").config.notification.icon
-	vim.notify(msg, vim.log.levels[level:upper()], { title = "rip-substitute", icon = icon })
+	local opts = { title = "rip-substitute", icon = icon }
+
+	-- since nvim-notify does not support the `icon` field that snacks.nvim
+	if package.loaded["notify"] then opts.title = vim.trim(icon .. opts.title) end
+
+	vim.notify(msg, vim.log.levels[level:upper()], opts)
 end
 
 ---@return number startLnum
