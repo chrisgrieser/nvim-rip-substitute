@@ -158,7 +158,7 @@ CONFIGURATION                   *rip-substitute-rip-substitute--configuration*
         },
         notification = {
             onSuccess = true,
-            icon = "", -- requires `snacks.nvim`
+            icon = "",
         }
     }
 <
