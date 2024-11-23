@@ -57,7 +57,8 @@ local function closePopupWin()
 	local lastPopupContent = state.popupPresentContent or getPopupLines()
 	state.popupPresentContent = nil
 	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
-	if not isDuplicate then table.insert(state.popupHistory, lastPopupContent) end
+	local empty = vim.trim(lastPopupContent[1]) == "" and vim.trim(lastPopupContent[2]) == ""
+	if not isDuplicate and not empty then table.insert(state.popupHistory, lastPopupContent) end
 
 	-- close popup win and buffer
 	if vim.api.nvim_win_is_valid(state.popupWinNr) then
