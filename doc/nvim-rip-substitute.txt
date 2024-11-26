@@ -1,6 +1,19 @@
 *nvim-rip-substitute.txt*       For Neovim       Last change: 2024 November 26
 
 ==============================================================================
+Table of Contents                      *nvim-rip-substitute-table-of-contents*
+
+1. rip-substitute                        |nvim-rip-substitute-rip-substitute-|
+  - Table of Contents  |nvim-rip-substitute-rip-substitute--table-of-contents|
+  - Features                    |nvim-rip-substitute-rip-substitute--features|
+  - Installation            |nvim-rip-substitute-rip-substitute--installation|
+  - Configuration          |nvim-rip-substitute-rip-substitute--configuration|
+  - Usage                          |nvim-rip-substitute-rip-substitute--usage|
+  - Advanced                    |nvim-rip-substitute-rip-substitute--advanced|
+  - Limitations              |nvim-rip-substitute-rip-substitute--limitations|
+  - About the developer|nvim-rip-substitute-rip-substitute--about-the-developer|
+
+==============================================================================
 1. rip-substitute                        *nvim-rip-substitute-rip-substitute-*
 
 
