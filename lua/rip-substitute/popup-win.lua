@@ -92,7 +92,7 @@ local function updateMatchCount()
 	local keymapHint = currentFooter[#currentFooter]
 
 	local plural = state.matchCount == 1 and "" or "es"
-	local matchText = (" %s match%s "):format(state.matchCount, plural)
+	local matchText = (" %d match%s "):format(state.matchCount, plural)
 	local matchHighlight = state.matchCount > 0 and matchHlGroup or noMatchHlGroup
 
 	vim.api.nvim_win_set_config(state.popupWinNr, {
@@ -294,23 +294,14 @@ local function createKeymaps()
 	end, opts)
 end
 
---------------------------------------------------------------------------------
-
-function M.openSubstitutionPopup()
+-- 1. display base keymaps on first run, and advanced keymaps on subsequent runs
+-- 2. shorten them as much as possible, to keep the popup width small
+---@return string
+---@nodiscard
+local function initialKeymapHints()
+	local m = require("rip-substitute.config").config.keymaps
 	local state = require("rip-substitute.state").state
-	local config = require("rip-substitute.config").config
 
-	-- CREATE BUFFER
-	state.popupBufNr = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, state.prefill)
-	vim.api.nvim_buf_set_name(state.popupBufNr, config.popupWin.title)
-	pcall(vim.treesitter.start, state.popupBufNr, "regex")
-	vim.api.nvim_set_option_value("filetype", "rip-substitute", { buf = state.popupBufNr })
-
-	-- FOOTER & WIDTH
-	-- 1. display base keymaps on first run, and advanced keymaps on subsequent runs
-	-- 2. shorten them as much as possible, to keep the popup width small
-	local m = config.keymaps
 	local keymapHint = ("%s confirm  %s abort"):format(m.confirm, m.abort)
 	if #state.popupHistory > 0 then
 		keymapHint = #state.popupHistory % 2 == 0
@@ -331,6 +322,38 @@ function M.openSubstitutionPopup()
 		:gsub("<[Dd]%-(.)>", function(char) return "⌘" .. char:upper() end) -- D-key -> macOS cmd key
 		:gsub(" (%a) ", " %1: ") -- add colon for single letters, so it's clear it's a keymap
 		:gsub("^(%a) ", "%1: ")
+	return keymapHint
+end
+
+-- temporarily set conceal, so the incremental preview hides characters correctly
+local function temporarilySetConceal()
+	local state = require("rip-substitute.state").state
+	local previousConceal = vim.wo[state.targetWin].conceallevel
+	if previousConceal < 2 then
+		vim.wo[state.targetWin].conceallevel = 2
+		vim.api.nvim_create_autocmd("BufLeave", {
+			once = true,
+			buffer = state.popupBufNr,
+			callback = function() vim.wo[state.targetWin].conceallevel = previousConceal end,
+		})
+	end
+end
+
+--------------------------------------------------------------------------------
+
+function M.openSubstitutionPopup()
+	local state = require("rip-substitute.state").state
+	local config = require("rip-substitute.config").config
+
+	-- CREATE BUFFER
+	state.popupBufNr = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, state.prefill)
+	vim.api.nvim_buf_set_name(state.popupBufNr, config.popupWin.title)
+	pcall(vim.treesitter.start, state.popupBufNr, "regex")
+	vim.api.nvim_set_option_value("filetype", "rip-substitute", { buf = state.popupBufNr })
+
+	-- FOOTER & WIDTH
+	local keymapHint = initialKeymapHints()
 	-- 11 for "234 matches" + 4 for border & padding of footer
 	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
 
@@ -351,18 +374,13 @@ function M.openSubstitutionPopup()
 			{ " " .. keymapHint .. " ", "FloatBorder" },
 		},
 	})
-	setPopupTitle()
-	local winOpts = {
-		list = true,
-		listchars = "multispace:·,trail:·,lead:·,tab:▸▸,precedes:…,extends:…",
-		signcolumn = "no",
-		sidescrolloff = 0, -- no need for scrolloff, since we dynamically resize the window
-		scrolloff = 0,
-		winfixbuf = true,
-	}
-	for opt, value in pairs(winOpts) do
-		vim.api.nvim_set_option_value(opt, value, { win = state.popupWinNr })
-	end
+	local win = state.popupWinNr
+	vim.wo[win].list = true
+	vim.wo[win].listchars = "multispace:·,trail:·,lead:·,tab:▸▸,precedes:…,extends:…"
+	vim.wo[win].signcolumn = "no"
+	vim.wo[win].scrolloff = 0
+	vim.wo[win].sidescrolloff = 0 -- no need for scrolloff, since window is dynamically resized
+	vim.wo[win].winfixbuf = true
 
 	-- CURSOR PLACEMENT
 	if config.prefill.startInReplaceLineIfPrefill and state.prefill[1] ~= "" then
@@ -370,20 +388,12 @@ function M.openSubstitutionPopup()
 	end
 	vim.cmd.startinsert { bang = true }
 
-	-- LABELS, MATCH-HIGHLIGHTS, AND STATIC WINDOW
+	-- WINDOW LOOK AND BEHAVIOR
+	createKeymaps()
+	setPopupTitle()
 	setPopupLabelsIfEnoughSpace(minWidth)
 	rangeBackdrop(popupZindex)
-
-	-- temporarily set conceal for the incremental preview
-	local previousConceal = vim.wo[state.targetWin].conceallevel
-	if previousConceal < 2 then
-		vim.wo[state.targetWin].conceallevel = 2
-		vim.api.nvim_create_autocmd("BufLeave", {
-			once = true,
-			buffer = state.popupBufNr,
-			callback = function() vim.wo[state.targetWin].conceallevel = previousConceal end,
-		})
-	end
+	temporarilySetConceal()
 
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		buffer = state.popupBufNr,
@@ -397,8 +407,6 @@ function M.openSubstitutionPopup()
 			updateMatchCount()
 		end,
 	})
-
-	createKeymaps()
 end
 
 --------------------------------------------------------------------------------
