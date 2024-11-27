@@ -4,8 +4,8 @@
 <a href="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute">
 <img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute/shield"/></a>
 
-Search and replace in the current buffer with incremental preview, a convenient UI, 
-and modern regex syntax. 
+Search and replace in the current buffer with incremental preview, a convenient
+UI, and modern regex syntax. 
 
 <https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669>
 
@@ -74,6 +74,7 @@ and modern regex syntax.
 {
 	"chrisgrieser/nvim-rip-substitute",
 	cmd = "RipSubstitute",
+	opts = {}
 	keys = {
 		{
 			"<leader>fs",
@@ -87,6 +88,9 @@ and modern regex syntax.
 -- packer
 use {
 	"chrisgrieser/nvim-rip-substitute",
+	config = function() 
+		require("rip-substitute").setup()
+	end,
 }
 ```
 
@@ -187,7 +191,7 @@ To prefill the current selection, you therefore need to use the lua function.
 :.,$ RipSubstitute
 ```
 
-You can also pass a prefill for the search value, in which case the prefill 
+You can also pass a prefill for the search value, in which case the prefill
 is *not* escaped.
 
 ```vim
@@ -221,10 +225,9 @@ may want to disable this setting.
 ## Limitations
 - `--multiline` and various other flags are not supported yet.
 - This plugin only searches the current buffer. To search and replace in
-  multiple files via `ripgrep`, use
+  multiple files via `ripgrep`, use a plugin like
   [grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim).
 
-<!-- vale Google.FirstPerson = NO -->
 ## About the developer
 In my day job, I am a sociologist studying the social mechanisms underlying the
 digital economy. For my PhD project, I investigate the governance of the app
