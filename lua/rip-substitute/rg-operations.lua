@@ -115,6 +115,11 @@ function M.incrementalPreviewAndMatchCount()
 
 	-- GUARD INVALID SEARCH/REPLACE STRINGS
 	if toSearch == "" then return end
+	if toSearch:find("[\n\r]") and toReplace:find("[\n\r]") then
+		-- see #28 or https://github.com/chrisgrieser/nvim-rip-substitute/issues/28#issuecomment-2503761241
+		u.notify("Search and replace strings cannot contain newlines.", "error")
+		return
+	end
 
 	-- DETERMINE MATCHES
 	local rgArgs = { "--line-number", "--column", "--only-matching", "--", toSearch }

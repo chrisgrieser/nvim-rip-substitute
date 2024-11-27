@@ -223,7 +223,8 @@ regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
 ## Limitations
-- `--multiline` and various other flags are not supported yet.
+- Searching/replacing for line breaks (`\n` or `\r`) is not supported. [See
+  issue #28](https://github.com/chrisgrieser/nvim-rip-substitute/issues/28).
 - This plugin only searches the current buffer. To search and replace in
   multiple files via `ripgrep`, use a plugin like
   [grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim).
