@@ -106,11 +106,14 @@ function M.incrementalPreviewAndMatchCount()
 	local viewStartLnum, viewEndLnum = u.getViewport()
 	local state = require("rip-substitute.state").state
 	local ns = vim.api.nvim_create_namespace("rip-substitute.incPreview")
+	local hlGroup = require("rip-substitute.config").config.incrementalPreview.matchHlGroup
+	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
+
+	-- CLEAR PREVIOUS PREVIEW
 	state.matchCount = 0
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, ns, 0, -1)
-	local hlGroup = require("rip-substitute.config").config.incrementalPreview.matchHlGroup
 
-	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
+	-- GUARD INVALID SEARCH/REPLACE STRINGS
 	if toSearch == "" then return end
 
 	-- DETERMINE MATCHES
@@ -119,8 +122,8 @@ function M.incrementalPreviewAndMatchCount()
 	if code ~= 0 then return end
 
 	-- RANGE: FILTER MATCHES
-	-- PERF For single files, `rg` gives us results sorted by lines, so we can
-	-- `slice` instead of `filter` to improve performance.
+	-- PERF For single files, `rg` gives us results sorted by line number
+	-- already, so we can `slice` instead of `filter` to improve performance.
 	local rangeStartIdx, rangeEndIdx
 	if state.range then
 		for i = 1, #searchMatches do
