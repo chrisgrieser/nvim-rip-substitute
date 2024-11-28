@@ -75,6 +75,7 @@ local function confirmSubstitution()
 	local state = require("rip-substitute.state").state
 
 	-- block confirmation if no matches
+	-- (matchcount is also set to `0` when search or replace string is invalid)
 	if state.matchCount == 0 then return end
 
 	require("rip-substitute.rg-operations").executeSubstitution()
