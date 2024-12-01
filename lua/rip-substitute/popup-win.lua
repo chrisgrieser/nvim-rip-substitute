@@ -242,15 +242,6 @@ local function createKeymaps()
 	vim.keymap.set({ "n", "x" }, keymaps.confirm, confirmSubstitution, opts)
 	vim.keymap.set("i", keymaps.insertModeConfirm, confirmSubstitution, opts)
 
-	-- also close the popup on leaving buffer, ensures there is not leftover
-	-- buffer when user closes popup in a different way, such as `:close`.
-	vim.api.nvim_create_autocmd("BufLeave", {
-		once = true,
-		buffer = state.popupBufNr,
-		group = vim.api.nvim_create_augroup("rip-substitute-popup-leave", {}),
-		callback = closePopupWin,
-	})
-
 	-- regex101
 	vim.keymap.set(
 		{ "n", "x" },
@@ -407,6 +398,19 @@ function M.openSubstitutionPopup()
 			require("rip-substitute.rg-operations").incrementalPreviewAndMatchCount()
 			updateMatchCount()
 		end,
+	})
+
+	-- INFO this autocmd needs to come at the end, since autocmds of the same
+	-- type are triggered in order of their definition, and this autocmd running
+	-- before other `BufLeave` autocmds prevents their execution for some reason
+	-- not entirely clear to me.
+	vim.api.nvim_create_autocmd("BufLeave", {
+		once = true,
+		buffer = state.popupBufNr,
+		group = vim.api.nvim_create_augroup("rip-substitute-popup-leave", {}),
+		-- close the popup on leaving buffer, ensures there is not leftover
+		-- buffer when user closes popup in a different way, such as `:close`.
+		callback = closePopupWin,
 	})
 end
 
