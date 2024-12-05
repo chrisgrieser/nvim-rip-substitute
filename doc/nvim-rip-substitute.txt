@@ -1,4 +1,4 @@
-*nvim-rip-substitute.txt*       For Neovim       Last change: 2024 November 30
+*nvim-rip-substitute.txt*       For Neovim       Last change: 2024 December 05
 
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
@@ -87,7 +87,7 @@ optional: `:TSInstall regex` (adds syntax highlighting)
     {
         "chrisgrieser/nvim-rip-substitute",
         cmd = "RipSubstitute",
-        opts = {}
+        opts = {},
         keys = {
             {
                 "<leader>fs",
