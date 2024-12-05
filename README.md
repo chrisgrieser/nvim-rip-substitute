@@ -74,7 +74,7 @@ UI, and modern regex syntax.
 {
 	"chrisgrieser/nvim-rip-substitute",
 	cmd = "RipSubstitute",
-	opts = {}
+	opts = {},
 	keys = {
 		{
 			"<leader>fs",
