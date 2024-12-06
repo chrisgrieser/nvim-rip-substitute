@@ -342,7 +342,7 @@ function M.openSubstitutionPopup()
 	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, state.prefill)
 	vim.api.nvim_buf_set_name(state.popupBufNr, config.popupWin.title)
 	pcall(vim.treesitter.start, state.popupBufNr, "regex")
-	vim.api.nvim_set_option_value("filetype", "rip-substitute", { buf = state.popupBufNr })
+	vim.bo[state.popupBufNr].filetype = "rip-substitute"
 
 	-- FOOTER & WIDTH
 	local keymapHint = initialKeymapHints()
