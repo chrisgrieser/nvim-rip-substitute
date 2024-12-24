@@ -3,10 +3,15 @@ local M = {}
 
 ---@param msg string
 ---@param level? "info"|"trace"|"debug"|"warn"|"error"
-function M.notify(msg, level)
+---@param opts? table
+function M.notify(msg, level, opts)
 	if not level then level = "info" end
-	local icon = require("rip-substitute.config").config.notification.icon
-	vim.notify(msg, vim.log.levels[level:upper()], { title = "rip-substitute", icon = icon })
+	opts = opts or {}
+
+	opts.title = "rip-substitute"
+	opts.icon = require("rip-substitute.config").config.notification.icon
+
+	vim.notify(msg, vim.log.levels[level:upper()], opts)
 end
 
 ---@return number startLnum

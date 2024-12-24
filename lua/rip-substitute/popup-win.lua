@@ -283,37 +283,24 @@ local function createKeymaps()
 		updateMatchCount()
 		setPopupTitle()
 	end)
-end
 
--- 1. display base keymaps on first run, and advanced keymaps on subsequent runs
--- 2. shorten them as much as possible, to keep the popup width small
----@return string
----@nodiscard
-local function initialKeymapHints()
-	local m = require("rip-substitute.config").config.keymaps
-	local state = require("rip-substitute.state").state
-
-	local keymapHint = ("%s confirm  %s abort"):format(m.confirm, m.abort)
-	if #state.popupHistory > 0 then
-		keymapHint = #state.popupHistory % 2 == 0
-				and ("%s fixed  %s case"):format(m.toggleFixedStrings, m.toggleIgnoreCase)
-			or ("%s/%s history  %s regex101"):format(m.prevSubst, m.nextSubst, m.openAtRegex101)
-	end
-	keymapHint = keymapHint -- using only utf symbols, so they work w/o nerd fonts
-		:gsub("<[Cc][Rr]>", "↩")
-		:gsub("<[dD]own>", "↓")
-		:gsub("<[Uu]p>", "↑")
-		:gsub("<[Rr]ight>", "→")
-		:gsub("<[Ll]eft>", "←")
-		:gsub("<[Tt]ab>", "↹ ")
-		:gsub("<[Ss]pace>", "⎵")
-		:gsub("<[Bb][Ss]>", "⌫")
-		:gsub("<[Cc]%-(.)>", function(char) return "⌃" .. char:upper() end)
-		:gsub("<[Mm]%-(.)>", function(char) return "⌥" .. char:upper() end)
-		:gsub("<[Dd]%-(.)>", function(char) return "⌘" .. char:upper() end) -- D-key -> macOS cmd key
-		:gsub(" (%a) ", " %1: ") -- add colon for single letters, so it's clear it's a keymap
-		:gsub("^(%a) ", "%1: ")
-	return keymapHint
+	-- help
+	keymap("n", maps.showHelp, function()
+		local info = {
+			("- [%s] abort"):format(maps.abort),
+			("- [%s] confirm"):format(maps.confirm),
+			("- [%s] confirm (insert mode)"):format(maps.insertModeConfirm),
+			("- [%s] next in history"):format(maps.nextSubst),
+			("- [%s] previous in history"):format(maps.prevSubst),
+			("- [%s] toggle `--fixed-strings`"):format(maps.toggleFixedStrings),
+			("- [%s] toggle `--ignore-case`"):format(maps.toggleIgnoreCase),
+			("- [%s] open at regex101"):format(maps.openAtRegex101),
+			("- [%s] show help"):format(maps.showHelp),
+			"",
+			"All mappings apply to normal mode (if not stated otherwise).",
+		}
+		u.notify(table.concat(info, "\n"), "info", { id = "rip-substitute-help", timeout = 10000 })
+	end)
 end
 
 -- temporarily set conceal, so the incremental preview hides characters correctly
@@ -344,9 +331,13 @@ function M.openSubstitutionPopup()
 	vim.bo[state.popupBufNr].filetype = "rip-substitute"
 
 	-- FOOTER & WIDTH
-	local keymapHint = initialKeymapHints()
-	-- 11 for "234 matches" + 4 for border & padding of footer
-	local minWidth = vim.api.nvim_strwidth(keymapHint) + 11 + 4
+	local m = require("rip-substitute.config").config.keymaps
+	local keymapHint = config.popupWin.hideKeymapHints and ""
+		or "normal: " .. ("%s confirm  %s abort  %s help"):format(m.confirm, m.abort, m.showHelp)
+	-- 11 for "234 matches" + 5 for border & padding & statuscolumn
+	local footerLength = vim.api.nvim_strwidth(keymapHint) + 11 + 5
+	local hardMinimum = 25
+	local minWidth = math.max(footerLength, #config.popupWin.title + 2, hardMinimum)
 
 	-- CREATE WINDOW
 	local popupZindex = 49 -- below nvim-notify (50), above scrollbars (satellite uses 40)
@@ -362,13 +353,14 @@ function M.openSubstitutionPopup()
 		border = config.popupWin.border,
 		zindex = popupZindex,
 		footer = {
-			{ " " .. keymapHint .. " ", "FloatBorder" },
+			{ keymapHint, "Comment" },
 		},
 	})
 	local win = state.popupWinNr
 	vim.wo[win].list = true
 	vim.wo[win].listchars = "multispace:·,trail:·,lead:·,tab:▸▸,precedes:…,extends:…"
 	vim.wo[win].signcolumn = "no"
+	vim.wo[win].statuscolumn = " " -- padding
 	vim.wo[win].scrolloff = 0
 	vim.wo[win].sidescrolloff = 0 -- no need for scrolloff, since window is dynamically resized
 	vim.wo[win].winfixbuf = true

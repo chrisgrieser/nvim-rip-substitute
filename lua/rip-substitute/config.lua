@@ -8,15 +8,13 @@ local defaultConfig = {
 		border = "single",
 		matchCountHlGroup = "Keyword",
 		noMatchHlGroup = "ErrorMsg",
+		position = "bottom", ---@type "top"|"bottom"
 		hideSearchReplaceLabels = false,
-		---@type "top"|"bottom"
-		position = "bottom",
+		hideKeymapHints = false,
 	},
 	prefill = {
-		---@type "cursorWord"| false
-		normal = "cursorWord",
-		---@type "selectionFirstLine"| false (does not work with ex-command – see README)
-		visual = "selectionFirstLine",
+		normal = "cursorWord", ---@type "cursorWord"| false
+		visual = "selectionFirstLine", ---@type "selectionFirstLine"| false (does not work with ex-command – see README)
 		startInReplaceLineIfPrefill = false,
 		alsoPrefillReplaceLine = false,
 	},
@@ -29,6 +27,7 @@ local defaultConfig = {
 		toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
 		toggleIgnoreCase = "<C-c>", -- ripgrep's `--ignore-case`
 		openAtRegex101 = "R",
+		showHelp = "?",
 	},
 	incrementalPreview = {
 		matchHlGroup = "IncSearch",
