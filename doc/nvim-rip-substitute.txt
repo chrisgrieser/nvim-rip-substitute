@@ -1,4 +1,4 @@
-*nvim-rip-substitute.txt*       For Neovim       Last change: 2024 December 05
+*nvim-rip-substitute.txt*       For Neovim       Last change: 2024 December 24
 
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
@@ -79,7 +79,7 @@ INSTALLATION                *nvim-rip-substitute-rip-substitute--installation*
 support + `brew install ripgrep` (already includes `pcre2` by default) + `cargo
 install ripgrep --features pcre2` - Alternatively, you can also use this plugin
 without `pcre2` by setting `regexOptions.pcre2 = false` in the config. However,
-some features like lookaheads are not supported then. - Nvim >= 0.10 -
+some features like lookaheads are not supported then. - nvim >= 0.10 -
 optional: `:TSInstall regex` (adds syntax highlighting)
 
 >lua
@@ -118,15 +118,13 @@ CONFIGURATION              *nvim-rip-substitute-rip-substitute--configuration*
             border = "single",
             matchCountHlGroup = "Keyword",
             noMatchHlGroup = "ErrorMsg",
+            position = "bottom", ---@type "top"|"bottom"
             hideSearchReplaceLabels = false,
-            ---@type "top"|"bottom"
-            position = "bottom",
+            hideKeymapHints = false,
         },
         prefill = {
-            ---@type "cursorWord"| false
-            normal = "cursorWord",
-            ---@type "selectionFirstLine"| false (does not work with ex-command – see README)
-            visual = "selectionFirstLine",
+            normal = "cursorWord", ---@type "cursorWord"| false
+            visual = "selectionFirstLine", ---@type "selectionFirstLine"| false (does not work with ex-command – see README)
             startInReplaceLineIfPrefill = false,
             alsoPrefillReplaceLine = false,
         },
@@ -134,11 +132,12 @@ CONFIGURATION              *nvim-rip-substitute-rip-substitute--configuration*
             abort = "q",
             confirm = "<CR>",
             insertModeConfirm = "<C-CR>",
-            prevSubst = "<Up>",
-            nextSubst = "<Down>",
+            prevSubstitutionInHistory = "<Up>",
+            nextSubstitutionInHistory = "<Down>",
             toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
             toggleIgnoreCase = "<C-c>", -- ripgrep's `--ignore-case`
             openAtRegex101 = "R",
+            showHelp = "?",
         },
         incrementalPreview = {
             matchHlGroup = "IncSearch",
@@ -163,7 +162,7 @@ CONFIGURATION              *nvim-rip-substitute-rip-substitute--configuration*
         notification = {
             onSuccess = true,
             icon = "",
-        }
+        },
     }
 <
 
@@ -212,6 +211,9 @@ _not_ escaped.
     :RipSubstitute prefilled_unescaped_string
 <
 
+
+  [!TIP] Use `showHelp` (default keymap: `?`) to show a notification containing
+  all keymaps available in the popup window.
 
 ADVANCED                        *nvim-rip-substitute-rip-substitute--advanced*
 
