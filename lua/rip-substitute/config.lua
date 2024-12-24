@@ -22,8 +22,8 @@ local defaultConfig = {
 		abort = "q",
 		confirm = "<CR>",
 		insertModeConfirm = "<C-CR>",
-		prevSubst = "<Up>",
-		nextSubst = "<Down>",
+		prevSubstitutionInHistory = "<Up>",
+		nextSubstitutionInHistory = "<Down>",
 		toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
 		toggleIgnoreCase = "<C-c>", -- ripgrep's `--ignore-case`
 		openAtRegex101 = "R",
@@ -72,10 +72,16 @@ function M.setup(userConfig)
 		require("rip-substitute.state").state.useIgnoreCase = true
 	end
 
-	-- DEPRECATION
+	-- DEPRECATION (2024-11-20)
 	if M.config.notificationOnSuccess then ---@diagnostic disable-line: undefined-field
 		local msg =
 			"`notificationOnSuccess` has been deprecated. Use `notification.onSuccess` instead."
+		notify(msg, "warn")
+	end
+	-- DEPRECATION (2024-11-20)
+	if M.config.keymaps.prevSubst or M.config.keymaps.nextSubst then ---@diagnostic disable-line: undefined-field
+		local msg = "`keymaps.prevSubst` and `keymaps.prevSubst` have been deprecated. "
+			.. "Use `keymaps.prevSubstitutionInHistory` and `keymaps.nextSubstitutionInHistory` instead."
 		notify(msg, "warn")
 	end
 

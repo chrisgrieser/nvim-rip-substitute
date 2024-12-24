@@ -253,7 +253,7 @@ local function createKeymaps()
 
 	-- history keymaps
 	state.historyPosition = #state.popupHistory + 1
-	keymap("n", maps.prevSubst, function()
+	keymap("n", maps.prevSubstitutionInHistory, function()
 		if state.historyPosition < 2 then return end
 		if state.historyPosition == #state.popupHistory + 1 then
 			state.popupPresentContent = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
@@ -262,7 +262,7 @@ local function createKeymaps()
 		local content = state.popupHistory[state.historyPosition]
 		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
 	end)
-	keymap("n", maps.nextSubst, function()
+	keymap("n", maps.nextSubstitutionInHistory, function()
 		if state.historyPosition == #state.popupHistory + 1 then return end -- already at present
 		state.historyPosition = state.historyPosition + 1
 		local content = state.historyPosition == #state.popupHistory + 1 and state.popupPresentContent
@@ -290,8 +290,8 @@ local function createKeymaps()
 			("- [%s] abort"):format(maps.abort),
 			("- [%s] confirm"):format(maps.confirm),
 			("- [%s] confirm (insert mode)"):format(maps.insertModeConfirm),
-			("- [%s] next in history"):format(maps.nextSubst),
-			("- [%s] previous in history"):format(maps.prevSubst),
+			("- [%s] previous in history"):format(maps.prevSubstitutionInHistory),
+			("- [%s] next in history"):format(maps.nextSubstitutionInHistory),
 			("- [%s] toggle `--fixed-strings`"):format(maps.toggleFixedStrings),
 			("- [%s] toggle `--ignore-case`"):format(maps.toggleIgnoreCase),
 			("- [%s] open at regex101"):format(maps.openAtRegex101),
