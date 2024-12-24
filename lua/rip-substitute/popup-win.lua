@@ -233,26 +233,27 @@ local function setPopupTitle()
 end
 
 local function createKeymaps()
-	local keymaps = require("rip-substitute.config").config.keymaps
 	local state = require("rip-substitute.state").state
-	local opts = { buffer = state.popupBufNr, nowait = true }
+	local maps = require("rip-substitute.config").config.keymaps
+	local function keymap(modes, lhs, rhs)
+		vim.keymap.set(modes, lhs, rhs, { buffer = state.popupBufNr, nowait = true })
+	end
 
 	-- confirm & abort
-	vim.keymap.set({ "n", "x" }, keymaps.abort, closePopupWin, opts)
-	vim.keymap.set({ "n", "x" }, keymaps.confirm, confirmSubstitution, opts)
-	vim.keymap.set("i", keymaps.insertModeConfirm, confirmSubstitution, opts)
+	keymap("n", maps.abort, closePopupWin)
+	keymap("n", maps.confirm, confirmSubstitution)
+	keymap("i", maps.insertModeConfirm, confirmSubstitution)
 
 	-- regex101
-	vim.keymap.set(
-		{ "n", "x" },
-		keymaps.openAtRegex101,
-		function() require("rip-substitute.open-at-regex101").request() end,
-		opts
+	keymap(
+		"n",
+		maps.openAtRegex101,
+		function() require("rip-substitute.open-at-regex101").request() end
 	)
 
 	-- history keymaps
 	state.historyPosition = #state.popupHistory + 1
-	vim.keymap.set({ "n", "x" }, keymaps.prevSubst, function()
+	keymap("n", maps.prevSubst, function()
 		if state.historyPosition < 2 then return end
 		if state.historyPosition == #state.popupHistory + 1 then
 			state.popupPresentContent = vim.api.nvim_buf_get_lines(state.popupBufNr, 0, -1, true)
@@ -260,30 +261,28 @@ local function createKeymaps()
 		state.historyPosition = state.historyPosition - 1
 		local content = state.popupHistory[state.historyPosition]
 		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
-	end, opts)
-	vim.keymap.set({ "n", "x" }, keymaps.nextSubst, function()
+	end)
+	keymap("n", maps.nextSubst, function()
 		if state.historyPosition == #state.popupHistory + 1 then return end -- already at present
 		state.historyPosition = state.historyPosition + 1
 		local content = state.historyPosition == #state.popupHistory + 1 and state.popupPresentContent
 			or state.popupHistory[state.historyPosition]
 		vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, content)
-	end, opts)
+	end)
 
-	-- toggle fixed strings
-	vim.keymap.set({ "n", "x" }, keymaps.toggleFixedStrings, function()
+	-- toggles
+	keymap("n", maps.toggleFixedStrings, function()
 		state.useFixedStrings = not state.useFixedStrings
 		require("rip-substitute.rg-operations").incrementalPreviewAndMatchCount()
 		updateMatchCount()
 		setPopupTitle()
-	end, opts)
-
-	-- toggle case sensitive
-	vim.keymap.set({ "n", "x" }, keymaps.toggleIgnoreCase, function()
+	end)
+	keymap("n", maps.toggleIgnoreCase, function()
 		state.useIgnoreCase = not state.useIgnoreCase
 		require("rip-substitute.rg-operations").incrementalPreviewAndMatchCount()
 		updateMatchCount()
 		setPopupTitle()
-	end, opts)
+	end)
 end
 
 -- 1. display base keymaps on first run, and advanced keymaps on subsequent runs
