@@ -353,7 +353,7 @@ function M.openSubstitutionPopup()
 		border = config.popupWin.border,
 		zindex = popupZindex,
 		footer = {
-			{ keymapHint, "Comment" },
+			{ " " .. keymapHint .. " ", "Comment" },
 		},
 	})
 	local win = state.popupWinNr
