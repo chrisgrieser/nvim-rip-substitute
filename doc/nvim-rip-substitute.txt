@@ -1,4 +1,4 @@
-*nvim-rip-substitute.txt*       For Neovim       Last change: 2024 December 24
+*nvim-rip-substitute.txt*       For Neovim       Last change: 2024 December 25
 
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
@@ -38,8 +38,8 @@ TABLE OF CONTENTS      *nvim-rip-substitute-rip-substitute--table-of-contents*
 
 FEATURES                        *nvim-rip-substitute-rip-substitute--features*
 
-- Search and replace in the current buffer using ripgrep
-    <https://github.com/BurntSushi/ripgrep>.
+- Search and replace in the current buffer using
+    ripgrep <https://github.com/BurntSushi/ripgrep>.
 - Uses **common regex syntax** — no more dealing with arcane vim regex.
 - **Incremental preview** of matched strings and replacements, **live count** of
     matches.
@@ -47,8 +47,8 @@ FEATURES                        *nvim-rip-substitute-rip-substitute--features*
     - Syntax highlighting of the regex.
     - Editing with vim motions.
     - No more dealing with delimiters.
-- **Sensible defaults**entire buffer (`%`), all matches in a line (`/g`),
-    case-sensitive (`/I`).
+- **Sensible defaults**entire buffer (`%`), all matches in a line
+    (`/g`), case-sensitive (`/I`).
 - Substitute only in a **range**, with visual emphasis of the range
 - **History** of previous substitutions.
 - **Performant**In a file with 5000 lines and thousands of matches, still
@@ -58,29 +58,31 @@ FEATURES                        *nvim-rip-substitute-rip-substitute--features*
 - **Quality-of-Life features**automatic prefill of the escaped cursorword,
     adaptive popup window width, toggle `--fixed-strings`, …
 - Syntax comparison:
-    >txt
-        # all three are equivalent
-        
-        # vim's :substitute
-        :% s/\(foo\)bar\(\.\)\@!/\1baz/gI
-        
-        # vim's :substitute (very magic mode)
-        :% s/\v(foo)bar(\.)@!/\1baz/gI
-        
-        # rip-substitute
-        (foo)bar(?!\.)
-        $1baz
-    <
+
+>"txt
+    # all three are equivalent
+    
+    # vim's :substitute
+    :% s/\(foo\)bar\(\.\)\@!/\1baz/gI
+    
+    # vim's :substitute (very magic mode)
+    :% s/\v(foo)bar(\.)@!/\1baz/gI
+    
+    # rip-substitute
+    (foo)bar(?!\.)
+    $1baz
+<
 
 
 INSTALLATION                *nvim-rip-substitute-rip-substitute--installation*
 
-**Requirements** - ripgrep <https://github.com/BurntSushi/ripgrep> with `pcre2`
-support + `brew install ripgrep` (already includes `pcre2` by default) + `cargo
-install ripgrep --features pcre2` - Alternatively, you can also use this plugin
-without `pcre2` by setting `regexOptions.pcre2 = false` in the config. However,
-some features like lookaheads are not supported then. - nvim >= 0.10 -
-optional: `:TSInstall regex` (adds syntax highlighting)
+**Requirements** - nvim >= 0.10 - ripgrep
+<https://github.com/BurntSushi/ripgrep> with `pcre2` support + `brew install
+ripgrep` (already includes `pcre2` by default) + `cargo install ripgrep
+--features pcre2` - Alternatively, you can also use this plugin without `pcre2`
+by setting `regexOptions.pcre2 = false` in the config. However, some features
+like lookaheads are not supported then. - _Optional:_ `:TSInstall regex` (adds
+syntax highlighting)
 
 >lua
     -- lazy.nvim
