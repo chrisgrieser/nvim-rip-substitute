@@ -45,7 +45,7 @@ UI, and modern regex syntax.
   adaptive popup window width, toggle `--fixed-strings`, …
 - Syntax comparison:
 
-```"txt
+```txt
 # all three are equivalent
 
 # vim's :substitute
