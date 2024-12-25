@@ -26,6 +26,8 @@ function M.rememberCursorWord()
 	u.notify(("%q saved as prefill for next use."):format(cword))
 end
 
+---@alias exCmdArgs { range: number, line1: number, line2: number, args: string }
+
 ---@param exCmdArgs? exCmdArgs
 function M.sub(exCmdArgs)
 	if not vim.bo.modifiable then
@@ -37,17 +39,6 @@ function M.sub(exCmdArgs)
 	require("rip-substitute.run-parameters").setParameters(exCmdArgs)
 	require("rip-substitute.popup-win").openSubstitutionPopup()
 end
-
---------------------------------------------------------------------------------
-
----@alias exCmdArgs { range: number, line1: number, line2: number, args: string }
-
-vim.api.nvim_create_user_command(
-	"RipSubstitute",
-	---@param args exCmdArgs
-	function(args) require("rip-substitute").sub(args) end,
-	{ desc = "nvim-rip-substitute", range = true, nargs = "?" }
-)
 
 --------------------------------------------------------------------------------
 return M
