@@ -5,7 +5,7 @@
 <img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute/shield"/></a>
 
 Search and replace in the current buffer with incremental preview, a convenient
-UI, and modern regex syntax. 
+UI, and modern regex syntax.
 
 <https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669>
 
@@ -44,30 +44,31 @@ UI, and modern regex syntax.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
   adaptive popup window width, toggle `--fixed-strings`, …
 - Syntax comparison:
-  ```txt
-  # all three are equivalent
 
-  # vim's :substitute
-  :% s/\(foo\)bar\(\.\)\@!/\1baz/gI
+```"txt
+# all three are equivalent
 
-  # vim's :substitute (very magic mode)
-  :% s/\v(foo)bar(\.)@!/\1baz/gI
+# vim's :substitute
+:% s/\(foo\)bar\(\.\)\@!/\1baz/gI
 
-  # rip-substitute
-  (foo)bar(?!\.)
-  $1baz
-  ```
+# vim's :substitute (very magic mode)
+:% s/\v(foo)bar(\.)@!/\1baz/gI
+
+# rip-substitute
+(foo)bar(?!\.)
+$1baz
+```
 
 ## Installation
 **Requirements**
+- nvim >= 0.10
 - [ripgrep](https://github.com/BurntSushi/ripgrep) with `pcre2` support
 	+ `brew install ripgrep` (already includes `pcre2` by default)
 	+ `cargo install ripgrep --features pcre2`
 - Alternatively, you can also use this plugin without `pcre2` by setting
   `regexOptions.pcre2 = false` in the config. However, some features like
   lookaheads are not supported then.
-- nvim >= 0.10
-- optional: `:TSInstall regex` (adds syntax highlighting)
+- *Optional:* `:TSInstall regex` (adds syntax highlighting)
 
 ```lua
 -- lazy.nvim
@@ -158,6 +159,7 @@ require("rip-substitute").setup {
 
 ## Usage
 **lua function**  
+
 ```lua
 vim.keymap.set(
 	{ "n", "x" },
