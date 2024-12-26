@@ -88,20 +88,17 @@ local function updateMatchCount()
 	local config = require("rip-substitute.config").config
 	local matchHlGroup = config.popupWin.matchCountHlGroup
 	local noMatchHlGroup = config.popupWin.noMatchHlGroup
+	local matchTextPosInFooter = 2
 
-	local currentFooter = vim.api.nvim_win_get_config(state.popupWinNr).footer
-	local keymapHint = currentFooter[#currentFooter]
+	local footer = vim.api.nvim_win_get_config(state.popupWinNr).footer
+	table.remove(footer, matchTextPosInFooter)
 
 	local plural = state.matchCount == 1 and "" or "es"
-	local matchText = (" %d match%s "):format(state.matchCount, plural)
+	local matchText = ("%d match%s"):format(state.matchCount, plural)
 	local matchHighlight = state.matchCount > 0 and matchHlGroup or noMatchHlGroup
+	table.insert(footer, matchTextPosInFooter, { matchText, matchHighlight })
 
-	vim.api.nvim_win_set_config(state.popupWinNr, {
-		footer = {
-			{ matchText, matchHighlight },
-			keymapHint,
-		},
-	})
+	vim.api.nvim_win_set_config(state.popupWinNr, { footer = footer })
 end
 
 local function autoCaptureGroups()
@@ -331,16 +328,29 @@ function M.openSubstitutionPopup()
 	vim.bo[state.popupBufNr].filetype = "rip-substitute"
 
 	-- FOOTER & WIDTH
-	local m = require("rip-substitute.config").config.keymaps
-	local keymapHint = config.popupWin.hideKeymapHints and ""
-		or "normal: " .. ("%s confirm  %s abort  %s help"):format(m.confirm, m.abort, m.showHelp)
-	-- 11 for "234 matches" + 5 for border & padding & statuscolumn
-	local footerLength = vim.api.nvim_strwidth(keymapHint) + 11 + 5
-	local hardMinimum = 25
-	local minWidth = math.max(footerLength, #config.popupWin.title + 2, hardMinimum)
+	local maps = require("rip-substitute.config").config.keymaps
+	local hlgroup = { key = "Normal", desc = "Comment" }
+	local footer = config.popupWin.hideKeymapHints and { { "" } }
+		or {
+			{ " ", "FloatBorder" },
+			{ "xxx matches", config.popupWin.noMatchHlGroup },
+			{ "  ", "FloatBorder" },
+			{ "normal: ", hlgroup.desc },
+			{ maps.showHelp:gsub("[<>]", ""), hlgroup.key },
+			{ " help  ", hlgroup.desc },
+			{ maps.confirm:gsub("[<>]", ""), hlgroup.key },
+			{ " confirm  ", hlgroup.desc },
+			{ maps.abort:gsub("[<>]", ""), hlgroup.key },
+			{ " abort", hlgroup.desc },
+			{ " ", "FloatBorder" },
+		}
+	local footerLength = vim.iter(footer):fold(0, function(sum, part) return sum + #part[1] end)
+	local hardMinimum = 25 -- mostly only in effect when keymaps hints are disabled
+	local titleLength = #config.popupWin.title + 2
+	local minWidth = math.max(footerLength, titleLength, hardMinimum)
 
 	-- CREATE WINDOW
-	local popupZindex = 49 -- below nvim-notify (50), above scrollbars (satellite uses 40)
+	local popupZindex = 45 -- below nvim-notify (50), above scrollbars (satellite uses 40)
 	state.popupWinNr = vim.api.nvim_open_win(state.popupBufNr, true, {
 		relative = "win",
 		anchor = config.popupWin.position == "top" and "NE" or "SE",
@@ -352,9 +362,7 @@ function M.openSubstitutionPopup()
 		style = "minimal",
 		border = config.popupWin.border,
 		zindex = popupZindex,
-		footer = {
-			{ " " .. keymapHint .. " ", "Comment" },
-		},
+		footer = footer,
 	})
 	local win = state.popupWinNr
 	vim.wo[win].list = true
