@@ -329,7 +329,7 @@ function M.openSubstitutionPopup()
 
 	-- FOOTER & WIDTH
 	local maps = require("rip-substitute.config").config.keymaps
-	local hlgroup = { key = "Normal", desc = "Comment" }
+	local hlgroup = { key = "Comment", desc = "NonText" }
 	local footer = config.popupWin.hideKeymapHints and { { "" } }
 		or {
 			{ " ", "FloatBorder" },
