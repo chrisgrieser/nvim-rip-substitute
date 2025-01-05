@@ -212,20 +212,17 @@ local function setPopupTitle()
 	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
 
-	local title
+	local title = config.popupWin.title
 	if state.useIgnoreCase or state.useFixedStrings then
 		title = ""
-		title = state.useFixedStrings and title .. " --fixed-strings" or title
-		title = state.useIgnoreCase and title .. " --ignore-case" or title
-		title = vim.trim(title)
+		if state.useFixedStrings then title = title .. " --fixed-strings" end
+		if state.useIgnoreCase then title = title .. " --ignore-case" end
 	elseif state.range then
 		title = "Range: " .. state.range.start
 		if state.range.start ~= state.range.end_ then title = title .. " – " .. state.range.end_ end
-	else
-		title = config.popupWin.title
 	end
 
-	if title ~= "" then title = " " .. title .. " " end
+	if title ~= "" then title = " " .. vim.trim(title) .. " " end
 	vim.api.nvim_win_set_config(state.popupWinNr, { title = title })
 end
 
@@ -321,11 +318,12 @@ function M.openSubstitutionPopup()
 	local config = require("rip-substitute.config").config
 
 	-- CREATE BUFFER
-	state.popupBufNr = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(state.popupBufNr, 0, -1, false, state.prefill)
-	vim.api.nvim_buf_set_name(state.popupBufNr, "rip-substitute")
-	pcall(vim.treesitter.start, state.popupBufNr, "regex")
-	vim.bo[state.popupBufNr].filetype = "rip-substitute"
+	local bufnr = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, state.prefill)
+	vim.api.nvim_buf_set_name(bufnr, "rip-substitute")
+	pcall(vim.treesitter.start, bufnr, "regex")
+	vim.bo[bufnr].filetype = "rip-substitute"
+	state.popupBufNr = bufnr
 
 	-- FOOTER & WIDTH
 	local maps = require("rip-substitute.config").config.keymaps
@@ -358,7 +356,6 @@ function M.openSubstitutionPopup()
 		col = vim.api.nvim_win_get_width(0),
 		width = minWidth,
 		height = 2,
-
 		style = "minimal",
 		border = config.popupWin.border,
 		zindex = popupZindex,
