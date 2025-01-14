@@ -210,6 +210,26 @@ One use case for this is to set a prefill for when you intend to run substitute
 with a range, since calling `rip-substitute` in visual line is not able to pick
 up a prefill.
 
+It is possible to sequentially invoke both `rememberCursorWord()` and `sub()`.
+If the current mode is visual line (`V`), `rememberCursorWord()` will prefill
+the word under the cursor, ensuring accurate prefill behavior. 
+Here's an example keybinding:
+
+```lua
+{
+  "<leader>fs",
+  function()
+    local ripSubstitute = require("rip-substitute")
+    if vim.fn.mode() == "V" then
+      ripSubstitute.rememberCursorWord()
+    end
+    ripSubstitute.sub()
+  end,
+  mode = { "n", "x" },
+  desc = " rip substitute",
+}
+```
+
 **Filetype**  
 The popup window uses the filetype `rip-substitute`. This can be useful, for
 instance, to disable auto-pairing plugins in the popup window.
