@@ -77,7 +77,7 @@ function M.setup(userConfig)
 	end
 	-- DEPRECATION (2024-11-20)
 	if M.config.keymaps.prevSubst or M.config.keymaps.nextSubst then ---@diagnostic disable-line: undefined-field
-		local msg = "`keymaps.prevSubst` and `keymaps.prevSubst` have been deprecated. "
+		local msg = "`keymaps.prevSubst` and `keymaps.nextSubst` have been deprecated. "
 			.. "Use `keymaps.prevSubstitutionInHistory` and `keymaps.nextSubstitutionInHistory` instead."
 		notify(msg, "warn")
 	end
