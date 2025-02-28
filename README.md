@@ -224,6 +224,11 @@ If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
+**Escape character**
+If your substitution text contains a dollar sign, for example, if you want
+`/home/user` to be replaced with `$HOME`, remember that `ripgrep` requires `$`
+as an escape sequence. In short, you'll need to set `$$HOME` as substitution text.
+
 ## Limitations
 - Searching/replacing for line breaks (`\n` or `\r`) is not supported. [See
   issue #28](https://github.com/chrisgrieser/nvim-rip-substitute/issues/28).
