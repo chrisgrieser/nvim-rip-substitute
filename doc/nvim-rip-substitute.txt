@@ -1,4 +1,4 @@
-*nvim-rip-substitute.txt*        For Neovim       Last change: 2025 January 05
+*nvim-rip-substitute.txt*       For Neovim       Last change: 2025 February 28
 
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
@@ -237,6 +237,11 @@ If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 `rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
+
+**Escape character** If your substitution text contains a dollar sign, for
+example, if you want `/home/user` to be replaced with `$HOME`, remember that
+`ripgrep` requires `$` as an escape sequence. In short, you’ll need to set
+`$$HOME` as substitution text.
 
 
 LIMITATIONS                  *nvim-rip-substitute-rip-substitute--limitations*
