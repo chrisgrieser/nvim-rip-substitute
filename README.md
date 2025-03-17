@@ -27,22 +27,22 @@ UI, and modern regex syntax.
 - Search and replace in the current buffer using
   [ripgrep](https://github.com/BurntSushi/ripgrep).
 - Uses **common regex syntax** — no more dealing with arcane vim regex.
-- **Incremental preview** of matched strings and replacements, **live count** of
-  matches.
-- Popup window instead of command line. This entails:
+- **Incremental preview** of matched strings and replacements & **live count**
+  of matches.
+- **Popup window** instead of command line. This entails:
 	+ Syntax highlighting of the regex.
 	+ Editing with vim motions.
 	+ No more dealing with delimiters.
-- **Sensible defaults**: entire buffer (`%`), all matches in a line
-  (`/g`), case-sensitive (`/I`).
-- Substitute only in a **range**, with visual emphasis of the range
+- **Sensible defaults**: entire buffer (`%`), all matches in a line (`/g`),
+  case-sensitive (`/I`).
+- Can substitute only in a **range**, with visual emphasis of the range
 - **History** of previous substitutions.
 - **Performant**: In a file with 5000 lines and thousands of matches, still
   performs *blazingly fast*.™
 - **Regex101 integration**: Open the planned substitution in a pre-configured
-  [regex101](https://regex101.com/) browser-tab for debugging.
+  [regex101](https://regex101.com/) browser tab for debugging.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
-  adaptive popup window width, toggle `--fixed-strings`, …
+  adaptive popup window width, toggle `ripgrep` flags, …
 - Syntax comparison:
 
 ```txt
@@ -61,14 +61,14 @@ $1baz
 
 ## Installation
 **Requirements**
-- nvim >= 0.10
+- nvim 0.10+
 - [ripgrep](https://github.com/BurntSushi/ripgrep) with `pcre2` support
 	+ `brew install ripgrep` (already includes `pcre2` by default)
 	+ `cargo install ripgrep --features pcre2`
 - Alternatively, you can also use this plugin without `pcre2` by setting
   `regexOptions.pcre2 = false` in the config. However, some features like
   lookaheads are not supported then.
-- *Optional:* `:TSInstall regex` (adds syntax highlighting)
+- *Optional:* `:TSInstall regex` to add syntax highlighting in the popup window
 
 ```lua
 -- lazy.nvim
