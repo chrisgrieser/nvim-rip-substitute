@@ -50,6 +50,7 @@ local defaultConfig = {
 		onSuccess = true,
 		icon = "",
 	},
+	debug = false, -- extra notifications for debugging
 }
 
 --------------------------------------------------------------------------------

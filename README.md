@@ -147,6 +147,7 @@ require("rip-substitute").setup {
 		onSuccess = true,
 		icon = "",
 	},
+	debug = false, -- extra notifications for debugging
 }
 ```
 

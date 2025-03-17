@@ -22,10 +22,12 @@ local function runRipgrep(rgArgs)
 		"--no-crlf", -- see #17
 	}
 	vim.list_extend(args, rgArgs)
+	if config.debug then u.notify("ARGS\n" .. table.concat(args, " "), "debug") end
 
 	-- INFO reading from stdin instead of the file to deal with unsaved changes
 	-- (see #8) and to be able to handle non-file buffers
 	local result = vim.system(args, { stdin = targetBufCache }):wait()
+	if config.debug then u.notify("RESULT\n" .. result.stdout, "debug") end
 
 	local text = result.code == 0 and result.stdout or result.stderr
 	return result.code, vim.split(vim.trim(text or ""), "\n")
