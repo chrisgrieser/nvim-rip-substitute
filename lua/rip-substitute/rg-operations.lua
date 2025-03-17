@@ -49,6 +49,14 @@ end
 ---@return { lnum: number, col: number, text: string }
 local function parseRgResult(line)
 	local lnumStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
+
+	-- GUARD empty line with empty search string, see #38
+	if not lnumStr then
+		lnumStr = line:match("%d")
+		colStr = "1"
+		text = ""
+	end
+
 	return { lnum = tonumber(lnumStr) - 1, col = tonumber(colStr) - 1, text = text }
 end
 
