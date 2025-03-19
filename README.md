@@ -102,7 +102,7 @@ use {
 require("rip-substitute").setup {
 	popupWin = {
 		title = " rip-substitute",
-		border = "single",
+		border = vim.fn.has("nvim-0.11") == 1 and vim.o.winborder or "rounded",
 		matchCountHlGroup = "Keyword",
 		noMatchHlGroup = "ErrorMsg",
 		position = "bottom", ---@type "top"|"bottom"
