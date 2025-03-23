@@ -186,6 +186,7 @@ local function rangeBackdrop(popupZindex)
 				width = vim.api.nvim_win_get_width(state.targetWin),
 				height = height,
 				style = "minimal",
+				border = "none", -- needs to be explicitly set due to `vim.o.winborder`
 				zindex = popupZindex - 1, -- so the popup stays on top
 			})
 			vim.api.nvim_set_hl(0, "RipSubBackdrop", { bg = "#000000", default = true })
