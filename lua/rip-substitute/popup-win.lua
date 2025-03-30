@@ -331,17 +331,19 @@ function M.openSubstitutionPopup()
 	local hlgroup = { key = "Comment", desc = "NonText" }
 	local footer = config.popupWin.hideKeymapHints and { { "" } }
 		or {
-			{ " ", "FloatBorder" },
+			{ " " },
 			{ "xxx matches", config.popupWin.noMatchHlGroup },
-			{ "  ", "FloatBorder" },
-			{ "normal: ", hlgroup.desc },
+			{ "  " },
+			{ "normal: " },
 			{ maps.showHelp:gsub("[<>]", ""), hlgroup.key },
-			{ " help  ", hlgroup.desc },
+			{ " help", hlgroup.desc },
+			{ " " },
 			{ maps.confirm:gsub("[<>]", ""), hlgroup.key },
-			{ " confirm  ", hlgroup.desc },
+			{ " confirm", hlgroup.desc },
+			{ " " },
 			{ maps.abort:gsub("[<>]", ""), hlgroup.key },
 			{ " abort", hlgroup.desc },
-			{ " ", "FloatBorder" },
+			{ " " },
 		}
 	local footerLength = vim.iter(footer):fold(0, function(sum, part) return sum + #part[1] end)
 	local hardMinimum = 25 -- mostly only in effect when keymaps hints are disabled
