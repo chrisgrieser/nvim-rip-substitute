@@ -177,14 +177,25 @@ function M.incrementalPreviewAndMatchCount()
 	vim.iter(searchMatches):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(match)
 		local matchEndCol = match.col + #match.text
 		if toReplace == "" then
-			vim.api.nvim_buf_add_highlight(
-				state.targetBuf,
-				ns,
-				hlGroup,
-				match.lnum,
-				match.col,
-				matchEndCol
-			)
+			if vim.hl.range then
+				vim.hl.range(
+					state.targetBuf,
+					ns,
+					hlGroup,
+					{ match.lnum, match.col },
+					{ match.lnum, matchEndCol }
+				)
+			else
+				---@diagnostic disable-next-line: deprecated --- keep for backwards compatibility
+				vim.api.nvim_buf_add_highlight(
+					state.targetBuf,
+					ns,
+					hlGroup,
+					match.lnum,
+					match.col,
+					matchEndCol
+				)
+			end
 		else
 			-- INFO requires `conceallevel` >= 2
 			vim.api.nvim_buf_set_extmark(state.targetBuf, ns, match.lnum, match.col, {
