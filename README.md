@@ -108,6 +108,7 @@ require("rip-substitute").setup {
 		position = "bottom", ---@type "top"|"bottom"
 		hideSearchReplaceLabels = false,
 		hideKeymapHints = false,
+		disableCompletions = true, -- disables all blink.cmp completions
 	},
 	prefill = {
 		normal = "cursorWord", ---@type "cursorWord"|false

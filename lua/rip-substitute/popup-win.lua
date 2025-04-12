@@ -326,6 +326,9 @@ function M.openSubstitutionPopup()
 	vim.bo[bufnr].filetype = "rip-substitute"
 	state.popupBufNr = bufnr
 
+	-- disable blink.cmp completions https://cmp.saghen.dev/recipes.html#disable-per-filetypebuffer
+	if config.popupWin.disableCompletions then vim.b[bufnr].completions = false end
+
 	-- FOOTER & WIDTH
 	local maps = require("rip-substitute.config").config.keymaps
 	local hlgroup = { key = "Comment", desc = "NonText" }
