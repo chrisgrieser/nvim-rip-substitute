@@ -88,15 +88,14 @@ local function updateMatchCount()
 	local config = require("rip-substitute.config").config
 	local matchHlGroup = config.popupWin.matchCountHlGroup
 	local noMatchHlGroup = config.popupWin.noMatchHlGroup
-	local matchTextPosInFooter = 2
 
 	local footer = vim.api.nvim_win_get_config(state.popupWinNr).footer
-	table.remove(footer, matchTextPosInFooter)
+	table.remove(footer, 1) -- assumes match count is always the first footer
 
 	local plural = state.matchCount == 1 and "" or "es"
-	local matchText = ("%d match%s"):format(state.matchCount, plural)
+	local matchText = (" %d match%s "):format(state.matchCount, plural)
 	local matchHighlight = state.matchCount > 0 and matchHlGroup or noMatchHlGroup
-	table.insert(footer, matchTextPosInFooter, { matchText, matchHighlight })
+	table.insert(footer, 1, { matchText, matchHighlight })
 
 	vim.api.nvim_win_set_config(state.popupWinNr, { footer = footer })
 end
@@ -332,12 +331,12 @@ function M.openSubstitutionPopup()
 	-- FOOTER & WIDTH
 	local maps = require("rip-substitute.config").config.keymaps
 	local hlgroup = { key = "Comment", desc = "NonText" }
-	local footer = config.popupWin.hideKeymapHints and { { "" } }
-		or {
-			{ " " },
-			{ "xxx matches", config.popupWin.noMatchHlGroup },
-			{ "  " },
-			{ "normal: " },
+	local footer = {
+		{ " xxx matches ", config.popupWin.noMatchHlGroup },
+	}
+	if not config.popupWin.hideKeymapHints then
+		vim.list_extend(footer, {
+			{ " normal: " },
 			{ maps.showHelp:gsub("[<>]", ""), hlgroup.key },
 			{ " help", hlgroup.desc },
 			{ " " },
@@ -347,9 +346,10 @@ function M.openSubstitutionPopup()
 			{ maps.abort:gsub("[<>]", ""), hlgroup.key },
 			{ " abort", hlgroup.desc },
 			{ " " },
-		}
+		})
+	end
 	local footerLength = vim.iter(footer):fold(0, function(sum, part) return sum + #part[1] end)
-	local hardMinimum = 25 -- mostly only in effect when keymaps hints are disabled
+	local hardMinimum = 25 -- only in effect when keymaps hints are disabled
 	local titleLength = #config.popupWin.title + 2
 	local minWidth = math.max(footerLength, titleLength, hardMinimum)
 
