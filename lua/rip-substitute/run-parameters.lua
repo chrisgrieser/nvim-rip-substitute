@@ -15,8 +15,7 @@ function M.setParameters(exCmdArgs)
 	if state.rememberedPrefill then
 		searchPrefill = state.rememberedPrefill or ""
 	elseif exCmdHasSearchPrefill then
-		---@diagnostic disable-next-line: need-check-nil done via condition `exSearchPrefil`
-		searchPrefill = exCmdArgs.args
+		searchPrefill = exCmdArgs and exCmdArgs.args or ""
 	elseif mode == "n" and not exCmdWithRange and config.prefill.normal == "cursorWord" then
 		searchPrefill = vim.fn.expand("<cword>")
 	elseif mode == "v" and config.prefill.visual then
