@@ -22,8 +22,9 @@ local function setPopupLabelsIfEnoughSpace(popupWidth)
 
 	local popupLines = getPopupLines()
 	local labels = { " Search", "Replace" }
+	local borderWidth = 2
 	for i = 1, 2 do
-		local contentOverlapsLabel = #popupLines[i] >= (popupWidth - #labels[i])
+		local contentOverlapsLabel = #popupLines[i] >= (popupWidth - #labels[i] - borderWidth)
 		if not contentOverlapsLabel then
 			vim.api.nvim_buf_set_extmark(state.popupBufNr, ns, i - 1, 0, {
 				virt_text = { { labels[i], "DiagnosticVirtualTextInfo" } },
