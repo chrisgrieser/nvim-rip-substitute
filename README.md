@@ -168,17 +168,23 @@ vim.keymap.set(
 )
 ```
 
-- Normal mode: prefills the *escaped* word under the cursor
-- Visual mode: prefills the *escaped* selection
-- Visual *line* mode: replacements are only applied to the selected lines
+- Normal mode: prefills the word under the cursor (escaped)
+- Visual mode: prefills the selection (escaped)
+- Visual **line** mode: replacements are only applied to the selected lines
   (= the selection is used as range)
+
+> [!TIP]
+> Use `showHelp` (default keymap: `?`) to show a notification containing all
+> keymaps available in the popup window.
 
 **Ex-command**  
 Alternatively, you can use the ex command `:RipSubstitute`, which also
 accepts [a range
-argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges). Note that
-when using the ex-command, visual mode and visual line mode both pass a range.
-To prefill the current selection, you therefore need to use the lua function.
+argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges).
+
+Note that when using the ex-command, visual mode and visual line mode both pass
+a range. To prefill the current selection, you therefore need to use the lua
+function.
 
 ```vim
 " Substitute in entire file. Prefills the *escaped* word under the cursor.
@@ -198,10 +204,6 @@ is *not* escaped.
 :RipSubstitute prefilled_unescaped_string
 ```
 
-> [!TIP]
-> Use `showHelp` (default keymap: `?`) to show a notification containing all
-> keymaps available in the popup window.
-
 ## Advanced
 **Remember prefill**  
 The function `require("rip-substitute").rememberCursorWord()` can be used to
@@ -219,14 +221,14 @@ instance, to disable auto-pairing plugins in the popup window.
 **`autoBraceSimpleCaptureGroups`**  
 A gotcha of `ripgrep`'s regex syntax is that it treats `$1a` as the named
 capture group "1a" and *not* as the first capture group followed by the
-letter "a." (See `ripgrep`'s man page on `--replace` for details.)
+letter "a" (see `ripgrep`'s man page on `--replace` for details).
 
 If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 `rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
-**Escape character**
+**Escape character**  
 If your substitution text contains a dollar sign, for example, if you want
 `/home/user` to be replaced with `$HOME`, remember that `ripgrep` requires `$`
 as an escape sequence. In short, you'll need to set `$$HOME` as substitution text.
