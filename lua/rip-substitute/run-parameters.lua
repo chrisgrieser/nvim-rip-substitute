@@ -19,8 +19,8 @@ function M.setParameters(exCmdArgs)
 	elseif mode == "n" and not exCmdWithRange and config.prefill.normal == "cursorWord" then
 		searchPrefill = vim.fn.expand("<cword>")
 	elseif mode == "v" and config.prefill.visual == "selectionFirstLine" then
-		vim.cmd.normal { '"zy', bang = true }
-		searchPrefill = vim.fn.getreg("z"):gsub("[\n\r].*", "") -- only first line
+		local sel = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"), { type = vim.fn.mode() })
+		searchPrefill = sel[1]
 	end
 	local replacePrefill = config.prefill.alsoPrefillReplaceLine and searchPrefill or ""
 	-- escape
