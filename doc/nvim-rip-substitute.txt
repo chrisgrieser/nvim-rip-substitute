@@ -1,4 +1,4 @@
-*nvim-rip-substitute.txt*          For Neovim         Last change: 2025 May 03
+*nvim-rip-substitute.txt*          For Neovim         Last change: 2025 May 22
 
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
@@ -126,7 +126,7 @@ CONFIGURATION              *nvim-rip-substitute-rip-substitute--configuration*
         },
         prefill = {
             normal = "cursorWord", ---@type "cursorWord"|false
-            visual = "selectionFirstLine", ---@type "selectionFirstLine"|false (does not work with ex-command – see README)
+            visual = "selection", ---@type "selection"|false (does not work with ex-command – see README)
             startInReplaceLineIfPrefill = false,
             alsoPrefillReplaceLine = false,
         },
@@ -183,15 +183,20 @@ USAGE                              *nvim-rip-substitute-rip-substitute--usage*
     )
 <
 
-- Normal mode: prefills the _escaped_ word under the cursor
-- Visual mode: prefills the _escaped_ selection
-- Visual _line_ mode: replacements are only applied to the selected lines
+- Normal mode: prefills the word under the cursor (escaped)
+- Visual mode: prefills the selection (escaped)
+- Visual **line** mode: replacements are only applied to the selected lines
     (= the selection is used as range)
 
+
+  [!TIP] Use `showHelp` (default keymap: `?`) to show a notification containing
+  all keymaps available in the popup window.
 **Ex-command** Alternatively, you can use the ex command `:RipSubstitute`,
-which also accepts |a range argument|. Note that when using the ex-command,
-visual mode and visual line mode both pass a range. To prefill the current
-selection, you therefore need to use the lua function.
+which also accepts |a range argument|.
+
+Note that when using the ex-command, visual mode and visual line mode both pass
+a range. To prefill the current selection, you therefore need to use the lua
+function.
 
 >vim
     " Substitute in entire file. Prefills the *escaped* word under the cursor.
@@ -212,9 +217,6 @@ _not_ escaped.
 <
 
 
-  [!TIP] Use `showHelp` (default keymap: `?`) to show a notification containing
-  all keymaps available in the popup window.
-
 ADVANCED                        *nvim-rip-substitute-rip-substitute--advanced*
 
 **Remember prefill** The function
@@ -231,8 +233,8 @@ useful, for instance, to disable auto-pairing plugins in the popup window.
 
 **autoBraceSimpleCaptureGroups** A gotcha of `ripgrep`’s regex syntax is that
 it treats `$1a` as the named capture group "1a" and _not_ as the first capture
-group followed by the letter "a." (See `ripgrep`’s man page on `--replace`
-for details.)
+group followed by the letter "a" (see `ripgrep`’s man page on `--replace` for
+details).
 
 If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 `rip-substitute` automatically changes `$1a` to `${1}a`, to make writing the
