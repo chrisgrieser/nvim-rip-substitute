@@ -112,7 +112,7 @@ require("rip-substitute").setup {
 	},
 	prefill = {
 		normal = "cursorWord", ---@type "cursorWord"|false
-		visual = "selectionFirstLine", ---@type "selectionFirstLine"|false (does not work with ex-command – see README)
+		visual = "selection", ---@type "selection"|false (does not work with ex-command – see README)
 		startInReplaceLineIfPrefill = false,
 		alsoPrefillReplaceLine = false,
 	},

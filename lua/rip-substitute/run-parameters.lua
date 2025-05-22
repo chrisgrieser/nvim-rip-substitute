@@ -6,6 +6,7 @@ function M.setParameters(exCmdArgs)
 	local config = require("rip-substitute.config").config
 	local state = require("rip-substitute.state").state
 	local mode = vim.fn.mode()
+	local u = require("rip-substitute.utils")
 	local exCmdWithRange = exCmdArgs and exCmdArgs.range > 0
 	local exCmdHasSearchPrefill = exCmdArgs and exCmdArgs.args ~= ""
 
@@ -18,9 +19,15 @@ function M.setParameters(exCmdArgs)
 		searchPrefill = exCmdArgs.args
 	elseif mode == "n" and not exCmdWithRange and config.prefill.normal == "cursorWord" then
 		searchPrefill = vim.fn.expand("<cword>")
-	elseif mode == "v" and config.prefill.visual == "selectionFirstLine" then
-		local sel = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"), { type = vim.fn.mode() })
-		searchPrefill = sel[1]
+	elseif mode == "v" and config.prefill.visual then
+		local selectedLines = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"), { type = "v" })
+		if #selectedLines > 1 then
+			local msg = "Aborting, selection has more than one line. "
+				.. "(To only replace in a range, you need to use visual *line* mode.)"
+			u.notify(msg, "warn")
+			return
+		end
+		searchPrefill = selectedLines[1]
 	end
 	local replacePrefill = config.prefill.alsoPrefillReplaceLine and searchPrefill or ""
 	-- escape
