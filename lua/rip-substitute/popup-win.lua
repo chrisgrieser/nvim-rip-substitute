@@ -69,7 +69,7 @@ local function closePopupWin()
 		vim.api.nvim_buf_delete(state.popupBufNr, { force = true })
 	end
 	local ns = vim.api.nvim_create_namespace("rip-substitute.incPreview")
-	vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+	vim.api.nvim_buf_clear_namespace(state.targetBuf, ns, 0, -1)
 end
 
 local function confirmSubstitution()
