@@ -75,19 +75,23 @@ function M.executeSubstitution()
 		return
 	end
 
-	-- INFO Only update individual lines as opposed to whole buffer, as this
-	-- preserves folds and marks. We could also use `nvim_buf_set_text` to update
-	-- only sections inside specific lines, however that requires a lot of manual
-	-- calculation when dealing with multiple matches in a line, and will only be
-	-- more complicated when features like `--multiline` support are added later
-	-- on. As the benefit of preserving marks *inside* a changed line is not that
-	-- great, we'll stick to the simpler approach.
+	-- INFO
+	-- 1. Only update individual lines as opposed to whole buffer, as this
+	-- preserves folds, marks, and exmarks.
+	-- 2. We replace whole lines, since replacing only the changed text, but that
+	-- would require more calculation when dealing with multiple matches in a
+	-- line, and will be even more complicated when features like `--multiline`
+	-- support are added later on. As the benefit of preserving marks *inside* a
+	-- changed line is not that great, we'll stick to the simpler approach.
+	-- 3. We could also use `nvim_buf_set_lines` for that, but as opposed to
+	-- `nvim_buf_set_text`, that would remove extmarks assigned to the whole
+	-- line, which are used by some plugins like `quicker.nvim` (see #45).
 	local replacedLines = 0
 	for _, repl in pairs(results) do
 		local lineStr, newLine = repl:match("^(%d+):(.*)")
 		local lnum = assert(tonumber(lineStr), "rg parsing error")
 		if not state.range or (lnum >= state.range.start and lnum <= state.range.end_) then
-			vim.api.nvim_buf_set_lines(state.targetBuf, lnum - 1, lnum, false, { newLine })
+			vim.api.nvim_buf_set_text(state.targetBuf, lnum - 1, 0, lnum - 1, -1, { newLine })
 			replacedLines = replacedLines + 1
 		end
 	end
