@@ -66,6 +66,7 @@ end
 
 function M.executeSubstitution()
 	local state = require("rip-substitute.state").state
+	local config = require("rip-substitute.config").config
 	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
 
 	local code, results = runRipgrep { "--replace=" .. toReplace, "--line-number", "--", toSearch }
@@ -97,7 +98,7 @@ function M.executeSubstitution()
 	end
 
 	-- notify
-	if require("rip-substitute.config").config.notification.onSuccess then
+	if config.notification.onSuccess then
 		local count = state.matchCount
 		local s1 = count == 1 and "" or "s"
 		local msg = ("Replaced %d occurrence%s"):format(count, s1)
@@ -131,7 +132,7 @@ function M.incrementalPreviewAndMatchCount()
 	if toSearch == "" then return end
 	if toSearch:find("\\[nr]") and toReplace:find("\\[nr]") then
 		-- see #28 or https://github.com/chrisgrieser/nvim-rip-substitute/issues/28#issuecomment-2503761241
-		u.notify("Search and replace strings cannot contain newlines.", "error")
+		u.notify("Search and replace strings cannot contain newlines.", "warn")
 		return
 	end
 
