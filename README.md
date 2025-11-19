@@ -137,10 +137,7 @@ require("rip-substitute").setup {
 	},
 	incrementalPreview = {
 		matchHlGroup = "IncSearch",
-		rangeBackdrop = {
-			enabled = true,
-			blend = 50, -- between 0 and 100
-		},
+		rangeBackdropBrightness = 50, ---@type number|false 0-100, false disables backdrop
 	},
 	regexOptions = {
 		startWithFixedStrings = false,

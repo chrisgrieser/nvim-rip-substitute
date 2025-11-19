@@ -144,9 +144,10 @@ end
 ---and after the range.
 ---@param popupZindex integer
 local function rangeBackdrop(popupZindex)
-	local opts = require("rip-substitute.config").config.incrementalPreview.rangeBackdrop
+	local brightness =
+		require("rip-substitute.config").config.incrementalPreview.rangeBackdropBrightness
 	local state = require("rip-substitute.state").state
-	if not opts.enabled or not state.range then return end
+	if not brightness or not state.range then return end
 
 	-- pause folds for the duration of the substitution, since they mess up the
 	-- calculation of the size of the cover windows
@@ -191,7 +192,7 @@ local function rangeBackdrop(popupZindex)
 			})
 			vim.api.nvim_set_hl(0, "RipSubBackdrop", { bg = "#000000", default = true })
 			vim.wo[win].winhighlight = "Normal:RipSubBackdrop"
-			vim.wo[win].winblend = opts.blend
+			vim.wo[win].winblend = brightness
 			vim.bo[buf].buftype = "nofile"
 
 			-- remove range cover when done

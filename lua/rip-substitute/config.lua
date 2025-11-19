@@ -43,10 +43,7 @@ local defaultConfig = {
 	},
 	incrementalPreview = {
 		matchHlGroup = "IncSearch",
-		rangeBackdrop = {
-			enabled = true,
-			blend = 50, -- between 0 and 100
-		},
+		rangeBackdropBrightness = 50, ---@type number|false 0-100, false disables backdrop
 	},
 	regexOptions = {
 		startWithFixedStrings = false,
@@ -72,14 +69,19 @@ M.config = defaultConfig
 ---@param userConfig? RipSubstitute.Config
 function M.setup(userConfig)
 	M.config = vim.tbl_deep_extend("force", M.config, userConfig or {})
-	local notify = require("rip-substitute.utils").notify
+	local warn = function(msg) require("rip-substitute.utils").notify(msg, "warn") end
 
 	-- DEPRECATION (2025-11-19)
 	if M.config.regexOptions.startWithFixedStringsOn ~= nil then
 		M.config.regexOptions.startWithFixedStrings = M.config.regexOptions.startWithFixedStringsOn
-		local msg =
+		warn(
 			"`regexOptions.startWithFixedStringsOn` has been renamed to `regexOptions.startWithFixedStrings`"
-		notify(msg, "warn")
+		)
+	end
+	if M.config.incrementalPreview.rangeBackdrop then
+		warn(
+			"`incrementalPreview.rangeBackdrop` configs have been merged to `incrementalPreview.rangeBackdropBrightness`"
+		)
 	end
 
 	-- set initial state for regex options
@@ -94,9 +96,10 @@ function M.setup(userConfig)
 	if M.config.regexOptions.pcre2 then
 		vim.system({ "rg", "--pcre2-version" }, {}, function(out)
 			if out.code ~= 0 or out.stderr:find("PCRE2 is not available in this build of ripgrep") then
-				local msg = "`regexOptions.pcre2` has been disabled, as the installed version of `ripgrep` lacks `pcre2` support.\n\n"
-					.. "Please install `ripgrep` with `pcre2` support, or disable `regexOptions.pcre2`."
-				notify(msg, "warn")
+				warn(
+					"`regexOptions.pcre2` has been disabled, as the installed version of `ripgrep` lacks `pcre2` support.\n\n"
+						.. "Please install `ripgrep` with `pcre2` support, or disable `regexOptions.pcre2`."
+				)
 				M.config.regexOptions.pcre2 = false
 			end
 		end)
@@ -105,8 +108,7 @@ function M.setup(userConfig)
 	-- VALIDATE border `none` does not work with and title/footer used by this plugin
 	if M.config.popupWin.border == "none" or M.config.popupWin.border == "" then
 		M.config.popupWin.border = fallbackBorder
-		local msg = ('Border "none" is not supported, falling back to %q.'):format(fallbackBorder)
-		notify(msg, "warn")
+		warn(('Border "none" is not supported, falling back to %q.'):format(fallbackBorder))
 	end
 end
 
