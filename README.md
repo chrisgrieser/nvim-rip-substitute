@@ -29,7 +29,7 @@ UI, and modern regex syntax.
 - Uses **common regex syntax** — no more dealing with arcane vim regex.
 - **Incremental preview** of matched strings and replacements & **live count**
   of matches.
-- **Popup window** instead of command line. This entails:
+- Uses a **popup window** instead of command line. This entails:
 	+ Syntax highlighting of the regex.
 	+ Editing with vim motions.
 	+ No more dealing with delimiters.
@@ -38,12 +38,13 @@ UI, and modern regex syntax.
 - Can substitute only in a **range**, with visual emphasis of the range
 - **History** of previous substitutions.
 - **Performant**: In a file with 5000 lines and thousands of matches, still
-  performs *blazingly fast*.™
+  performs *blazingly fast.™*
 - **Regex101 integration**: Open the planned substitution in a pre-configured
   [regex101](https://regex101.com/) browser tab for debugging.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
-  adaptive popup window width, toggle `ripgrep` flags, …
-- Syntax comparison:
+  adaptive window width, toggle `ripgrep` flags, …
+
+**Syntax comparison**  
 
 ```txt
 # all three are equivalent
@@ -91,6 +92,13 @@ use {
 	"chrisgrieser/nvim-rip-substitute",
 	config = function() 
 		require("rip-substitute").setup()
+
+		vim.keymap.set(
+			{ "n", "x" },
+			"<leader>fs",
+			function() require("rip-substitute").sub() end,
+			{ desc = " rip substitute" }
+		)
 	end,
 }
 ```
@@ -108,11 +116,11 @@ require("rip-substitute").setup {
 		position = "bottom", ---@type "top"|"bottom"
 		hideSearchReplaceLabels = false,
 		hideKeymapHints = false,
-		disableCompletions = true, -- disables all blink.cmp completions
+		disableCompletions = true, -- such as from blink.cmp
 	},
 	prefill = {
 		normal = "cursorWord", ---@type "cursorWord"|false
-		visual = "selection", ---@type "selection"|false (does not work with ex-command – see README)
+		visual = "selection", ---@type "selection"|false -- (does not work with ex-command – see README)
 		startInReplaceLineIfPrefill = false,
 		alsoPrefillReplaceLine = false,
 	},
@@ -157,7 +165,7 @@ require("rip-substitute").setup {
 > plugin.
 
 ## Usage
-**lua function**  
+**Lua function**  
 
 ```lua
 vim.keymap.set(
@@ -183,7 +191,7 @@ accepts [a range
 argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges).
 
 Note that when using the ex-command, visual mode and visual line mode both pass
-a range. To prefill the current selection, you therefore need to use the lua
+a range. To prefill the current selection, you therefore need to use the Lua
 function.
 
 ```vim

@@ -22,11 +22,11 @@ local defaultConfig = {
 		position = "bottom", ---@type "top"|"bottom"
 		hideSearchReplaceLabels = false,
 		hideKeymapHints = false,
-		disableCompletions = true, -- disables all blink.cmp completions
+		disableCompletions = true, -- such as from blink.cmp
 	},
 	prefill = {
 		normal = "cursorWord", ---@type "cursorWord"|false
-		visual = "selection", ---@type "selection"|false (does not work with ex-command – see README)
+		visual = "selection", ---@type "selection"|false -- (does not work with ex-command – see README)
 		startInReplaceLineIfPrefill = false,
 		alsoPrefillReplaceLine = false,
 	},
