@@ -30,7 +30,7 @@ function M.setParameters(exCmdArgs)
 	end
 	local replacePrefill = config.prefill.alsoPrefillReplaceLine and searchPrefill or ""
 	-- escape
-	if not exCmdHasSearchPrefill and not config.regexOptions.startWithFixedStringsOn then
+	if not exCmdHasSearchPrefill and not config.regexOptions.startWithFixedStrings then
 		searchPrefill = searchPrefill:gsub("[.(){}[%]*+?^$]", [[\%1]])
 	end
 

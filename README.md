@@ -135,7 +135,7 @@ require("rip-substitute").setup {
 		},
 	},
 	regexOptions = {
-		startWithFixedStringsOn = false,
+		startWithFixedStrings = false,
 		startWithIgnoreCase = false,
 		pcre2 = true, -- enables lookarounds and backreferences, but slightly slower
 		autoBraceSimpleCaptureGroups = true, -- disable if using named capture groups (see README for details)

@@ -49,7 +49,7 @@ local defaultConfig = {
 		},
 	},
 	regexOptions = {
-		startWithFixedStringsOn = false,
+		startWithFixedStrings = false,
 		startWithIgnoreCase = false,
 		pcre2 = true, -- enables lookarounds and backreferences, but slightly slower
 		autoBraceSimpleCaptureGroups = true, -- disable if using named capture groups (see README for details)
@@ -74,25 +74,20 @@ function M.setup(userConfig)
 	M.config = vim.tbl_deep_extend("force", M.config, userConfig or {})
 	local notify = require("rip-substitute.utils").notify
 
+	-- DEPRECATION (2025-11-19)
+	if M.config.regexOptions.startWithFixedStringsOn ~= nil then
+		M.config.regexOptions.startWithFixedStrings = M.config.regexOptions.startWithFixedStringsOn
+		local msg =
+			"`regexOptions.startWithFixedStringsOn` has been renamed to `regexOptions.startWithFixedStrings`"
+		notify(msg, "warn")
+	end
+
 	-- set initial state for regex options
-	if M.config.regexOptions.startWithFixedStringsOn then
+	if M.config.regexOptions.startWithFixedStrings then
 		require("rip-substitute.state").state.useFixedStrings = true
 	end
 	if M.config.regexOptions.startWithIgnoreCase then
 		require("rip-substitute.state").state.useIgnoreCase = true
-	end
-
-	-- DEPRECATION (2024-11-20)
-	if M.config.notificationOnSuccess then ---@diagnostic disable-line: undefined-field
-		local msg =
-			"`notificationOnSuccess` has been deprecated. Use `notification.onSuccess` instead."
-		notify(msg, "warn")
-	end
-	-- DEPRECATION (2024-11-20)
-	if M.config.keymaps.prevSubst or M.config.keymaps.nextSubst then ---@diagnostic disable-line: undefined-field
-		local msg = "`keymaps.prevSubst` and `keymaps.nextSubst` have been deprecated. "
-			.. "Use `keymaps.prevSubstitutionInHistory` and `keymaps.nextSubstitutionInHistory` instead."
-		notify(msg, "warn")
 	end
 
 	-- VALIDATE `rg` installations not built with `pcre2`, see #3
