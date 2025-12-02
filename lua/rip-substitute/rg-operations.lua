@@ -2,13 +2,11 @@ local M = {}
 local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
----@param rgArgs string[]
----@return number exitCode
----@return string[] stdoutOrStderr
-local function runRipgrep(rgArgs)
-	local argOrderValid = rgArgs[#rgArgs - 1] == "--"
-	assert(argOrderValid, "Last 2 args must be `--` & searchValue for proper parsing.") -- see #26
-
+---@param toSearch string
+---@param toReplace string
+---@return { lnum: number, startCol: number, endCol: number, replacement: string }[]?
+---@return string? errmsg
+local function runRipgrep(toSearch, toReplace)
 	local config = require("rip-substitute.config").config
 	local targetBufCache = require("rip-substitute.state").targetBufCache
 	local state = require("rip-substitute.state").state
@@ -16,21 +14,44 @@ local function runRipgrep(rgArgs)
 	local args = {
 		"rg",
 		"--no-config",
+		"--json",
+		"--replace=" .. toReplace,
 		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
 		state.useFixedStrings and "--fixed-strings" or "--no-fixed-strings",
 		state.useIgnoreCase and "--ignore-case" or "--case-sensitive",
 		"--no-crlf", -- see #17
+		"--",
+		toSearch, -- last for escaping, see #26
 	}
-	vim.list_extend(args, rgArgs)
 	if config.debug then u.notify("ARGS\n" .. table.concat(args, " "), "debug") end
 
-	-- INFO reading from stdin instead of the file to deal with unsaved changes
-	-- (see #8) and to be able to handle non-file buffers
+	-- reading from stdin instead of the file to deal with unsaved changes and to
+	-- be able to handle non-file buffers (see #8)
 	local result = vim.system(args, { stdin = targetBufCache }):wait()
 	if config.debug then u.notify("RESULT\n" .. result.stdout, "debug") end
 
-	local text = result.code == 0 and result.stdout or result.stderr
-	return result.code, vim.split(vim.trim(text or ""), "\n")
+	if result.code ~= 0 then
+		local errmsg = result.stderr or "Unknown error"
+		return nil, errmsg
+	end
+
+	-- PARSE MATCHES
+	local lines = vim.split(vim.trim(result.stdout or ""), "\n")
+	local matches = vim.iter(lines):fold({}, function(acc, jsonLine)
+		local o = vim.json.decode(jsonLine)
+		if o.type ~= "match" then return acc end -- `start`, `end`, and `summary` jsons
+		for _, submatch in ipairs(o.data.submatches) do
+			table.insert(acc, {
+				lnum = o.data.line_number - 1,
+				startCol = submatch.start,
+				endCol = submatch["end"],
+				replacement = submatch.replacement.text,
+			})
+		end
+		return acc
+	end)
+
+	return matches, nil
 end
 
 ---@return string
@@ -47,21 +68,6 @@ function M.getSearchAndReplaceValuesFromPopup()
 	return toSearch, toReplace
 end
 
----@param line string formatted as `lnum:col:text`
----@return { lnum: number, col: number, text: string }
-local function parseRgResult(line)
-	local lnumStr, colStr, text = line:match("^(%d+):(%d+):(.*)")
-
-	-- GUARD empty line with empty search string, see #38
-	if not lnumStr then
-		lnumStr = line:match("%d")
-		colStr = "1"
-		text = ""
-	end
-
-	return { lnum = tonumber(lnumStr) - 1, col = tonumber(colStr) - 1, text = text }
-end
-
 --------------------------------------------------------------------------------
 
 function M.executeSubstitution()
@@ -69,48 +75,33 @@ function M.executeSubstitution()
 	local config = require("rip-substitute.config").config
 	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
 
-	local code, results = runRipgrep { "--replace=" .. toReplace, "--line-number", "--", toSearch }
-	if code ~= 0 then
-		local errorMsg = vim.trim(table.concat(results, "\n"))
-		u.notify(errorMsg, "error")
+	local matches, errmsg = runRipgrep(toSearch, toReplace)
+	if errmsg then
+		u.notify(errmsg, "error")
 		return
 	end
 
-	-- INFO
-	-- 1. Only update individual lines as opposed to whole buffer, as this
-	-- preserves folds, marks, and exmarks.
-	-- 2. We replace whole lines instead of only the changed text, since that
-	-- would require more calculation when dealing with multiple matches in a
-	-- line, and will be even more complicated when features like `--multiline`
-	-- support are added later on. As the benefit of preserving marks *inside* a
-	-- changed line is not that great, we'll stick to the simpler approach. 3. We
-	-- could also use `nvim_buf_set_lines` for that, but as opposed to
-	-- `nvim_buf_set_text`, that would remove extmarks assigned to the whole
-	-- line, which are used by some plugins like `quicker.nvim` (see #45).
-	local replacedLines = 0
-	for _, repl in pairs(results) do
-		local lineStr, newLine = repl:match("^(%d+):(.*)")
-		local lnum = assert(tonumber(lineStr), "rg parsing error")
-		if not state.range or (lnum >= state.range.start and lnum <= state.range.end_) then
-			vim.api.nvim_buf_set_text(state.targetBuf, lnum - 1, 0, lnum - 1, -1, { newLine })
-			replacedLines = replacedLines + 1
-		end
-	end
+	-- Update individual lines as opposed to whole buffer, as this preserves
+	-- folds, marks, and exmarks (see #45).
+	vim.iter(matches):rev():each(function(m) -- reverse due to shifting
+		if state.range and (m.lnum < state.range.start or m.lnum > state.range.end_) then return end
+		vim.api.nvim_buf_set_text(
+			state.targetBuf,
+			m.lnum,
+			m.startCol,
+			m.lnum,
+			m.endCol,
+			{ m.replacement }
+		)
+	end)
 
 	-- notify
 	if config.notification.onSuccess then
-		local count = state.matchCount
-		local s1 = count == 1 and "" or "s"
-		local msg = ("Replaced %d occurrence%s"):format(count, s1)
-		if replacedLines ~= count then
-			local s2 = replacedLines == 1 and "" or "s"
-			msg = msg .. (" in %d line%s"):format(replacedLines, s2)
-		end
-		u.notify(msg .. ".")
+		local s1 = state.matchCount == 1 and "" or "s"
+		local msg = ("Replaced %d occurrence%s."):format(state.matchCount, s1)
+		u.notify(msg)
 	end
 end
-
---------------------------------------------------------------------------------
 
 ---Creates an incremental preview of search matches & replacements in the
 ---viewport, and returns the total number of matches. Searches are hidden via
@@ -132,22 +123,21 @@ function M.incrementalPreviewAndMatchCount()
 	if toSearch == "" then return end
 	if toSearch:find("\\[nr]") and toReplace:find("\\[nr]") then
 		-- see #28 or https://github.com/chrisgrieser/nvim-rip-substitute/issues/28#issuecomment-2503761241
-		u.notify("Search and replace strings cannot contain newlines.", "warn")
+		u.notify("Newlines in search or replace strings are not supported yet.", "warn")
 		return
 	end
 
-	-- DETERMINE MATCHES
-	local rgArgs = { "--line-number", "--column", "--only-matching", "--", toSearch }
-	local code, searchMatches = runRipgrep(rgArgs)
-	if code ~= 0 then return end
+	-- RUN RIPGREP
+	local matches, errmsg = runRipgrep(toSearch, toReplace)
+	if not matches or errmsg then return end
 
-	-- RANGE: FILTER MATCHES
+	-- REMOVE MATCHES OUTSIDE RANGE
 	-- PERF For single files, `rg` gives us results sorted by line number
 	-- already, so we can `slice` instead of `filter` to improve performance.
 	local rangeStartIdx, rangeEndIdx
 	if state.range then
-		for i = 1, #searchMatches do
-			local lnum = tonumber(searchMatches[i]:match("^(%d+):"))
+		for i = 1, #matches do
+			local lnum = matches[i].lnum + 1 -- this one isn't off-by-one
 			local inRange = lnum >= state.range.start and lnum <= state.range.end_
 			if rangeStartIdx == nil and inRange then rangeStartIdx = i end
 			if rangeStartIdx and lnum > state.range.end_ then
@@ -156,15 +146,14 @@ function M.incrementalPreviewAndMatchCount()
 			end
 		end
 		if rangeStartIdx == nil then return end -- no matches in range
-		searchMatches = vim.list_slice(searchMatches, rangeStartIdx, rangeEndIdx)
+		matches = vim.list_slice(matches, rangeStartIdx, rangeEndIdx)
 	end
+	state.matchCount = #matches
 
-	state.matchCount = #searchMatches
-
-	-- VIEWPORT: FILTER MATCHES
+	-- REMOVE MATCHES OUTSIDE VIEWPORT
 	local viewStartIdx, viewEndIdx
-	for i = 1, #searchMatches do
-		local lnum = tonumber(searchMatches[i]:match("^(%d+):"))
+	for i = 1, #matches do
+		local lnum = matches[i].lnum + 1 -- this one isn't off-by-one
 		if not viewStartIdx and lnum >= viewStartLnum and lnum <= viewEndLnum then
 			viewStartIdx = i
 		end
@@ -174,62 +163,34 @@ function M.incrementalPreviewAndMatchCount()
 		end
 	end
 	if not viewStartIdx then return end -- no matches in viewport
-	if not viewEndIdx then viewEndIdx = #searchMatches end -- viewport is at end of file
+	if not viewEndIdx then viewEndIdx = #matches end -- viewport is at end of file
+	matches = vim.list_slice(matches, viewStartIdx, viewEndIdx)
 
-	-- SEARCH: HIGHLIGHT MATCHES
-	-- hide when there is a replacement value
-	local matchEndcolsInViewport = {}
-	vim.iter(searchMatches):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(match)
-		local matchEndCol = match.col + #match.text
+	-- ADD DECORATIONS
+	vim.iter(matches):each(function(match)
+		-- ONLY SEARCH -> HIGHLIGHT MATCHES
 		if toReplace == "" then
+			-- stylua: ignore
 			if vim.hl.range then
-				vim.hl.range(
-					state.targetBuf,
-					ns,
-					hlGroup,
-					{ match.lnum, match.col },
-					{ match.lnum, matchEndCol }
-				)
+				vim.hl.range(state.targetBuf, ns, hlGroup, { match.lnum, match.startCol }, { match.lnum, match.endCol })
 			else
 				---@diagnostic disable-next-line: deprecated --- keep for backwards compatibility
-				vim.api.nvim_buf_add_highlight(
-					state.targetBuf,
-					ns,
-					hlGroup,
-					match.lnum,
-					match.col,
-					matchEndCol
-				)
+				vim.api.nvim_buf_add_highlight(state.targetBuf, ns, hlGroup, match.lnum, match.startCol, match.endCol)
 			end
-		else
-			-- INFO requires `conceallevel` >= 2
-			vim.api.nvim_buf_set_extmark(state.targetBuf, ns, match.lnum, match.col, {
-				conceal = "",
-				end_col = matchEndCol,
-				end_row = match.lnum,
-			})
-
-			-- INFO saving the end columns to correctly position the replacements.
-			-- For single files, `rg` gives us results sorted by line & column, so
-			-- that we can simply collect them in a list.
-			table.insert(matchEndcolsInViewport, matchEndCol)
+			return
 		end
-	end)
 
-	-- REPLACE: INSERT AS VIRTUAL TEXT
-	if toReplace == "" then return end
+		-- SEARCH & REPLACE -> HIDE SEARCH, INSERT REPLACE AS VIRTUAL TEXT
+		vim.api.nvim_buf_set_extmark(state.targetBuf, ns, match.lnum, match.startCol, {
+			conceal = "", -- INFO requires `conceallevel` >= 2
+			end_col = match.endCol,
+			end_row = match.lnum,
+		})
 
-	table.insert(rgArgs, 1, "--replace=" .. toReplace) -- prepend, so `-- searchValue` is still at the end
-	local code2, replacements = runRipgrep(rgArgs)
-	if code2 ~= 0 then return #searchMatches end
-
-	if state.range then replacements = vim.list_slice(replacements, rangeStartIdx, rangeEndIdx) end
-
-	vim.iter(replacements):slice(viewStartIdx, viewEndIdx):map(parseRgResult):each(function(repl)
-		local matchEndCol = table.remove(matchEndcolsInViewport, 1)
-		local virtText = { repl.text, hlGroup }
-		vim.api.nvim_buf_set_extmark(state.targetBuf, ns, repl.lnum, matchEndCol, {
-			virt_text = { virtText },
+		vim.api.nvim_buf_set_extmark(state.targetBuf, ns, match.lnum, match.endCol, {
+			virt_text = {
+				{ match.replacement, hlGroup },
+			},
 			virt_text_pos = "inline",
 		})
 	end)

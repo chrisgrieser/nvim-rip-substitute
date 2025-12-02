@@ -92,19 +92,6 @@ function M.setup(userConfig)
 		require("rip-substitute.state").state.useIgnoreCase = true
 	end
 
-	-- VALIDATE `rg` installations not built with `pcre2`, see #3
-	if M.config.regexOptions.pcre2 then
-		vim.system({ "rg", "--pcre2-version" }, {}, function(out)
-			if out.code ~= 0 or out.stderr:find("PCRE2 is not available in this build of ripgrep") then
-				warn(
-					"`regexOptions.pcre2` has been disabled, as the installed version of `ripgrep` lacks `pcre2` support.\n\n"
-						.. "Please install `ripgrep` with `pcre2` support, or disable `regexOptions.pcre2`."
-				)
-				M.config.regexOptions.pcre2 = false
-			end
-		end)
-	end
-
 	-- VALIDATE border `none` does not work with and title/footer used by this plugin
 	if M.config.popupWin.border == "none" or M.config.popupWin.border == "" then
 		M.config.popupWin.border = fallbackBorder
