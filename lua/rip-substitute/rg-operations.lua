@@ -79,12 +79,12 @@ function M.executeSubstitution()
 	-- INFO
 	-- 1. Only update individual lines as opposed to whole buffer, as this
 	-- preserves folds, marks, and exmarks.
-	-- 2. We replace whole lines, since replacing only the changed text, but that
+	-- 2. We replace whole lines instead of only the changed text, since that
 	-- would require more calculation when dealing with multiple matches in a
 	-- line, and will be even more complicated when features like `--multiline`
 	-- support are added later on. As the benefit of preserving marks *inside* a
-	-- changed line is not that great, we'll stick to the simpler approach.
-	-- 3. We could also use `nvim_buf_set_lines` for that, but as opposed to
+	-- changed line is not that great, we'll stick to the simpler approach. 3. We
+	-- could also use `nvim_buf_set_lines` for that, but as opposed to
 	-- `nvim_buf_set_text`, that would remove extmarks assigned to the whole
 	-- line, which are used by some plugins like `quicker.nvim` (see #45).
 	local replacedLines = 0
