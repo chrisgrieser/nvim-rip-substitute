@@ -52,7 +52,7 @@ local defaultConfig = {
 		autoBraceSimpleCaptureGroups = true, -- disable if using named capture groups (see README for details)
 	},
 	editingBehavior = {
-		-- Typing `()` in the `search` line, automatically adds `$n` to the `replace` line.
+		-- typing `()` in the search line automatically adds `$n` to the replace line
 		autoCaptureGroups = false,
 	},
 	notification = {

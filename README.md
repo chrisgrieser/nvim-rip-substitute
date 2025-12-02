@@ -35,7 +35,7 @@ UI, and modern regex syntax.
 	+ No more dealing with delimiters.
 - **Sensible defaults**: entire buffer (`%`), all matches in a line (`/g`),
   case-sensitive (`/I`).
-- Can substitute only in a **range**, with visual emphasis of the range
+- Can substitute only in a **range**, with visual emphasis of the range.
 - **History** of previous substitutions.
 - **Performant**: In a file with 5000 lines and thousands of matches, still
   performs *blazingly fast.™*
@@ -69,7 +69,8 @@ $1baz
 - Alternatively, you can also use this plugin without `pcre2` by setting
   `regexOptions.pcre2 = false` in the config. However, some features like
   lookaheads are not supported then.
-- *Optional:* `:TSInstall regex` to add syntax highlighting in the popup window
+- *Optional:* `:TSInstall regex` to add syntax highlighting for the popup
+  window.
 
 ```lua
 -- lazy.nvim
@@ -146,7 +147,7 @@ require("rip-substitute").setup {
 		autoBraceSimpleCaptureGroups = true, -- disable if using named capture groups (see README for details)
 	},
 	editingBehavior = {
-		-- Typing `()` in the `search` line, automatically adds `$n` to the `replace` line.
+		-- typing `()` in the search line automatically adds `$n` to the replace line
 		autoCaptureGroups = false,
 	},
 	notification = {
@@ -236,7 +237,7 @@ may want to disable this setting.
 **Escape character**  
 If your substitution text contains a dollar sign, for example, if you want
 `/home/user` to be replaced with `$HOME`, remember that `ripgrep` requires `$`
-as an escape sequence. In short, you'll need to set `$$HOME` as substitution text.
+as an escape sequence (`$$HOME`).
 
 ## Limitations
 - Searching/replacing for line breaks (`\n` or `\r`) is not supported. [See
