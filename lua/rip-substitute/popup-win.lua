@@ -215,10 +215,12 @@ local function setPopupTitle()
 	local config = require("rip-substitute.config").config
 
 	local title = config.popupWin.title
-	if state.useIgnoreCase or state.useFixedStrings then
-		title = ""
-		if state.useFixedStrings then title = title .. " --fixed-strings" end
-		if state.useIgnoreCase then title = title .. " --ignore-case" end
+	if state.useIgnoreCase and state.useFixedStrings then
+		title = "--fixed-strings --ignore-case"
+	elseif state.useIgnoreCase then
+		title = title .. " --ignore-case"
+	elseif state.useFixedStrings then
+		title = title .. " --fixed-string"
 	elseif state.range then
 		title = "Range: " .. state.range.start
 		if state.range.start ~= state.range.end_ then title = title .. " – " .. state.range.end_ end
@@ -351,7 +353,7 @@ function M.openSubstitutionPopup()
 		})
 	end
 	local footerLength = vim.iter(footer):fold(0, function(sum, part) return sum + #part[1] end)
-	local hardMinimum = 25 -- only in effect when keymaps hints are disabled
+	local hardMinimum = 35 -- enough for both options displayed in title
 	local titleLength = #config.popupWin.title + 2
 	local minWidth = math.max(footerLength, titleLength, hardMinimum)
 
