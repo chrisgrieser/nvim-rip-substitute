@@ -1,4 +1,4 @@
-*nvim-rip-substitute.txt*       For Neovim       Last change: 2025 December 02
+*nvim-rip-substitute.txt*       For Neovim       Last change: 2025 December 13
 
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
@@ -53,7 +53,7 @@ FEATURES                        *nvim-rip-substitute-rip-substitute--features*
 - **History** of previous substitutions.
 - **Performant**: In a file with 5000 lines and thousands of matches, still
     performs _blazingly fast._
-- **Regex101 integration**: Open the planned substitution in a pre-configured
+- **Regex101 integration**: Open the planned substitution in a preconfigured
     regex101 <https://regex101.com/> browser tab for debugging.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
     adaptive window width, toggle `ripgrep` flags, …
@@ -134,7 +134,7 @@ CONFIGURATION              *nvim-rip-substitute-rip-substitute--configuration*
         },
         prefill = {
             normal = "cursorWord", ---@type "cursorWord"|false
-            visual = "selection", ---@type "selection"|false -- (does not work with ex-command – see README)
+            visual = "selection", ---@type "selection"|false -- (not with ex-command, see README)
             startInReplaceLineIfPrefill = false,
             alsoPrefillReplaceLine = false,
         },
@@ -157,7 +157,7 @@ CONFIGURATION              *nvim-rip-substitute-rip-substitute--configuration*
             startWithFixedStrings = false,
             startWithIgnoreCase = false,
             pcre2 = true, -- enables lookarounds and backreferences, but slightly slower
-            autoBraceSimpleCaptureGroups = true, -- disable if using named capture groups (see README for details)
+            autoBraceSimpleCaptureGroups = true, -- disable if using named capture groups (see README)
         },
         editingBehavior = {
             -- typing `()` in the search line automatically adds `$n` to the replace line
