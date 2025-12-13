@@ -39,7 +39,7 @@ UI, and modern regex syntax.
 - **History** of previous substitutions.
 - **Performant**: In a file with 5000 lines and thousands of matches, still
   performs *blazingly fast.™*
-- **Regex101 integration**: Open the planned substitution in a pre-configured
+- **Regex101 integration**: Open the planned substitution in a preconfigured
   [regex101](https://regex101.com/) browser tab for debugging.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
   adaptive window width, toggle `ripgrep` flags, …
@@ -121,7 +121,7 @@ require("rip-substitute").setup {
 	},
 	prefill = {
 		normal = "cursorWord", ---@type "cursorWord"|false
-		visual = "selection", ---@type "selection"|false -- (does not work with ex-command – see README)
+		visual = "selection", ---@type "selection"|false -- (not with ex-command, see README)
 		startInReplaceLineIfPrefill = false,
 		alsoPrefillReplaceLine = false,
 	},
@@ -144,7 +144,7 @@ require("rip-substitute").setup {
 		startWithFixedStrings = false,
 		startWithIgnoreCase = false,
 		pcre2 = true, -- enables lookarounds and backreferences, but slightly slower
-		autoBraceSimpleCaptureGroups = true, -- disable if using named capture groups (see README for details)
+		autoBraceSimpleCaptureGroups = true, -- disable if using named capture groups (see README)
 	},
 	editingBehavior = {
 		-- typing `()` in the search line automatically adds `$n` to the replace line
