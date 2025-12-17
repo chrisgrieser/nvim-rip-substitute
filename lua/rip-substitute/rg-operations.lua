@@ -84,7 +84,9 @@ function M.executeSubstitution()
 	-- Update individual lines as opposed to whole buffer, as this preserves
 	-- folds, marks, and exmarks (see #45).
 	vim.iter(matches):rev():each(function(m) -- reverse due to shifting
-		if state.range and (m.lnum < state.range.start or m.lnum > state.range.end_) then return end
+		local outsideRange = state.range
+			and (m.lnum + 1 < state.range.start or m.lnum + 1 > state.range.end_) -- range not off-by-one
+		if outsideRange then return end
 		vim.api.nvim_buf_set_text(
 			state.targetBuf,
 			m.lnum,
