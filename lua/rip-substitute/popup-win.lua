@@ -222,8 +222,8 @@ local function setPopupTitle()
 	elseif state.useFixedStrings then
 		title = title .. " --fixed-string"
 	elseif state.range then
-		title = "Range: " .. state.range.start
-		if state.range.start ~= state.range.end_ then title = title .. " – " .. state.range.end_ end
+		title = "range: " .. state.range.start
+		if state.range.start ~= state.range.end_ then title = title .. "–" .. state.range.end_ end
 	end
 
 	if title ~= "" then title = " " .. vim.trim(title) .. " " end
