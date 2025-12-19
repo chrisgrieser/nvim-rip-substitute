@@ -1,7 +1,4 @@
-<!-- LTeX: enabled=false -->
-
 # rip-substitute 🪦
-<!-- LTeX: enabled=true -->
 <a href="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute">
 <img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute/shield"/></a>
 
@@ -45,7 +42,7 @@ UI, and modern regex syntax.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
   adaptive window width, toggle `ripgrep` flags, …
 
-**Syntax comparison**  
+**Syntax comparison:**
 
 ```txt
 # all three are equivalent
@@ -62,7 +59,7 @@ $1baz
 ```
 
 ## Installation
-**Requirements**
+**Requirements** <!-- rumdl-disable-line MD036 -->
 - nvim 0.10+
 - [ripgrep](https://github.com/BurntSushi/ripgrep) with `pcre2` support
     - `brew install ripgrep` (already includes `pcre2` by default)
@@ -164,7 +161,7 @@ require("rip-substitute").setup {
 > plugin.
 
 ## Usage
-**Lua function**  
+**Lua function** <!-- rumdl-disable-line MD036 -->
 
 ```lua
 vim.keymap.set(
@@ -184,7 +181,7 @@ vim.keymap.set(
 > Use `showHelp` (default keymap: `?`) to show a notification containing all
 > keymaps available in the popup window.
 
-**Ex-command**  
+**Ex-command** <!-- rumdl-disable-line MD036 -->
 Alternatively, you can use the ex command `:RipSubstitute`, which also
 accepts [a range
 argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges).
@@ -212,7 +209,7 @@ is *not* escaped.
 ```
 
 ## Advanced
-**Remember prefill**  
+**Remember prefill** <!-- rumdl-disable-line MD036 -->
 The function `require("rip-substitute").rememberCursorWord()` can be used to
 save the word under the cursor for the next time `rip-substitute` is called.
 (This overrides any other prefill for that run.)
@@ -221,7 +218,7 @@ One use case for this is to set a prefill for when you intend to run substitute
 with a range, since calling `rip-substitute` in visual line is not able to pick
 up a prefill.
 
-**Filetype**  
+**Filetype** <!-- rumdl-disable-line MD036 -->
 The popup window uses the filetype `rip-substitute`. This can be useful, for
 instance, to disable auto-pairing plugins in the popup window.
 
@@ -235,7 +232,7 @@ If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
-**Escape character**  
+**Escape character** <!-- rumdl-disable-line MD036 -->
 If your substitution text contains a dollar sign, for example, if you want
 `/home/user` to be replaced with `$HOME`, remember that `ripgrep` requires `$`
 as an escape sequence (`$$HOME`).
