@@ -1,4 +1,5 @@
 <!-- LTeX: enabled=false -->
+
 # rip-substitute 🪦
 <!-- LTeX: enabled=true -->
 <a href="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute">
@@ -30,9 +31,9 @@ UI, and modern regex syntax.
 - **Incremental preview** of matched strings and replacements & **live count**
   of matches.
 - Uses a **popup window** instead of command line. This entails:
-	+ Syntax highlighting of the regex.
-	+ Editing with vim motions.
-	+ No more dealing with delimiters.
+    - Syntax highlighting of the regex.
+    - Editing with vim motions.
+    - No more dealing with delimiters.
 - **Sensible defaults**: entire buffer (`%`), all matches in a line (`/g`),
   case-sensitive (`/I`).
 - Can substitute only in a **range**, with visual emphasis of the range.
@@ -64,8 +65,8 @@ $1baz
 **Requirements**
 - nvim 0.10+
 - [ripgrep](https://github.com/BurntSushi/ripgrep) with `pcre2` support
-	+ `brew install ripgrep` (already includes `pcre2` by default)
-	+ `cargo install ripgrep --features pcre2`
+    - `brew install ripgrep` (already includes `pcre2` by default)
+    - `cargo install ripgrep --features pcre2`
 - Alternatively, you can also use this plugin without `pcre2` by setting
   `regexOptions.pcre2 = false` in the config. However, some features like
   lookaheads are not supported then.
