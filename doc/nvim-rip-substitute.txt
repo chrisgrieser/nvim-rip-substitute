@@ -1,4 +1,4 @@
-*nvim-rip-substitute.txt*       For Neovim       Last change: 2025 December 13
+*nvim-rip-substitute.txt*       For Neovim       Last change: 2025 December 19
 
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
@@ -78,8 +78,8 @@ FEATURES                        *nvim-rip-substitute-rip-substitute--features*
 INSTALLATION                *nvim-rip-substitute-rip-substitute--installation*
 
 **Requirements** - nvim 0.10+ - ripgrep <https://github.com/BurntSushi/ripgrep>
-with `pcre2` support + `brew install ripgrep` (already includes `pcre2` by
-default) + `cargo install ripgrep --features pcre2` - Alternatively, you can
+with `pcre2` support - `brew install ripgrep` (already includes `pcre2` by
+default) - `cargo install ripgrep --features pcre2` - Alternatively, you can
 also use this plugin without `pcre2` by setting `regexOptions.pcre2 = false` in
 the config. However, some features like lookaheads are not supported then. -
 _Optional:_ `:TSInstall regex` to add syntax highlighting for the popup window.
