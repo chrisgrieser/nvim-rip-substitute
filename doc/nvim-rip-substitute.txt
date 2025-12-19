@@ -3,18 +3,18 @@
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
 
-1. Rip-substitute                        |nvim-rip-substitute-rip-substitute-|
-  - Table of contents  |nvim-rip-substitute-rip-substitute--table-of-contents|
-  - Features                    |nvim-rip-substitute-rip-substitute--features|
-  - Installation            |nvim-rip-substitute-rip-substitute--installation|
-  - Configuration          |nvim-rip-substitute-rip-substitute--configuration|
-  - Usage                          |nvim-rip-substitute-rip-substitute--usage|
-  - Advanced                    |nvim-rip-substitute-rip-substitute--advanced|
-  - Limitations              |nvim-rip-substitute-rip-substitute--limitations|
-  - About the developer|nvim-rip-substitute-rip-substitute--about-the-developer|
+1. nvim-rip-substitute              |nvim-rip-substitute-nvim-rip-substitute-|
+  - Table of contents|nvim-rip-substitute-nvim-rip-substitute--table-of-contents|
+  - Features               |nvim-rip-substitute-nvim-rip-substitute--features|
+  - Installation       |nvim-rip-substitute-nvim-rip-substitute--installation|
+  - Configuration     |nvim-rip-substitute-nvim-rip-substitute--configuration|
+  - Usage                     |nvim-rip-substitute-nvim-rip-substitute--usage|
+  - Advanced               |nvim-rip-substitute-nvim-rip-substitute--advanced|
+  - Limitations         |nvim-rip-substitute-nvim-rip-substitute--limitations|
+  - About the developer|nvim-rip-substitute-nvim-rip-substitute--about-the-developer|
 
 ==============================================================================
-1. Rip-substitute                        *nvim-rip-substitute-rip-substitute-*
+1. nvim-rip-substitute              *nvim-rip-substitute-nvim-rip-substitute-*
 
 
 
@@ -25,7 +25,7 @@ UI, and modern regex syntax.
 <https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669>
 
 
-TABLE OF CONTENTS      *nvim-rip-substitute-rip-substitute--table-of-contents*
+TABLE OF CONTENTS *nvim-rip-substitute-nvim-rip-substitute--table-of-contents*
 
 - |nvim-rip-substitute-features|
 - |nvim-rip-substitute-installation|
@@ -36,7 +36,7 @@ TABLE OF CONTENTS      *nvim-rip-substitute-rip-substitute--table-of-contents*
 - |nvim-rip-substitute-about-the-developer|
 
 
-FEATURES                        *nvim-rip-substitute-rip-substitute--features*
+FEATURES                   *nvim-rip-substitute-nvim-rip-substitute--features*
 
 - Search and replace in the current buffer using
     ripgrep <https://github.com/BurntSushi/ripgrep>.
@@ -75,7 +75,7 @@ FEATURES                        *nvim-rip-substitute-rip-substitute--features*
 <
 
 
-INSTALLATION                *nvim-rip-substitute-rip-substitute--installation*
+INSTALLATION           *nvim-rip-substitute-nvim-rip-substitute--installation*
 
 **Requirements** - nvim 0.10+ - ripgrep <https://github.com/BurntSushi/ripgrep>
 with `pcre2` support - `brew install ripgrep` (already includes `pcre2` by
@@ -117,7 +117,7 @@ _Optional:_ `:TSInstall regex` to add syntax highlighting for the popup window.
 <
 
 
-CONFIGURATION              *nvim-rip-substitute-rip-substitute--configuration*
+CONFIGURATION         *nvim-rip-substitute-nvim-rip-substitute--configuration*
 
 >lua
     -- default settings
@@ -175,7 +175,7 @@ CONFIGURATION              *nvim-rip-substitute-rip-substitute--configuration*
   [!NOTE] A `ripgrep` config file set via `RIPGREP_CONFIG_PATH` is ignored by
   this plugin.
 
-USAGE                              *nvim-rip-substitute-rip-substitute--usage*
+USAGE                         *nvim-rip-substitute-nvim-rip-substitute--usage*
 
 **Lua function**
 
@@ -222,7 +222,7 @@ _not_ escaped.
 <
 
 
-ADVANCED                        *nvim-rip-substitute-rip-substitute--advanced*
+ADVANCED                   *nvim-rip-substitute-nvim-rip-substitute--advanced*
 
 **Remember prefill** The function
 `require("rip-substitute").rememberCursorWord()` can be used to save the word
@@ -251,7 +251,7 @@ example, if you want `/home/user` to be replaced with `$HOME`, remember that
 `ripgrep` requires `$` as an escape sequence (`$$HOME`).
 
 
-LIMITATIONS                  *nvim-rip-substitute-rip-substitute--limitations*
+LIMITATIONS             *nvim-rip-substitute-nvim-rip-substitute--limitations*
 
 - Searching/replacing for line breaks (`\n` or `\r`) is not supported. See
     issue #28 <https://github.com/chrisgrieser/nvim-rip-substitute/issues/28>.
@@ -260,7 +260,7 @@ LIMITATIONS                  *nvim-rip-substitute-rip-substitute--limitations*
     grug-far.nvim <https://github.com/MagicDuck/grug-far.nvim>.
 
 
-ABOUT THE DEVELOPER  *nvim-rip-substitute-rip-substitute--about-the-developer*
+ABOUT THE DEVELOPER*nvim-rip-substitute-nvim-rip-substitute--about-the-developer*
 
 In my day job, I am a sociologist studying the social mechanisms underlying the
 digital economy. For my PhD project, I investigate the governance of the app
