@@ -1,4 +1,4 @@
-# rip-substitute 🪦
+# nvim-rip-substitute 🪦 <!-- rumdl-disable-line MD063 `nvim` lowercased -->
 <a href="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute">
 <img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute/shield"/></a>
 
@@ -7,7 +7,7 @@ UI, and modern regex syntax.
 
 <https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669>
 
-## Table of Contents
+## Table of contents
 
 <!-- toc -->
 
