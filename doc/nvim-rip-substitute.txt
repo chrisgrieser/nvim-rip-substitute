@@ -58,7 +58,7 @@ FEATURES                        *nvim-rip-substitute-rip-substitute--features*
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
     adaptive window width, toggle `ripgrep` flags, …
 
-**Syntax comparison**
+**Syntax comparison:**
 
 >txt
     # all three are equivalent
