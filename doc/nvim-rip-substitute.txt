@@ -3,8 +3,8 @@
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
 
-1. rip-substitute                        |nvim-rip-substitute-rip-substitute-|
-  - Table of Contents  |nvim-rip-substitute-rip-substitute--table-of-contents|
+1. Rip-substitute                        |nvim-rip-substitute-rip-substitute-|
+  - Table of contents  |nvim-rip-substitute-rip-substitute--table-of-contents|
   - Features                    |nvim-rip-substitute-rip-substitute--features|
   - Installation            |nvim-rip-substitute-rip-substitute--installation|
   - Configuration          |nvim-rip-substitute-rip-substitute--configuration|
@@ -14,11 +14,11 @@ Table of Contents                      *nvim-rip-substitute-table-of-contents*
   - About the developer|nvim-rip-substitute-rip-substitute--about-the-developer|
 
 ==============================================================================
-1. rip-substitute                        *nvim-rip-substitute-rip-substitute-*
+1. Rip-substitute                        *nvim-rip-substitute-rip-substitute-*
 
 
 
-Searchand replace in the current buffer with incremental preview, a convenient
+Search and replace in the current buffer with incremental preview, a convenient
 UI, and modern regex syntax.
 
 
