@@ -14,7 +14,7 @@ local function runRipgrep(toSearch, toReplace)
 	local args = {
 		"rg",
 		"--no-config",
-		"--json",
+		"--json", -- outputs as json-lines
 		"--replace=" .. toReplace,
 		config.regexOptions.pcre2 and "--pcre2" or "--no-pcre2",
 		state.useFixedStrings and "--fixed-strings" or "--no-fixed-strings",
@@ -36,8 +36,8 @@ local function runRipgrep(toSearch, toReplace)
 	end
 
 	-- PARSE MATCHES
-	local lines = vim.split(vim.trim(result.stdout or ""), "\n")
-	local matches = vim.iter(lines):fold({}, function(acc, jsonLine)
+	local jsonLines = vim.split(vim.trim(result.stdout or ""), "\n")
+	local matches = vim.iter(jsonLines):fold({}, function(acc, jsonLine)
 		local o = vim.json.decode(jsonLine)
 		if o.type ~= "match" then return acc end -- `start`, `end`, and `summary` jsons
 		for _, submatch in ipairs(o.data.submatches) do
