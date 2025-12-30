@@ -1,4 +1,4 @@
-# nvim-rip-substitute 🪦 <!-- rumdl-disable-line MD063 `nvim` lowercased -->
+# nvim-rip-substitute 🪦 <!-- rumdl-disable-line MD063 -->
 <a href="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute">
 <img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute/shield"/></a>
 
