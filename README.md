@@ -64,9 +64,9 @@ $1baz
 - [ripgrep](https://github.com/BurntSushi/ripgrep) with `pcre2` support
     - `brew install ripgrep` (already includes `pcre2` by default)
     - `cargo install ripgrep --features pcre2`
-- Alternatively, you can also use this plugin without `pcre2` by setting
-  `regexOptions.pcre2 = false` in the config. However, some features like
-  lookaheads are not supported then.
+    - You can also use this plugin without `pcre2` by setting
+      `regexOptions.pcre2 = false` in the config. However, some features like
+      lookaheads will not be supported then.
 - *Optional:* `:TSInstall regex` to add syntax highlighting for the popup
   window.
 
