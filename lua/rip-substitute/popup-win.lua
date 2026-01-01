@@ -49,17 +49,23 @@ local function ensureOnly2LinesInPopup()
 end
 
 local function closePopupWin()
-	local state = require("rip-substitute.state").state
+	local stateModule = require("rip-substitute.state")
+	local state = stateModule.state
+	local config = require("rip-substitute.config").config
 
 	-- empty cache (relevant for larger buffers)
 	require("rip-substitute.state").targetBufCache = ""
 
-	-- history: save last popup content for next run
+	-- save history
 	local lastPopupContent = state.popupPresentContent or getPopupLines()
 	state.popupPresentContent = nil
 	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
 	local empty = vim.trim(lastPopupContent[1]) == "" and vim.trim(lastPopupContent[2]) == ""
-	if not isDuplicate and not empty then table.insert(state.popupHistory, lastPopupContent) end
+	if not isDuplicate and not empty then
+		table.insert(state.popupHistory, lastPopupContent)
+		if #state.popupHistory > config.history.maxSize then table.remove(state.popupHistory, 1) end
+		stateModule.writeHistoryToDisk()
+	end
 
 	-- close popup win and buffer
 	if vim.api.nvim_win_is_valid(state.popupWinNr) then

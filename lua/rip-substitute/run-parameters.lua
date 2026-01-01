@@ -57,6 +57,7 @@ function M.setParameters(exCmdArgs)
 		rememberedPrefill = nil, -- reset for subsequent runs
 		prefill = { searchPrefill, replacePrefill },
 	}
+	stateModule.readHistoryFromDisk()
 
 	local targetBufLines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 	stateModule.targetBufCache = table.concat(targetBufLines, "\n")

@@ -55,6 +55,11 @@ local defaultConfig = {
 		-- typing `()` in the search line automatically adds `$n` to the replace line
 		autoCaptureGroups = false,
 	},
+	history = {
+		---@type string|false false to disable saving history, will only have sessional history
+		path = vim.fn.stdpath("data") .. "/rip-substitute/history.json",
+		maxSize = 30,
+	},
 	notification = {
 		onSuccess = true,
 		icon = "",
