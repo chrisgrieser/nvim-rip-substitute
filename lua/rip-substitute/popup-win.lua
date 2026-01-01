@@ -48,15 +48,10 @@ local function ensureOnly2LinesInPopup()
 	vim.cmd.normal { "zb", bang = true } -- enforce scroll position
 end
 
-local function closePopupWin()
-	local stateModule = require("rip-substitute.state")
-	local state = stateModule.state
+local function saveHistory()
+	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
 
-	-- empty cache (relevant for larger buffers)
-	require("rip-substitute.state").targetBufCache = ""
-
-	-- save history
 	local lastPopupContent = state.popupPresentContent or getPopupLines()
 	state.popupPresentContent = nil
 	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
@@ -64,8 +59,15 @@ local function closePopupWin()
 	if not isDuplicate and not empty then
 		table.insert(state.popupHistory, lastPopupContent)
 		if #state.popupHistory > config.history.maxSize then table.remove(state.popupHistory, 1) end
-		stateModule.writeHistoryToDisk()
+		require("rip-substitute.state").writeHistoryToDisk()
 	end
+end
+
+local function closePopupWin()
+	local state = require("rip-substitute.state").state
+
+	-- empty cache (relevant for larger buffers)
+	require("rip-substitute.state").targetBufCache = ""
 
 	-- close popup win and buffer
 	if vim.api.nvim_win_is_valid(state.popupWinNr) then
@@ -82,10 +84,11 @@ local function confirmSubstitution()
 	local state = require("rip-substitute.state").state
 
 	-- block confirmation if no matches
-	-- (matchcount is also set to `0` when search or replace string is invalid)
+	-- (matchCount is also set to `0` when search or replace string is invalid)
 	if state.matchCount == 0 then return end
 
 	require("rip-substitute.rg-operations").executeSubstitution()
+	saveHistory()
 	closePopupWin()
 	vim.cmd.stopinsert()
 end
