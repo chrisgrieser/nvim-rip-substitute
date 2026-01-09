@@ -52,7 +52,7 @@ local function saveHistory()
 	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
 
-	local lastPopupContent = state.popupPresentContent or getPopupLines()
+	local currentPopupContent = getPopupLines()
 	state.popupPresentContent = nil
 	local isDuplicate = vim.deep_equal(state.popupHistory[#state.popupHistory], lastPopupContent)
 	local empty = vim.trim(lastPopupContent[1]) == "" and vim.trim(lastPopupContent[2]) == ""
