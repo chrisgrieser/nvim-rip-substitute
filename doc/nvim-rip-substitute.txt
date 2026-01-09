@@ -1,4 +1,4 @@
-*nvim-rip-substitute.txt*        For Neovim       Last change: 2026 January 01
+*nvim-rip-substitute.txt*        For Neovim       Last change: 2026 January 09
 
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
@@ -227,6 +227,12 @@ _not_ escaped.
 <
 
 
+  [!NOTE] If your substitution text contains a `$`, for example, if you want to
+  replace `/Users/John/` with `$HOME`, `ripgrep` requires `$` to be escaped as
+  `$$` (the replacement must be `$$HOME`, not `$HOME`). Due to an issue with
+  `ripgrep`, you even need to escape `$` if you use `--fixed-strings` (see #57
+  <https://github.com/chrisgrieser/nvim-rip-substitute/issues/57#issuecomment-3728751980>).
+
 ADVANCED                   *nvim-rip-substitute-nvim-rip-substitute--advanced*
 
 **Remember prefill** The function
@@ -251,15 +257,11 @@ If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
-**Escape character** If your substitution text contains a dollar sign, for
-example, if you want `/home/user` to be replaced with `$HOME`, remember that
-`ripgrep` requires `$` as an escape sequence (`$$HOME`).
-
 
 LIMITATIONS             *nvim-rip-substitute-nvim-rip-substitute--limitations*
 
-- Searching/replacing for line breaks (`\n` or `\r`) is not supported. See
-    issue #28 <https://github.com/chrisgrieser/nvim-rip-substitute/issues/28>.
+- Searching/replacing for line breaks (`\n` or `\r`) is not supported (see
+    #28 <https://github.com/chrisgrieser/nvim-rip-substitute/issues/28>).
 - This plugin only searches the current buffer. To search and replace in
     multiple files via `ripgrep`, use a plugin like
     grug-far.nvim <https://github.com/MagicDuck/grug-far.nvim>.
