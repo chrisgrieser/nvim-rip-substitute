@@ -263,8 +263,14 @@ LIMITATIONS             *nvim-rip-substitute-nvim-rip-substitute--limitations*
 - Searching/replacing for line breaks (`\n` or `\r`) is not supported (see
     #28 <https://github.com/chrisgrieser/nvim-rip-substitute/issues/28>).
 - This plugin only searches the current buffer. To search and replace in
-    multiple files via `ripgrep`, use a plugin like
-    grug-far.nvim <https://github.com/MagicDuck/grug-far.nvim>.
+    multiple files via `ripgrep`, use a plugin like grug-far.nvim <https://github.com/MagicDuck/grug-far.nvim>.
+- Since `nvim`’s `conceal` feature does not allow distinguishing between
+    different types of concealed text, `rip-substitute`’s incremental preview
+    unfortunately will activate all conceals, including the built-in conceals in
+    filetypes such as `markdown` or `json`. However, this only affects the
+    incremental preview, and only hides some extra syntax like `**bold**` syntax
+    in `markdown` or quotation marks in `json`; the actual substitution is not
+    affected.
 
 
 ABOUT THE DEVELOPER*nvim-rip-substitute-nvim-rip-substitute--about-the-developer*
