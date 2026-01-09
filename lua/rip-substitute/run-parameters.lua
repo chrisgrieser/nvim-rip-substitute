@@ -49,17 +49,15 @@ function M.setParameters(exCmdArgs)
 
 	-- SET STATE
 	local stateModule = require("rip-substitute.state")
-	local bufnr = vim.api.nvim_get_current_buf()
-	stateModule.update {
-		targetBuf = bufnr,
-		targetWin = vim.api.nvim_get_current_win(),
-		range = range,
-		rememberedPrefill = nil, -- reset for subsequent runs
-		prefill = { searchPrefill, replacePrefill },
-	}
 	stateModule.readHistoryFromDisk()
 
-	local targetBufLines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+	state.rememberedPrefill = nil -- reset for subsequent runs
+	state.targetBuf = vim.api.nvim_get_current_buf()
+	state.prefill = { searchPrefill, replacePrefill }
+	state.targetWin = vim.api.nvim_get_current_win()
+	state.range = range
+
+	local targetBufLines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
 	stateModule.targetBufCache = table.concat(targetBufLines, "\n")
 end
 

@@ -58,7 +58,5 @@ function M.writeHistoryToDisk()
 	historyFile:close()
 end
 
----@param newState RipSubstitute.State
-function M.update(newState) M.state = vim.tbl_deep_extend("force", M.state, newState) end
-
+--------------------------------------------------------------------------------
 return M
