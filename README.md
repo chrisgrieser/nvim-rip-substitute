@@ -188,8 +188,7 @@ vim.keymap.set(
 
 **Ex-command** <!-- rumdl-disable-line MD036 -->
 Alternatively, you can use the ex command `:RipSubstitute`, which also
-accepts [a range
-argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges).
+accepts [a range argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges).
 
 Note that when using the ex-command, visual mode and visual line mode both pass
 a range. To prefill the current selection, you therefore need to use the Lua
@@ -212,6 +211,12 @@ is *not* escaped.
 ```vim
 :RipSubstitute prefilled_unescaped_string
 ```
+
+> [!NOTE]
+> If your substitution text contains a `$`, for example, if you want to replace
+> `/Users/John/` with `$HOME`, `ripgrep` requires `$` to be escaped as `$$` (the
+> replacement must be `$$HOME`, not `$HOME`). Due to an issue with `ripgrep`,
+> you even need to escape `$` if you use `--fixed-strings` (see [#57](https://github.com/chrisgrieser/nvim-rip-substitute/issues/57#issuecomment-3728751980)).
 
 ## Advanced
 **Remember prefill** <!-- rumdl-disable-line MD036 -->
@@ -237,14 +242,9 @@ If `regexOptions.autoBraceSimpleCaptureGroups = true` (the default),
 regex more intuitive. However, if you regularly use named capture groups, you
 may want to disable this setting.
 
-**Escape character** <!-- rumdl-disable-line MD036 -->
-If your substitution text contains a dollar sign, for example, if you want
-`/home/user` to be replaced with `$HOME`, remember that `ripgrep` requires `$`
-as an escape sequence (`$$HOME`).
-
 ## Limitations
-- Searching/replacing for line breaks (`\n` or `\r`) is not supported. [See
-  issue #28](https://github.com/chrisgrieser/nvim-rip-substitute/issues/28).
+- Searching/replacing for line breaks (`\n` or `\r`) is not supported ([see
+  #28](https://github.com/chrisgrieser/nvim-rip-substitute/issues/28)).
 - This plugin only searches the current buffer. To search and replace in
   multiple files via `ripgrep`, use a plugin like
   [grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim).
