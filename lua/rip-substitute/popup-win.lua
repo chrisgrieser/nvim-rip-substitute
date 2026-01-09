@@ -80,17 +80,21 @@ local function closePopupWin()
 	vim.api.nvim_buf_clear_namespace(state.targetBuf, ns, 0, -1)
 end
 
-local function confirmSubstitution()
+---@param where "cwd"|"buffer"
+local function confirmSubstitution(where)
 	local state = require("rip-substitute.state").state
+	local rg = require("rip-substitute.rg-operations")
 
 	-- block confirmation if no matches
 	-- (matchCount is also set to `0` when search or replace string is invalid)
 	if state.matchCount == 0 then return end
 
-	require("rip-substitute.rg-operations").executeSubstitution()
-	saveHistory()
-	closePopupWin()
-	vim.cmd.stopinsert()
+	local replaceFunc = where == "buffer" and rg.substituteInBuffer or rg.substituteInCwd
+	replaceFunc(function()
+		saveHistory()
+		closePopupWin()
+		vim.cmd.stopinsert()
+	end)
 end
 
 local function updateMatchCount()
@@ -248,8 +252,9 @@ local function createKeymaps()
 
 	-- confirm & abort
 	keymap("n", maps.abort, closePopupWin)
-	keymap("n", maps.confirm, confirmSubstitution)
-	keymap("i", maps.insertModeConfirm, confirmSubstitution)
+	keymap("n", maps.confirm, function() confirmSubstitution("buffer") end)
+	keymap("i", maps.insertModeConfirm, function() confirmSubstitution("buffer") end)
+	keymap("n", maps.confirmAndSubstituteInCwd, function() confirmSubstitution("cwd") end)
 
 	-- regex101
 	keymap(
@@ -297,6 +302,7 @@ local function createKeymaps()
 			("- [%s] abort"):format(maps.abort),
 			("- [%s] confirm"):format(maps.confirm),
 			("- [%s] confirm (insert mode)"):format(maps.insertModeConfirm),
+			("- [%s] confirm & substitute in cwd"):format(maps.confirmAndSubstituteInCwd),
 			("- [%s] previous in history"):format(maps.prevSubstitutionInHistory),
 			("- [%s] next in history"):format(maps.nextSubstitutionInHistory),
 			("- [%s] toggle `--fixed-strings`"):format(maps.toggleFixedStrings),

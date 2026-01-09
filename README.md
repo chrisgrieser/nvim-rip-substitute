@@ -37,6 +37,8 @@ UI, and modern regex syntax.
 - **History** of previous substitutions.
 - **Performant**: In a file with 5000 lines and thousands of matches, still
   performs *blazingly fast.™*
+- **Workspace-wide substitutions**: Optionally, execute the substitution on
+  all files in the current working directory with the same extension.
 - **Regex101 integration**: Open the planned substitution in a preconfigured
   [regex101](https://regex101.com/) browser tab for debugging.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
@@ -127,6 +129,7 @@ require("rip-substitute").setup {
 		abort = "q",
 		confirm = "<CR>",
 		insertModeConfirm = "<C-CR>",
+		confirmAndSubstituteInCwd = "<S-CR>",
 		prevSubstitutionInHistory = "<Up>",
 		nextSubstitutionInHistory = "<Down>",
 		toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
@@ -245,8 +248,6 @@ may want to disable this setting.
 ## Limitations
 - Searching/replacing for line breaks (`\n` or `\r`) is not supported ([see
   #28](https://github.com/chrisgrieser/nvim-rip-substitute/issues/28)).
-- This plugin only searches the current buffer. To search and replace in
-  multiple files via `ripgrep`, use a plugin like [grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim).
 - Since `nvim`'s `conceal` feature does not allow distinguishing between
   different types of concealed text, `rip-substitute`'s incremental preview
   unfortunately will activate all conceals, including the built-in conceals in

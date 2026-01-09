@@ -2,13 +2,19 @@ local M = {}
 local u = require("rip-substitute.utils")
 --------------------------------------------------------------------------------
 
+---@class RipSubstitute.RipgrepMatch
+---@field lnum number
+---@field startCol number
+---@field endCol number
+---@field replacement string
+
 ---@param toSearch string
----@param toReplace string
----@return { lnum: number, startCol: number, endCol: number, replacement: string }[]?
+---@param toReplace string for `--replace`
+---@param glob? string for `--glob`, if not provided runs on current buffer from stdin
+---@return table<string, RipSubstitute.RipgrepMatch[]>?
 ---@return string? errmsg
-local function runRipgrep(toSearch, toReplace)
+local function runRipgrep(toSearch, toReplace, glob)
 	local config = require("rip-substitute.config").config
-	local targetBufCache = require("rip-substitute.state").targetBufCache
 	local state = require("rip-substitute.state").state
 
 	local args = {
@@ -23,13 +29,28 @@ local function runRipgrep(toSearch, toReplace)
 		"--",
 		toSearch, -- last for escaping, see #26
 	}
+
+	local stdin
+	if not glob then
+		-- reading from stdin instead of the file to deal with unsaved changes and to
+		-- be able to handle non-file buffers (see #8)
+		stdin = require("rip-substitute.state").targetBufCache
+	else
+		-- using `--glob=*` results in ignoring gitignored files and even includes
+		-- files in `.git` itself; thus we skip the `--glob` arg then to just use
+		-- the default behavior
+		local globMatchesAll = glob == "*" or glob == "**/*"
+		if not globMatchesAll then
+			-- insert not at the end, since `--` and searchterm must come last
+			table.insert(args, #args - 2, "--glob=" .. glob)
+			table.insert(args, #args - 2, "--glob=!.git") -- just extra safety net
+		end
+	end
 	if config.debug then u.notify("ARGS\n" .. table.concat(args, " "), "debug") end
 
-	-- reading from stdin instead of the file to deal with unsaved changes and to
-	-- be able to handle non-file buffers (see #8)
-	local result = vim.system(args, { stdin = targetBufCache }):wait()
+	-- RUN
+	local result = vim.system(args, { stdin = stdin }):wait()
 	if config.debug then u.notify("RESULT\n" .. result.stdout, "debug") end
-
 	if result.code ~= 0 then
 		local errmsg = result.stderr or "Unknown error"
 		return nil, errmsg
@@ -40,8 +61,10 @@ local function runRipgrep(toSearch, toReplace)
 	local matches = vim.iter(jsonLines):fold({}, function(acc, jsonLine)
 		local o = vim.json.decode(jsonLine)
 		if o.type ~= "match" then return acc end -- `start`, `end`, and `summary` jsons
+		local relPath = o.data.path.text
+		acc[relPath] = acc[relPath] or {}
 		for _, submatch in ipairs(o.data.submatches) do
-			table.insert(acc, {
+			table.insert(acc[relPath], {
 				lnum = o.data.line_number - 1,
 				startCol = submatch.start,
 				endCol = submatch["end"],
@@ -70,23 +93,26 @@ end
 
 --------------------------------------------------------------------------------
 
-function M.executeSubstitution()
+---@param successCallback function
+function M.substituteInBuffer(successCallback)
 	local state = require("rip-substitute.state").state
 	local config = require("rip-substitute.config").config
 	local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
 
 	local matches, errmsg = runRipgrep(toSearch, toReplace)
-	if errmsg then
-		u.notify(errmsg, "error")
+	if not matches then
+		u.notify(errmsg or "Unknown error", "error")
 		return
 	end
+	local matchesInBuf = vim.tbl_values(matches)[1] --[=[@as RipSubstitute.RipgrepMatch[]]=]
 
-	-- Update individual lines as opposed to whole buffer, as this preserves
-	-- folds, marks, and exmarks (see #45).
-	vim.iter(matches):rev():each(function(m) -- reverse due to shifting
+	vim.iter(matchesInBuf):rev():each(function(m) -- reverse due to shifting
 		local outsideRange = state.range
 			and (m.lnum + 1 < state.range.start or m.lnum + 1 > state.range.end_) -- range not off-by-one
 		if outsideRange then return end
+
+		-- Update individual sections as opposed to whole buffer, as this preserves
+		-- folds, marks, and exmarks (see #45).
 		vim.api.nvim_buf_set_text(
 			state.targetBuf,
 			m.lnum,
@@ -96,13 +122,88 @@ function M.executeSubstitution()
 			{ m.replacement }
 		)
 	end)
+	successCallback()
 
 	-- notify
 	if config.notification.onSuccess then
-		local s1 = state.matchCount == 1 and "" or "s"
-		local msg = ("Replaced %d occurrence%s."):format(state.matchCount, s1)
+		local s = #matchesInBuf == 1 and "" or "s"
+		local msg = ("Replaced %d occurrence%s in the buffer."):format(state.matchCount, s)
 		u.notify(msg)
 	end
+end
+
+---@param successCallback function
+function M.substituteInCwd(successCallback)
+	local state = require("rip-substitute.state").state
+	if vim.bo[state.targetBuf].buftype ~= "" then
+		u.notify("Cannot substitute in the whole cwd from a special buffer.", "warn")
+		return
+	elseif state.range then
+		u.notify("Cannot substitute in the whole cwd when using a range.", "warn")
+		return
+	end
+
+	local filename = vim.fs.basename(vim.api.nvim_buf_get_name(state.targetBuf))
+	local ext = filename:match("%.%w+$") or ""
+	local defaultGlob = "**/*" .. ext
+	local prompt = "Substitute in cwd with --glob= "
+
+	vim.ui.input({ prompt = prompt, default = defaultGlob }, function(input)
+		if not input or input == "" then return end
+
+		-- RUN
+		local glob = input
+		local toSearch, toReplace = M.getSearchAndReplaceValuesFromPopup()
+		local matches, errmsg = runRipgrep(toSearch, toReplace, glob)
+		if not matches then
+			u.notify(errmsg or "Unknown error", "error")
+			return
+		end
+
+		-- REPLACE IN ALL FILES
+		local cwd = assert(vim.uv.cwd(), "Could not determine cwd.")
+		local updateCount = 0
+		for relpath, matchesInFile in pairs(matches) do
+			local edits = vim
+				.iter(matchesInFile)
+				:rev() -- reverse due to shifting
+				:map(function(match) ---@cast match RipSubstitute.RipgrepMatch
+					local textEdit = { ---@type lsp.TextEdit
+						newText = match.replacement,
+						range = {
+							start = { line = match.lnum, character = match.startCol },
+							["end"] = { line = match.lnum, character = match.endCol },
+						},
+					}
+					return textEdit
+				end)
+				:totable()
+
+			local textDocumentEdits = { ---@type lsp.TextDocumentEdit
+				textDocument = { uri = vim.uri_from_fname(cwd .. "/" .. relpath) },
+				edits = edits,
+			}
+
+			-- LSP-API is the easiest method for replacing in non-open documents
+			vim.lsp.util.apply_text_document_edit(textDocumentEdits, nil, vim.o.encoding)
+
+			updateCount = updateCount + #matchesInFile
+		end
+		vim.cmd("silent! wall") -- save all changes
+		successCallback()
+
+		-- NOTIFY
+		local config = require("rip-substitute.config").config
+		if config.notification.onSuccess then
+			local files = vim.tbl_keys(matches)
+			local s1 = updateCount == 1 and "" or "s"
+			local s2 = #files == 1 and "" or "s"
+			local msg = ("Replaced %d occurrence%s in %d file%s."):format(updateCount, s1, #files, s2)
+				.. "\n* "
+				.. table.concat(files, "\n* ")
+			u.notify(msg)
+		end
+	end)
 end
 
 ---Creates an incremental preview of search matches & replacements in the
@@ -132,14 +233,15 @@ function M.incrementalPreviewAndMatchCount()
 	-- RUN RIPGREP
 	local matches, errmsg = runRipgrep(toSearch, toReplace)
 	if not matches or errmsg then return end
+	local matchesInBuf = vim.tbl_values(matches)[1] --[=[@as RipSubstitute.RipgrepMatch[]]=]
 
 	-- REMOVE MATCHES OUTSIDE RANGE
 	-- PERF For single files, `rg` gives us results sorted by line number
 	-- already, so we can `slice` instead of `filter` to improve performance.
 	local rangeStartIdx, rangeEndIdx
 	if state.range then
-		for i = 1, #matches do
-			local lnum = matches[i].lnum + 1 -- this one isn't off-by-one
+		for i = 1, #matchesInBuf do
+			local lnum = matchesInBuf[i].lnum + 1 -- this one isn't off-by-one
 			local inRange = lnum >= state.range.start and lnum <= state.range.end_
 			if rangeStartIdx == nil and inRange then rangeStartIdx = i end
 			if rangeStartIdx and lnum > state.range.end_ then
@@ -148,14 +250,14 @@ function M.incrementalPreviewAndMatchCount()
 			end
 		end
 		if rangeStartIdx == nil then return end -- no matches in range
-		matches = vim.list_slice(matches, rangeStartIdx, rangeEndIdx)
+		matchesInBuf = vim.list_slice(matchesInBuf, rangeStartIdx, rangeEndIdx)
 	end
-	state.matchCount = #matches
+	state.matchCount = #matchesInBuf
 
 	-- REMOVE MATCHES OUTSIDE VIEWPORT
 	local viewStartIdx, viewEndIdx
-	for i = 1, #matches do
-		local lnum = matches[i].lnum + 1 -- this one isn't off-by-one
+	for i = 1, #matchesInBuf do
+		local lnum = matchesInBuf[i].lnum + 1 -- this one isn't off-by-one
 		if not viewStartIdx and lnum >= viewStartLnum and lnum <= viewEndLnum then
 			viewStartIdx = i
 		end
@@ -165,11 +267,11 @@ function M.incrementalPreviewAndMatchCount()
 		end
 	end
 	if not viewStartIdx then return end -- no matches in viewport
-	if not viewEndIdx then viewEndIdx = #matches end -- viewport is at end of file
-	matches = vim.list_slice(matches, viewStartIdx, viewEndIdx)
+	if not viewEndIdx then viewEndIdx = #matchesInBuf end -- viewport is at end of file
+	matchesInBuf = vim.list_slice(matchesInBuf, viewStartIdx, viewEndIdx)
 
 	-- ADD DECORATIONS
-	vim.iter(matches):each(function(match)
+	vim.iter(matchesInBuf):each(function(match)
 		-- ONLY SEARCH -> HIGHLIGHT MATCHES
 		if toReplace == "" then
 			-- stylua: ignore

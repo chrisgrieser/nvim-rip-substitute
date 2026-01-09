@@ -34,6 +34,7 @@ local defaultConfig = {
 		abort = "q",
 		confirm = "<CR>",
 		insertModeConfirm = "<C-CR>",
+		confirmAndSubstituteInCwd = "<S-CR>",
 		prevSubstitutionInHistory = "<Up>",
 		nextSubstitutionInHistory = "<Down>",
 		toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
