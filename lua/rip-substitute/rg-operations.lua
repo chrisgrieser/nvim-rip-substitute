@@ -127,7 +127,7 @@ function M.substituteInBuffer(successCallback)
 	-- notify
 	if config.notification.onSuccess then
 		local s = #matchesInBuf == 1 and "" or "s"
-		local msg = ("Replaced %d occurrence%s in the buffer."):format(state.matchCount, s)
+		local msg = ("Replaced [%d] occurrence%s in the buffer."):format(state.matchCount, s)
 		u.notify(msg)
 	end
 end
@@ -162,7 +162,7 @@ function M.substituteInCwd(successCallback)
 
 		-- REPLACE IN ALL FILES
 		local cwd = assert(vim.uv.cwd(), "Could not determine cwd.")
-		local updateCount = 0
+		local matchCount = 0
 		for relpath, matchesInFile in pairs(matches) do
 			local edits = vim
 				.iter(matchesInFile)
@@ -187,7 +187,7 @@ function M.substituteInCwd(successCallback)
 			-- LSP-API is the easiest method for replacing in non-open documents
 			vim.lsp.util.apply_text_document_edit(textDocumentEdits, nil, vim.o.encoding)
 
-			updateCount = updateCount + #matchesInFile
+			matchCount = matchCount + #matchesInFile
 		end
 		vim.cmd("silent! wall") -- save all changes
 		successCallback()
@@ -196,9 +196,10 @@ function M.substituteInCwd(successCallback)
 		local config = require("rip-substitute.config").config
 		if config.notification.onSuccess then
 			local files = vim.tbl_keys(matches)
-			local s1 = updateCount == 1 and "" or "s"
+			local s1 = matchCount == 1 and "" or "s"
 			local s2 = #files == 1 and "" or "s"
-			local msg = ("Replaced %d occurrence%s in %d file%s."):format(updateCount, s1, #files, s2)
+			-- stylua: ignore
+			local msg = ("**Replaced [%d] occurrence%s in [%d] file%s.**"):format(matchCount, s1, #files, s2)
 				.. "\n* "
 				.. table.concat(files, "\n* ")
 			u.notify(msg)
