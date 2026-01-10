@@ -53,7 +53,7 @@ function M.writeHistoryToDisk()
 	vim.fn.mkdir(vim.fs.dirname(historyPath), "p")
 	local historyFile, err = io.open(historyPath, "w")
 	assert(historyFile, err)
-	local content = vim.json.encode(M.state.popupHistory)
+	local content = vim.json.encode(M.state.popupHistory, { indent = "\t" })
 	historyFile:write(content)
 	historyFile:close()
 end
