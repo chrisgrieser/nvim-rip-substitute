@@ -1,4 +1,4 @@
-*nvim-rip-substitute.txt*        For Neovim       Last change: 2026 January 09
+*nvim-rip-substitute.txt*        For Neovim       Last change: 2026 January 28
 
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
@@ -18,8 +18,10 @@ Table of Contents                      *nvim-rip-substitute-table-of-contents*
 
 
 
-Search and replace in the current buffer with incremental preview, a convenient
-UI, and modern regex syntax.
+Search and replace in the current buffer or workspace with incremental preview,
+a convenient UI, and modern regex syntax.
+
+A substitute for Vim’s `:substitute` using `ripgrep`.
 
 
 <https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669>
@@ -38,7 +40,7 @@ TABLE OF CONTENTS *nvim-rip-substitute-nvim-rip-substitute--table-of-contents*
 
 FEATURES                   *nvim-rip-substitute-nvim-rip-substitute--features*
 
-- Search and replace in the current buffer using
+- Search and replace in the current buffer or workspace using
     ripgrep <https://github.com/BurntSushi/ripgrep>.
 - Uses **common regex syntax** — no more dealing with arcane vim regex.
 - **Incremental preview** of matched strings and replacements & **live count**
@@ -142,9 +144,9 @@ CONFIGURATION         *nvim-rip-substitute-nvim-rip-substitute--configuration*
         },
         keymaps = { -- normal mode (if not stated otherwise)
             abort = "q",
-            confirm = "<CR>",
-            insertModeConfirm = "<C-CR>",
-            confirmAndSubstituteInCwd = "<S-CR>",
+            confirm = "<CR>", -- current buffer
+            insertModeConfirm = "<C-CR>", -- current buffer
+            confirmAndSubstituteInCwd = "<S-CR>", -- cwd, only when not using range/visual mode
             prevSubstitutionInHistory = "<Up>",
             nextSubstitutionInHistory = "<Down>",
             toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
@@ -232,8 +234,9 @@ _not_ escaped.
 
   [!NOTE] If your substitution text contains a `$`, for example, if you want to
   replace `/Users/John/` with `$HOME`, `ripgrep` requires `$` to be escaped as
-  `$$` (the replacement must be `$$HOME`, not `$HOME`). Due to an issue with
-  `ripgrep`, you even need to escape `$` if you use `--fixed-strings` (see #57
+  `$$`, that is, the replacement must be `$$HOME`, not `$HOME`. Due to an issue
+  with `ripgrep`, you even need to escape `$` if you use `--fixed-strings` (see
+  #57
   <https://github.com/chrisgrieser/nvim-rip-substitute/issues/57#issuecomment-3728751980>).
 
 ADVANCED                   *nvim-rip-substitute-nvim-rip-substitute--advanced*
@@ -244,8 +247,8 @@ under the cursor for the next time `rip-substitute` is called. (This overrides
 any other prefill for that run.)
 
 One use case for this is to set a prefill for when you intend to run substitute
-with a range, since calling `rip-substitute` in visual line is not able to pick
-up a prefill.
+with a range, since calling `rip-substitute` in visual line mode is not able to
+pick up a prefill.
 
 **Filetype** The popup window uses the filetype `rip-substitute`. This can be
 useful, for instance, to disable auto-pairing plugins in the popup window.
