@@ -32,9 +32,9 @@ local defaultConfig = {
 	},
 	keymaps = { -- normal mode (if not stated otherwise)
 		abort = "q",
-		confirm = "<CR>", -- current buffer
-		insertModeConfirm = "<C-CR>", -- current buffer
-		confirmAndSubstituteInCwd = "<S-CR>", -- cwd, only when not using range/visual mode
+		confirmAndSubstituteInBuffer = "<CR>",
+		insertModeConfirmAndSubstituteInBuffer = "<C-CR>",
+		confirmAndSubstituteInCwd = "<S-CR>",
 		prevSubstitutionInHistory = "<Up>",
 		nextSubstitutionInHistory = "<Down>",
 		toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
@@ -77,6 +77,7 @@ function M.setup(userConfig)
 	M.config = vim.tbl_deep_extend("force", M.config, userConfig or {})
 	local warn = function(msg) require("rip-substitute.utils").notify(msg, "warn") end
 
+	-----------------------------------------------------------------------------
 	-- DEPRECATION (2025-11-19)
 	if M.config.regexOptions.startWithFixedStringsOn ~= nil then
 		M.config.regexOptions.startWithFixedStrings = M.config.regexOptions.startWithFixedStringsOn
@@ -89,6 +90,19 @@ function M.setup(userConfig)
 			"`incrementalPreview.rangeBackdrop` configs have been merged to `incrementalPreview.rangeBackdropBrightness`"
 		)
 	end
+
+	-- DEPRECATION 2026-01-28
+	if M.config.keymaps.confirm then
+		warn("setting `keymaps.confirm` has been renamed to `keymaps.confirmAndSubstituteInBuffer`")
+		M.config.keymaps.confirmAndSubstituteInBuffer = M.config.keymaps.confirm
+	end
+	if M.config.keymaps.insertModeConfirm then
+		warn(
+			"setting `keymaps.insertModeConfirm` has been renamed to `keymaps.insertModeConfirmAndSubstituteInBuffer`"
+		)
+		M.config.keymaps.insertModeConfirmAndSubstituteInBuffer = M.config.keymaps.insertModeConfirm
+	end
+	-----------------------------------------------------------------------------
 
 	-- set initial state for regex options
 	if M.config.regexOptions.startWithFixedStrings then

@@ -252,16 +252,14 @@ local function createKeymaps()
 
 	-- confirm & abort
 	keymap("n", maps.abort, closePopupWin)
-	keymap("n", maps.confirm, function() confirmSubstitution("buffer") end)
-	keymap("i", maps.insertModeConfirm, function() confirmSubstitution("buffer") end)
+	keymap("n", maps.confirmAndSubstituteInBuffer, function() confirmSubstitution("buffer") end)
+	-- stylua: ignore
+	keymap("i", maps.insertModeConfirmAndSubstituteInBuffer, function() confirmSubstitution("buffer") end)
 	keymap("n", maps.confirmAndSubstituteInCwd, function() confirmSubstitution("cwd") end)
 
 	-- regex101
-	keymap(
-		"n",
-		maps.openAtRegex101,
-		function() require("rip-substitute.open-at-regex101").request() end
-	)
+	-- stylua: ignore
+	keymap("n", maps.openAtRegex101, function() require("rip-substitute.open-at-regex101").request() end)
 
 	-- history keymaps
 	state.historyPosition = #state.popupHistory + 1 -- initialize
@@ -300,8 +298,9 @@ local function createKeymaps()
 	keymap("n", maps.showHelp, function()
 		local info = {
 			("- [%s] abort"):format(maps.abort),
-			("- [%s] confirm"):format(maps.confirm),
-			("- [%s] confirm (insert mode)"):format(maps.insertModeConfirm),
+			("- [%s] confirm & substitute in buffer"):format(maps.confirmAndSubstituteInBuffer),
+			-- stylua: ignore
+			("- [%s] confirm & substitute in buffer (insert mode)"):format(maps.insertModeConfirmAndSubstituteInBuffer),
 			("- [%s] confirm & substitute in cwd"):format(maps.confirmAndSubstituteInCwd),
 			("- [%s] previous in history"):format(maps.prevSubstitutionInHistory),
 			("- [%s] next in history"):format(maps.nextSubstitutionInHistory),
