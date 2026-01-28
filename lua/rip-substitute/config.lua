@@ -32,9 +32,9 @@ local defaultConfig = {
 	},
 	keymaps = { -- normal mode (if not stated otherwise)
 		abort = "q",
-		confirm = "<CR>",
-		insertModeConfirm = "<C-CR>",
-		confirmAndSubstituteInCwd = "<S-CR>",
+		confirm = "<CR>", -- current buffer
+		insertModeConfirm = "<C-CR>", -- current buffer
+		confirmAndSubstituteInCwd = "<S-CR>", -- cwd, only when not using range/visual mode
 		prevSubstitutionInHistory = "<Up>",
 		nextSubstitutionInHistory = "<Down>",
 		toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`

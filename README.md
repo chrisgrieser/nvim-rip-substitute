@@ -2,8 +2,10 @@
 <a href="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute">
 <img alt="badge" src="https://dotfyle.com/plugins/chrisgrieser/nvim-rip-substitute/shield"/></a>
 
-Search and replace in the current buffer with incremental preview, a convenient
-UI, and modern regex syntax.
+Search and replace in the current buffer or workspace with incremental preview,
+a convenient UI, and modern regex syntax.
+
+A substitute for Vim's `:substitute` using `ripgrep`.
 
 <https://github.com/chrisgrieser/nvim-rip-substitute/assets/73286100/4afad8d8-c0d9-4ba6-910c-0510d4b9b669>
 
@@ -22,7 +24,7 @@ UI, and modern regex syntax.
 <!-- tocstop -->
 
 ## Features
-- Search and replace in the current buffer using
+- Search and replace in the current buffer or workspace using
   [ripgrep](https://github.com/BurntSushi/ripgrep).
 - Uses **common regex syntax** — no more dealing with arcane vim regex.
 - **Incremental preview** of matched strings and replacements & **live count**
@@ -127,9 +129,9 @@ require("rip-substitute").setup {
 	},
 	keymaps = { -- normal mode (if not stated otherwise)
 		abort = "q",
-		confirm = "<CR>",
-		insertModeConfirm = "<C-CR>",
-		confirmAndSubstituteInCwd = "<S-CR>",
+		confirm = "<CR>", -- current buffer
+		insertModeConfirm = "<C-CR>", -- current buffer
+		confirmAndSubstituteInCwd = "<S-CR>", -- cwd, only when not using range/visual mode
 		prevSubstitutionInHistory = "<Up>",
 		nextSubstitutionInHistory = "<Down>",
 		toggleFixedStrings = "<C-f>", -- ripgrep's `--fixed-strings`
@@ -217,21 +219,21 @@ is *not* escaped.
 
 > [!NOTE]
 > If your substitution text contains a `$`, for example, if you want to replace
-> `/Users/John/` with `$HOME`, `ripgrep` requires `$` to be escaped as `$$` (the
-> replacement must be `$$HOME`, not `$HOME`). Due to an issue with `ripgrep`,
-> you even need to escape `$` if you use `--fixed-strings` (see [#57](https://github.com/chrisgrieser/nvim-rip-substitute/issues/57#issuecomment-3728751980)).
+> `/Users/John/` with `$HOME`, `ripgrep` requires `$` to be escaped as `$$`,
+> that is, the replacement must be `$$HOME`, not `$HOME`. Due to an issue with
+> `ripgrep`, you even need to escape `$` if you use `--fixed-strings` (see [#57](https://github.com/chrisgrieser/nvim-rip-substitute/issues/57#issuecomment-3728751980)).
 
 ## Advanced
-**Remember prefill** <!-- rumdl-disable-line MD036 -->
+**Remember prefill** <!-- rumdl-disable-line MD036 -->  
 The function `require("rip-substitute").rememberCursorWord()` can be used to
 save the word under the cursor for the next time `rip-substitute` is called.
 (This overrides any other prefill for that run.)
 
 One use case for this is to set a prefill for when you intend to run substitute
-with a range, since calling `rip-substitute` in visual line is not able to pick
-up a prefill.
+with a range, since calling `rip-substitute` in visual line mode is not able to
+pick up a prefill.
 
-**Filetype** <!-- rumdl-disable-line MD036 -->
+**Filetype** <!-- rumdl-disable-line MD036 -->  
 The popup window uses the filetype `rip-substitute`. This can be useful, for
 instance, to disable auto-pairing plugins in the popup window.
 
