@@ -358,7 +358,7 @@ function M.openSubstitutionPopup()
 			{ maps.showHelp:gsub("[<>]", ""), hlgroup.key },
 			{ " help", hlgroup.desc },
 			{ " " },
-			{ maps.confirm:gsub("[<>]", ""), hlgroup.key },
+			{ maps.confirmAndSubstituteInBuffer:gsub("[<>]", ""), hlgroup.key },
 			{ " confirm", hlgroup.desc },
 			{ " " },
 			{ maps.abort:gsub("[<>]", ""), hlgroup.key },
