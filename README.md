@@ -26,10 +26,10 @@ A substitute for Vim's `:substitute` using `ripgrep`.
 ## Features
 - Search and replace in the current buffer or workspace using
   [ripgrep](https://github.com/BurntSushi/ripgrep).
-- Uses **common regex syntax** — no more dealing with arcane vim regex.
+- **Common regex syntax**: no more dealing with arcane vim regex.
 - **Incremental preview** of matched strings and replacements & **live count**
   of matches.
-- Uses a **popup window** instead of command line. This entails:
+- **Popup window** instead of command line. This entails:
     - Syntax highlighting of the regex.
     - Editing with vim motions.
     - No more dealing with delimiters.
@@ -39,14 +39,15 @@ A substitute for Vim's `:substitute` using `ripgrep`.
 - **History** of previous substitutions.
 - **Performant**: In a file with 5000 lines and thousands of matches, still
   performs *blazingly fast.™*
-- **Workspace-wide substitutions**: Optionally, execute the substitution on
-  all files in the current working directory with the same extension.
+- **Workspace-wide substitutions**: Optionally, execute the substitution on the
+  current working directory. Set which file will be affected via glob pattern,
+  defaulting to all files with the same extension as the current one.
 - **Regex101 integration**: Open the planned substitution in a preconfigured
-  [regex101](https://regex101.com/) browser tab for debugging.
+  [regex101](https://regex101.com/) browser tab to debug complex substitutions.
 - **Quality-of-Life features**: automatic prefill of the escaped cursorword,
-  adaptive window width, toggle `ripgrep` flags, …
+  adaptive window width, toggle `ripgrep` flags, and more.
 
-**Syntax comparison:**
+**Syntax comparison** <!-- rumdl-disable-line MD036 -->
 
 ```txt
 # all three are equivalent
@@ -82,7 +83,7 @@ $1baz
 	opts = {},
 	keys = {
 		{
-			"<leader>fs",
+			"<leader>rs",
 			function() require("rip-substitute").sub() end,
 			mode = { "n", "x" },
 			desc = " rip substitute",
@@ -98,7 +99,7 @@ use {
 
 		vim.keymap.set(
 			{ "n", "x" },
-			"<leader>fs",
+			"<leader>rs",
 			function() require("rip-substitute").sub() end,
 			{ desc = " rip substitute" }
 		)
@@ -200,7 +201,7 @@ a range. To prefill the current selection, you therefore need to use the Lua
 function.
 
 ```vim
-" Substitute in entire file. Prefills the *escaped* word under the cursor.
+" Substitute in entire file/workspace. Prefills the *escaped* word under the cursor.
 :RipSubstitute
 
 " Substitute in line range of the visual selection.
