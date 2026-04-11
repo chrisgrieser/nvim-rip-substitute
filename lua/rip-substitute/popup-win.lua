@@ -103,7 +103,7 @@ local function updateMatchCount()
 	local matchHlGroup = config.popupWin.matchCountHlGroup
 	local noMatchHlGroup = config.popupWin.noMatchHlGroup
 
-	local footer = vim.api.nvim_win_get_config(state.popupWinNr).footer
+	local footer = assert(vim.api.nvim_win_get_config(state.popupWinNr).footer, "no footer")
 	table.remove(footer, 1) -- assumes match count is always the first footer
 
 	local plural = state.matchCount == 1 and "" or "es"

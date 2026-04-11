@@ -180,7 +180,10 @@ function M.substituteInCwd(successCallback)
 				:totable()
 
 			local textDocumentEdits = { ---@type lsp.TextDocumentEdit
-				textDocument = { uri = vim.uri_from_fname(cwd .. "/" .. relpath) },
+				textDocument = {
+					uri = vim.uri_from_fname(cwd .. "/" .. relpath),
+					version = vim.NIL,
+				},
 				edits = edits,
 			}
 
