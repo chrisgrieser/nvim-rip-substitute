@@ -19,6 +19,9 @@ function M.request()
 		flags = "gm",
 		flavor = usePcre2 and "pcre2" or "rust", -- `rg` w/o pcre2 uses rust regex
 		testString = table.concat(viewportLines, "\n"),
+
+		listSubstitution = "", -- undocumented, but seems to be required
+		unitTests = {}, -- documented as optional, but seems to be required
 	}
 	M.open(data)
 end
