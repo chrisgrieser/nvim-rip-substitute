@@ -1,4 +1,5 @@
-*nvim-rip-substitute.txt*       For Neovim       Last change: 2026 February 06
+*nvim-rip-substitute.txt*
+                                        For Neovim    Last change: 2026 May 19
 
 ==============================================================================
 Table of Contents                      *nvim-rip-substitute-table-of-contents*
