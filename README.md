@@ -192,7 +192,7 @@ vim.keymap.set(
 > Use `showHelp` (default keymap: `?`) to show a notification containing all
 > keymaps available in the popup window.
 
-**Ex-command** <!-- rumdl-disable-line MD036 -->
+**Ex-command** <!-- rumdl-disable-line MD036 -->  
 Alternatively, you can use the ex command `:RipSubstitute`, which also
 accepts [a range argument](https://neovim.io/doc/user/cmdline.html#cmdline-ranges).
 
