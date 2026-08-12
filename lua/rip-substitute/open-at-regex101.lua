@@ -50,7 +50,9 @@ function M.open(data)
 		end
 		local response = vim.json.decode(out.stdout)
 		if response.error then
-			u.notify("regex101 API error:\n" .. response.error, "error")
+			local errmsg = "[regex101 error: " .. response.error .. "]"
+			if response.validationError then errmsg = errmsg .. "\n\n" .. response.validationError end
+			u.notify(errmsg, "error")
 			return
 		end
 		vim.ui.open("https://regex101.com/r/" .. response.permalinkFragment)
